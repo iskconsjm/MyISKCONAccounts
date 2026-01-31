@@ -269,34 +269,58 @@
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
   <style>
+    /* ==================== CANVA THEME: #FFFFFF, #FF66C4, #FF914D ==================== */
+    :root {
+      --theme-white: #FFFFFF;
+      --theme-pink: #FF66C4;
+      --theme-orange: #FF914D;
+      --theme-gradient: radial-gradient(circle at 0% 0%, #FFFFFF 0%, #FF66C4 40%, #FF914D 100%);
+      --theme-gradient-linear: linear-gradient(135deg, #FFFFFF 0%, #FF66C4 50%, #FF914D 100%);
+      --theme-page-bg: #FFF5FC;
+      --theme-muted: #FFE5F5;
+      --theme-border: #FFC2E8;
+      --theme-border-strong: #FF66C4;
+      --theme-accent: #FF66C4;
+      --theme-accent-hover: #FF4DB8;
+      --theme-secondary: #FF914D;
+      --theme-secondary-hover: #FF7A33;
+      --theme-text-primary: #2D1B28;
+      --theme-text-secondary: #5C3A47;
+      --theme-text-muted: #8B5A6B;
+      --theme-shadow: rgba(255, 102, 196, 0.18);
+      --theme-shadow-hover: rgba(255, 102, 196, 0.28);
+    }
     body {
       box-sizing: border-box;
       font-family: 'Inter', sans-serif;
+      color: var(--theme-text-primary);
     }
     .font-display {
       font-family: 'Crimson Pro', serif;
     }
     .gradient-bg {
-      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fbbf24 100%);
+      background: var(--theme-gradient-linear);
     }
     .card-shadow {
-      box-shadow: 0 4px 20px rgba(180, 83, 9, 0.15);
+      box-shadow: 0 4px 20px var(--theme-shadow);
     }
     .btn-primary {
-      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      background: linear-gradient(135deg, var(--theme-pink) 0%, var(--theme-orange) 100%);
+      color: var(--theme-white) !important;
       transition: all 0.3s ease;
     }
     .btn-primary:hover {
-      background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
+      background: linear-gradient(135deg, var(--theme-accent-hover) 0%, var(--theme-secondary-hover) 100%);
       transform: translateY(-1px);
+      color: var(--theme-white) !important;
     }
     .tab-active {
-      border-bottom: 3px solid #d97706;
-      color: #92400e;
+      border-bottom: 3px solid var(--theme-pink);
+      color: var(--theme-text-primary) !important;
     }
     .seva-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(180, 83, 9, 0.2);
+      box-shadow: 0 8px 25px var(--theme-shadow-hover);
     }
     .toast {
       animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
@@ -314,26 +338,51 @@
       backdrop-filter: blur(4px);
     }
     .permission-card {
-      border: 2px solid #e5c547;
+      border: 2px solid var(--theme-border-strong);
       border-radius: 8px;
       padding: 16px;
-      background: #fffef5;
+      background: var(--theme-muted);
       transition: all 0.2s ease;
     }
     .permission-card:hover {
-      border-color: #d97706;
-      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.1);
+      border-color: var(--theme-pink);
+      box-shadow: 0 4px 12px var(--theme-shadow);
     }
     .permission-checkbox {
       width: 18px;
       height: 18px;
       cursor: pointer;
-      accent-color: #d97706;
+      accent-color: var(--theme-pink);
     }
+    .theme-focus:focus {
+      outline: none;
+      border-color: var(--theme-accent);
+      box-shadow: 0 0 0 2px var(--theme-shadow);
+    }
+    /* Theme utility classes */
+    .bg-theme-page { background-color: var(--theme-page-bg); }
+    .bg-theme-muted { background-color: var(--theme-muted); }
+    .bg-theme-card { background-color: var(--theme-white); }
+    .bg-theme-accent { background-color: var(--theme-accent); }
+    .text-theme-primary { color: var(--theme-text-primary); }
+    .text-theme-secondary { color: var(--theme-text-secondary); }
+    .text-theme-muted { color: var(--theme-text-muted); }
+    .border-theme { border-color: var(--theme-border); }
+    .border-theme-strong { border-color: var(--theme-border-strong); }
+    .ring-theme { --tw-ring-color: var(--theme-accent); }
+    .ring-theme-strong { --tw-ring-color: var(--theme-border-strong); box-shadow: 0 0 0 2px var(--theme-border-strong); }
+    .hover\:bg-theme-page:hover { background-color: var(--theme-page-bg); }
+    .hover\:bg-theme-muted:hover { background-color: var(--theme-muted); }
+    .hover\:bg-theme-border:hover { background-color: var(--theme-border); }
+    .hover\:text-theme-primary:hover { color: var(--theme-text-primary); }
+    .hover\:text-theme-secondary:hover { color: var(--theme-text-secondary); }
+    .hover\:border-theme:hover { border-color: var(--theme-border); }
+    .hover\:from-theme-pink:hover { --tw-gradient-from: var(--theme-pink); }
+    .bg-theme-page\/50 { background-color: color-mix(in srgb, var(--theme-muted) 50%, transparent); }
   </style>
   <style>@view-transition { navigation: auto; }</style>
  </head>
- <body class="h-full bg-amber-50">
+ <body class="h-full bg-theme-page">
   <div id="app" class="h-full overflow-auto"><!-- Toast Container -->
    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div><!-- Login Screen -->
    <div id="login-screen" class="min-h-full flex flex-col p-4">
@@ -342,21 +391,21 @@
       <div class="text-center mb-8">
        <div class="w-28 h-28 mx-auto mb-4 flex items-center justify-center"><img src="https://iskconsouthbengaluru.com/wp-content/uploads/sites/7/2022/03/cropped-ISB-vertical-logo-Red-2.png" alt="ISKCON South Bengaluru Logo" style="max-width:100%; height:auto; object-fit:contain;" onerror="this.style.display='none'">
        </div>
-       <h1 id="temple-title" class="font-display text-3xl font-bold text-amber-900">My ISKCON Accounts</h1>
-       <p id="welcome-text" class="text-amber-700 mt-2">Account Management System</p>
+       <h1 id="temple-title" class="font-display text-3xl font-bold text-theme-primary">My ISKCON Accounts</h1>
+       <p id="welcome-text" class="text-theme-secondary mt-2">Account Management System</p>
       </div>
       <div class="bg-white rounded-2xl card-shadow p-8">
-       <h2 class="font-display text-2xl font-semibold text-amber-900 mb-6 text-center">Login</h2>
+       <h2 class="font-display text-2xl font-semibold text-theme-primary mb-6 text-center">Login</h2>
        <form id="login-form" class="space-y-4">
-        <div><label for="login-username" class="block text-sm font-medium text-amber-800 mb-1">Username</label> <input type="text" id="login-username" class="w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition" placeholder="Enter username">
+        <div><label for="login-username" class="block text-sm font-medium text-theme-secondary mb-1">Username</label> <input type="text" id="login-username" class="w-full px-4 py-3 border border-theme rounded-lg theme-focus outline-none transition" placeholder="Enter username">
         </div>
-        <div><label for="login-password" class="block text-sm font-medium text-amber-800 mb-1">Password</label> <input type="password" id="login-password" class="w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition" placeholder="Enter password">
+        <div><label for="login-password" class="block text-sm font-medium text-theme-secondary mb-1">Password</label> <input type="password" id="login-password" class="w-full px-4 py-3 border border-theme rounded-lg theme-focus outline-none transition" placeholder="Enter password">
         </div>
         <div id="login-error" class="text-red-600 text-sm hidden"></div><button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold"> Login </button>
        </form>
-       <div class="mt-6 pt-6 border-t border-amber-200">
-        <p class="text-center text-amber-600 text-sm font-medium mb-3">Demo Accounts:</p>
-        <div class="space-y-2 text-sm text-amber-700">
+       <div class="mt-6 pt-6 border-t border-theme">
+        <p class="text-center text-theme-muted text-sm font-medium mb-3">Demo Accounts:</p>
+        <div class="space-y-2 text-sm text-theme-secondary">
          <p><strong>Superadmin:</strong> admin / admin</p>
          <p><strong>Admin 1:</strong> admin1 / admin1</p>
          <p><strong>Admin 2:</strong> admin2 / admin2</p>
@@ -366,30 +415,30 @@
       </div>
      </div>
     </div>
-    <footer class="mt-auto py-6 text-center text-amber-800 text-sm border-t border-amber-200/60">
-     <p class="font-medium">Contact: <a href="mailto:iccabhilekhah@gmail.com" class="text-amber-700 hover:text-amber-900 underline">iccabhilekhah@gmail.com</a> &nbsp;|&nbsp; Phone: <a href="tel:+918073222508" class="text-amber-700 hover:text-amber-900 underline">+91-8073222508</a></p>
-     <p class="mt-1 text-amber-700">Address: No.1, Samvruddhi Enclave, 3rd Main, Bangalore-560111, India</p>
-     <p class="mt-3 text-amber-600 text-xs">© <span id="footer-year"></span> ISKCON Cultural Centre. All rights reserved.</p>
+    <footer class="mt-auto py-6 text-center text-theme-secondary text-sm border-t border-theme/60">
+     <p class="font-medium">Contact: <a href="mailto:iccabhilekhah@gmail.com" class="text-theme-secondary hover:text-theme-primary underline">iccabhilekhah@gmail.com</a> &nbsp;|&nbsp; Phone: <a href="tel:+918073222508" class="text-theme-secondary hover:text-theme-primary underline">+91-8073222508</a></p>
+     <p class="mt-1 text-theme-secondary">Address: No.1, Samvruddhi Enclave, 3rd Main, Bangalore-560111, India</p>
+     <p class="mt-3 text-theme-muted text-xs">© <span id="footer-year"></span> ISKCON Cultural Centre. All rights reserved.</p>
     </footer>
    </div><!-- Main Dashboard -->
    <div id="dashboard" class="hidden min-h-full flex flex-col"><!-- Header -->
-    <header class="bg-white border-b border-amber-200 px-4 py-3">
+    <header class="bg-white border-b border-theme px-4 py-3">
      <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
        <div class="w-12 h-12 flex items-center justify-center flex-shrink-0"><img src="https://iskconsouthbengaluru.com/wp-content/uploads/sites/7/2022/03/cropped-ISB-vertical-logo-Red-2.png" alt="ISKCON South Bengaluru Logo" style="max-width:100%; height:auto; object-fit:contain;" onerror="this.style.display='none'">
        </div>
        <div>
-        <h1 id="dashboard-title" class="font-display text-xl font-bold text-amber-900">My ISKCON Accounts</h1>
-        <p id="user-role-display" class="text-xs text-amber-600"></p>
+        <h1 id="dashboard-title" class="font-display text-xl font-bold text-theme-primary">My ISKCON Accounts</h1>
+        <p id="user-role-display" class="text-xs text-theme-muted"></p>
        </div>
-      </div><button id="logout-btn" class="flex items-center gap-2 text-amber-700 hover:text-amber-900 transition">
+      </div><button id="logout-btn" class="flex items-center gap-2 text-theme-secondary hover:text-theme-primary transition">
        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
        </svg><span class="hidden sm:inline">Logout</span> </button>
      </div>
     </header><!-- Navigation Tabs -->
-    <nav class="bg-white border-b border-amber-200">
+    <nav class="bg-white border-b border-theme">
      <div class="max-w-7xl mx-auto">
-      <div id="nav-tabs" class="flex overflow-x-auto"><button data-tab="dashboard" class="tab-btn px-6 py-4 text-amber-700 font-medium whitespace-nowrap hover:bg-amber-50 transition tab-active"> Dashboard </button> <button data-tab="booking" class="tab-btn px-6 py-4 text-amber-700 font-medium whitespace-nowrap hover:bg-amber-50 transition" id="booking-tab"> Booking </button> <button data-tab="reports" class="tab-btn px-6 py-4 text-amber-700 font-medium whitespace-nowrap hover:bg-amber-50 transition" id="reports-tab"> Reports </button> <button data-tab="donors" class="tab-btn px-6 py-4 text-amber-700 font-medium whitespace-nowrap hover:bg-amber-50 transition admin-only hidden" id="donors-tab"> Donors </button> <button data-tab="sevas" class="tab-btn px-6 py-4 text-amber-700 font-medium whitespace-nowrap hover:bg-amber-50 transition admin-only hidden" id="sevas-tab"> Manage Sevas </button> <button data-tab="users" class="tab-btn px-6 py-4 text-amber-700 font-medium whitespace-nowrap hover:bg-amber-50 transition admin-only hidden" id="users-tab"> Users </button> <button data-tab="permissions" class="tab-btn px-6 py-4 text-amber-700 font-medium whitespace-nowrap hover:bg-amber-50 transition superadmin-only hidden" id="permissions-tab"> 🔐 Manage Access </button> <button data-tab="donor-logins" class="tab-btn px-6 py-4 text-amber-700 font-medium whitespace-nowrap hover:bg-amber-50 transition admin-only hidden" id="donor-logins-tab"> 🔑 Donor Logins </button> <button data-tab="centers" class="tab-btn px-6 py-4 text-amber-700 font-medium whitespace-nowrap hover:bg-amber-50 transition superadmin-only hidden" id="centers-tab"> 🏛️ Centers </button>
+      <div id="nav-tabs" class="flex overflow-x-auto"><button data-tab="dashboard" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition tab-active"> Dashboard </button> <button data-tab="booking" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="booking-tab"> Booking </button> <button data-tab="reports" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="reports-tab"> Reports </button> <button data-tab="donors" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donors-tab"> Donors </button> <button data-tab="sevas" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="sevas-tab"> Manage Sevas </button> <button data-tab="users" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="users-tab"> Users </button> <button data-tab="permissions" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="permissions-tab"> 🔐 Manage Access </button> <button data-tab="donor-logins" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donor-logins-tab"> 🔑 Donor Logins </button> <button data-tab="centers" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="centers-tab"> 🏛️ Centers </button>
       </div>
      </div>
     </nav><!-- Tab Content -->
@@ -399,81 +448,81 @@
        <div class="space-y-6"><!-- Statistics Cards -->
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
          <div class="bg-white rounded-xl card-shadow p-6">
-          <p class="text-amber-600 text-sm font-medium mb-1">Total Bookings</p>
-          <p id="stat-bookings" class="font-display text-3xl font-bold text-amber-900">0</p>
+          <p class="text-theme-muted text-sm font-medium mb-1">Total Bookings</p>
+          <p id="stat-bookings" class="font-display text-3xl font-bold text-theme-primary">0</p>
          </div>
          <div class="bg-white rounded-xl card-shadow p-6">
-          <p class="text-amber-600 text-sm font-medium mb-1">Total Revenue</p>
-          <p id="stat-revenue" class="font-display text-3xl font-bold text-amber-900">0</p>
+          <p class="text-theme-muted text-sm font-medium mb-1">Total Revenue</p>
+          <p id="stat-revenue" class="font-display text-3xl font-bold text-theme-primary">0</p>
          </div>
          <div class="bg-white rounded-xl card-shadow p-6">
-          <p class="text-amber-600 text-sm font-medium mb-1">Total Donors</p>
-          <p id="stat-donors" class="font-display text-3xl font-bold text-amber-900">0</p>
+          <p class="text-theme-muted text-sm font-medium mb-1">Total Donors</p>
+          <p id="stat-donors" class="font-display text-3xl font-bold text-theme-primary">0</p>
          </div>
          <div class="bg-white rounded-xl card-shadow p-6">
-          <p class="text-amber-600 text-sm font-medium mb-1">Avg. Transaction</p>
-          <p id="stat-average" class="font-display text-3xl font-bold text-amber-900">0</p>
+          <p class="text-theme-muted text-sm font-medium mb-1">Avg. Transaction</p>
+          <p id="stat-average" class="font-display text-3xl font-bold text-theme-primary">0</p>
          </div>
         </div><!-- Filters -->
         <div class="bg-white rounded-xl card-shadow p-6">
-         <h3 class="font-display text-lg font-semibold text-amber-900 mb-4">Filters and Analytics</h3>
+         <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Filters and Analytics</h3>
          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div><label class="block text-sm font-medium text-amber-700 mb-2">Filter by Seva</label> <select id="filter-seva" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"> <option value="">All Sevas</option> </select>
+          <div><label class="block text-sm font-medium text-theme-secondary mb-2">Filter by Seva</label> <select id="filter-seva" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none"> <option value="">All Sevas</option> </select>
           </div>
-          <div><label class="block text-sm font-medium text-amber-700 mb-2">Date Range</label> <select id="filter-date" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"> <option value="all">All Time</option> <option value="today">Today</option> <option value="week">This Week</option> <option value="month">This Month</option> <option value="year">This Year</option> </select>
+          <div><label class="block text-sm font-medium text-theme-secondary mb-2">Date Range</label> <select id="filter-date" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none"> <option value="all">All Time</option> <option value="today">Today</option> <option value="week">This Week</option> <option value="month">This Month</option> <option value="year">This Year</option> </select>
           </div>
-          <div><label class="block text-sm font-medium text-amber-700 mb-2">Start Date</label> <input type="date" id="filter-start-date" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+          <div><label class="block text-sm font-medium text-theme-secondary mb-2">Start Date</label> <input type="date" id="filter-start-date" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
-          <div><label class="block text-sm font-medium text-amber-700 mb-2">End Date</label> <input type="date" id="filter-end-date" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+          <div><label class="block text-sm font-medium text-theme-secondary mb-2">End Date</label> <input type="date" id="filter-end-date" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
          </div>
         </div><!-- Charts -->
         <div class="grid lg:grid-cols-2 gap-6"><!-- Revenue by Seva -->
          <div class="bg-white rounded-xl card-shadow p-6">
-          <h3 class="font-display text-lg font-semibold text-amber-900 mb-4">Revenue by Seva</h3>
+          <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Revenue by Seva</h3>
           <canvas id="chart-seva" style="max-height: 300px;"></canvas>
          </div><!-- Revenue Trend -->
          <div class="bg-white rounded-xl card-shadow p-6">
-          <h3 class="font-display text-lg font-semibold text-amber-900 mb-4">Revenue Trend</h3>
+          <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Revenue Trend</h3>
           <canvas id="chart-trend" style="max-height: 300px;"></canvas>
          </div>
         </div><!-- Top Sevas Table -->
         <div class="bg-white rounded-xl card-shadow p-6">
-         <h3 class="font-display text-lg font-semibold text-amber-900 mb-4">Top Performing Sevas</h3>
+         <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Top Performing Sevas</h3>
          <div class="overflow-x-auto">
           <table class="w-full">
            <thead>
-            <tr class="border-b border-amber-200">
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Seva Name</th>
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Bookings</th>
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Total Revenue</th>
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Avg Amount</th>
+            <tr class="border-b border-theme">
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Seva Name</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Bookings</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Total Revenue</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Avg Amount</th>
             </tr>
            </thead>
            <tbody id="top-sevas-body">
             <tr>
-             <td colspan="4" class="py-4 text-center text-amber-600">No data available</td>
+             <td colspan="4" class="py-4 text-center text-theme-muted">No data available</td>
             </tr>
            </tbody>
           </table>
          </div>
         </div><!-- Transactions List -->
         <div class="bg-white rounded-xl card-shadow p-6">
-         <h3 class="font-display text-lg font-semibold text-amber-900 mb-4">Filtered Transactions</h3>
+         <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Filtered Transactions</h3>
          <div class="overflow-x-auto">
           <table class="w-full">
            <thead>
-            <tr class="border-b border-amber-200">
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Date</th>
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Donor Name</th>
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Sevas</th>
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Amount</th>
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Status</th>
+            <tr class="border-b border-theme">
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Date</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Donor Name</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Sevas</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Amount</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Status</th>
             </tr>
            </thead>
            <tbody id="filtered-transactions-body">
             <tr>
-             <td colspan="5" class="py-4 text-center text-amber-600">No transactions available</td>
+             <td colspan="5" class="py-4 text-center text-theme-muted">No transactions available</td>
             </tr>
            </tbody>
           </table>
@@ -485,60 +534,60 @@
        <div class="grid lg:grid-cols-3 gap-6"><!-- Search & Donor Info -->
         <div class="lg:col-span-1 space-y-4">
          <div class="bg-white rounded-xl card-shadow p-6">
-          <h3 class="font-display text-lg font-semibold text-amber-900 mb-4">Search Donor</h3>
+          <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Search Donor</h3>
           <div class="relative">
-           <div class="flex gap-2"><input type="tel" id="search-mobile" class="flex-1 px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Start typing mobile number..."> <button id="search-donor-btn" class="btn-primary text-white px-4 py-2 rounded-lg">
+           <div class="flex gap-2"><input type="tel" id="search-mobile" class="flex-1 px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="Start typing mobile number..."> <button id="search-donor-btn" class="btn-primary text-white px-4 py-2 rounded-lg">
              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
              </svg></button>
            </div>
-           <div id="search-dropdown" class="absolute top-full left-0 right-12 mt-1 bg-white border border-amber-300 rounded-lg shadow-lg hidden max-h-48 overflow-y-auto z-20"><!-- Dropdown items will be populated here -->
+           <div id="search-dropdown" class="absolute top-full left-0 right-12 mt-1 bg-white border border-theme-strong rounded-lg shadow-lg hidden max-h-48 overflow-y-auto z-20"><!-- Dropdown items will be populated here -->
            </div>
           </div>
           <div id="search-result" class="mt-3 text-sm"></div>
          </div>
          <div class="bg-white rounded-xl card-shadow p-6">
-          <h3 class="font-display text-lg font-semibold text-amber-900 mb-4">Donor Details</h3>
+          <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Donor Details</h3>
           <form id="donor-form" class="space-y-3"><input type="hidden" id="donor-id">
-           <div><label class="block text-xs font-medium text-amber-700 mb-1">Legal Name *</label> <input type="text" id="donor-name" required class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Full name (First and Last)">
+           <div><label class="block text-xs font-medium text-theme-secondary mb-1">Legal Name *</label> <input type="text" id="donor-name" required class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none" placeholder="Full name (First and Last)">
            </div>
-           <div><label class="block text-xs font-medium text-amber-700 mb-1">Spiritual Name (Optional)</label> <input type="text" id="donor-spiritual-name" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Initiated name if applicable">
+           <div><label class="block text-xs font-medium text-theme-secondary mb-1">Spiritual Name (Optional)</label> <input type="text" id="donor-spiritual-name" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none" placeholder="Initiated name if applicable">
            </div>
            <div class="flex items-center gap-2 py-1">
-             <input type="checkbox" id="donor-indian-passport" class="w-4 h-4 text-amber-600 border-amber-300 rounded focus:ring-amber-500">
-             <label for="donor-indian-passport" class="text-xs font-medium text-amber-700">Indian Passport Holder</label>
+             <input type="checkbox" id="donor-indian-passport" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus">
+             <label for="donor-indian-passport" class="text-xs font-medium text-theme-secondary">Indian Passport Holder</label>
            </div>
-           <div><label class="block text-xs font-medium text-amber-700 mb-1">PAN Number</label> <input type="text" id="donor-pan" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none uppercase" placeholder="ABCDE1234F" maxlength="10">
+           <div><label class="block text-xs font-medium text-theme-secondary mb-1">PAN Number</label> <input type="text" id="donor-pan" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none uppercase" placeholder="ABCDE1234F" maxlength="10">
            </div>
-           <div><label class="block text-xs font-medium text-amber-700 mb-1">Mobile Number *</label> <input type="tel" id="donor-mobile" required class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" data-auto-populate="donor-whatsapp">
+           <div><label class="block text-xs font-medium text-theme-secondary mb-1">Mobile Number *</label> <input type="tel" id="donor-mobile" required class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none" data-auto-populate="donor-whatsapp">
            </div>
-           <div><label class="block text-xs font-medium text-amber-700 mb-1">WhatsApp Number</label> <input type="tel" id="donor-whatsapp" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Auto-filled from mobile">
+           <div><label class="block text-xs font-medium text-theme-secondary mb-1">WhatsApp Number</label> <input type="tel" id="donor-whatsapp" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none" placeholder="Auto-filled from mobile">
            </div>
-           <div><label class="block text-xs font-medium text-amber-700 mb-1">Email</label> <input type="email" id="donor-email" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+           <div><label class="block text-xs font-medium text-theme-secondary mb-1">Email</label> <input type="email" id="donor-email" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
            </div><!-- Address Fields -->
-           <div class="border-t border-amber-200 pt-3 mt-3">
-            <p class="text-xs font-semibold text-amber-800 mb-2">Address Details</p>
-            <div><label class="block text-xs font-medium text-amber-700 mb-1">Flat / Door / Building</label> <input type="text" id="donor-flat" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+           <div class="border-t border-theme pt-3 mt-3">
+            <p class="text-xs font-semibold text-theme-secondary mb-2">Address Details</p>
+            <div><label class="block text-xs font-medium text-theme-secondary mb-1">Flat / Door / Building</label> <input type="text" id="donor-flat" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
             </div>
-            <div><label class="block text-xs font-medium text-amber-700 mb-1 mt-2">Road / Street / Block / Sector</label> <input type="text" id="donor-road" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <div><label class="block text-xs font-medium text-theme-secondary mb-1 mt-2">Road / Street / Block / Sector</label> <input type="text" id="donor-road" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
             </div>
-            <div><label class="block text-xs font-medium text-amber-700 mb-1 mt-2">Post Office</label> <input type="text" id="donor-po" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <div><label class="block text-xs font-medium text-theme-secondary mb-1 mt-2">Post Office</label> <input type="text" id="donor-po" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
             </div>
-            <div><label class="block text-xs font-medium text-amber-700 mb-1 mt-2">Area / Locality</label> <input type="text" id="donor-area" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <div><label class="block text-xs font-medium text-theme-secondary mb-1 mt-2">Area / Locality</label> <input type="text" id="donor-area" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
             </div>
-            <div><label class="block text-xs font-medium text-amber-700 mb-1 mt-2">Pincode *</label> <input type="text" id="donor-pincode" maxlength="6" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
-             <div id="pincode-status" class="text-xs mt-1 text-amber-600"></div>
-            </div>
-            <div class="grid grid-cols-2 gap-2 mt-2">
-             <div><label class="block text-xs font-medium text-amber-700 mb-1">District</label> <input type="text" id="donor-district" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50" readonly>
-             </div>
-             <div><label class="block text-xs font-medium text-amber-700 mb-1">State</label> <input type="text" id="donor-state" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50" readonly>
-             </div>
+            <div><label class="block text-xs font-medium text-theme-secondary mb-1 mt-2">Pincode *</label> <input type="text" id="donor-pincode" maxlength="6" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
+             <div id="pincode-status" class="text-xs mt-1 text-theme-muted"></div>
             </div>
             <div class="grid grid-cols-2 gap-2 mt-2">
-             <div><label class="block text-xs font-medium text-amber-700 mb-1">Country</label> <input type="text" id="donor-country" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50" readonly value="India">
+             <div><label class="block text-xs font-medium text-theme-secondary mb-1">District</label> <input type="text" id="donor-district" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none bg-theme-page" readonly>
              </div>
-             <div><label class="block text-xs font-medium text-amber-700 mb-1">Center *</label>
-              <select id="donor-center" required class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+             <div><label class="block text-xs font-medium text-theme-secondary mb-1">State</label> <input type="text" id="donor-state" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none bg-theme-page" readonly>
+             </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mt-2">
+             <div><label class="block text-xs font-medium text-theme-secondary mb-1">Country</label> <input type="text" id="donor-country" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none bg-theme-page" readonly value="India">
+             </div>
+             <div><label class="block text-xs font-medium text-theme-secondary mb-1">Center *</label>
+              <select id="donor-center" required class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
                <!-- Centers populated dynamically -->
               </select>
              </div>
@@ -550,14 +599,14 @@
         <div class="lg:col-span-1">
          <div class="bg-white rounded-xl card-shadow p-6 h-full flex flex-col">
           <div class="mb-3">
-           <p class="text-xs font-medium text-amber-700 mb-2">Select Center</p>
+           <p class="text-xs font-medium text-theme-secondary mb-2">Select Center</p>
            <div id="booking-center-tabs" class="flex flex-wrap gap-2 mb-3">
             <!-- Center tabs populated dynamically -->
            </div>
           </div>
           <div class="flex items-center justify-between mb-3">
-           <h3 class="font-display text-lg font-semibold text-amber-900">Select Sevas</h3>
-           <button id="browse-sevas-btn" class="text-amber-600 hover:text-amber-800 text-sm font-medium flex items-center gap-1">
+           <h3 class="font-display text-lg font-semibold text-theme-primary">Select Sevas</h3>
+           <button id="browse-sevas-btn" class="text-theme-muted hover:text-theme-secondary text-sm font-medium flex items-center gap-1">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
             More Options
            </button>
@@ -566,31 +615,31 @@
           <div id="quick-seva-grid" class="grid grid-cols-2 gap-2 mb-4">
            <!-- Quick seva buttons will be populated here -->
           </div>
-          <p class="text-xs text-amber-600 mb-2">Click to add seva • Selected sevas shown below</p>
+          <p class="text-xs text-theme-muted mb-2">Click to add seva • Selected sevas shown below</p>
           <div id="seva-list" class="space-y-3 max-h-48 overflow-y-auto pr-2 flex-1"><!-- Selected sevas will be shown here -->
           </div>
          </div>
         </div><!-- Cart & Checkout -->
         <div class="lg:col-span-1">
          <div class="bg-white rounded-xl card-shadow p-6 sticky top-4">
-          <h3 class="font-display text-lg font-semibold text-amber-900 mb-4">Booking Summary</h3>
+          <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Booking Summary</h3>
           <div id="cart-items" class="space-y-2 mb-4 max-h-48 overflow-y-auto">
-           <p class="text-amber-600 text-sm">No sevas selected</p>
+           <p class="text-theme-muted text-sm">No sevas selected</p>
           </div>
-          <div class="border border-amber-200 rounded-lg p-3 mb-4 bg-amber-50/50">
-           <p class="text-xs font-semibold text-amber-800 mb-2">General Donation</p>
+          <div class="border border-theme rounded-lg p-3 mb-4 bg-theme-page/50">
+           <p class="text-xs font-semibold text-theme-secondary mb-2">General Donation</p>
            <div class="flex gap-2">
-            <input type="number" id="general-donation-amount" min="1" step="1" placeholder="Amount (₹)" class="flex-1 px-3 py-2 border border-amber-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
-            <button type="button" id="add-general-donation-btn" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap">Add</button>
+            <input type="number" id="general-donation-amount" min="1" step="1" placeholder="Amount (₹)" class="flex-1 px-3 py-2 border border-theme rounded-lg text-sm theme-focus outline-none">
+            <button type="button" id="add-general-donation-btn" class="bg-theme-accent hover:opacity-90 text-white px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap">Add</button>
            </div>
           </div>
-          <div class="border-t border-amber-200 pt-4 mb-4">
-           <div class="flex justify-between items-center text-lg font-semibold"><span class="text-amber-800">Total Amount:</span> <span id="total-amount" class="text-amber-900">0</span>
+          <div class="border-t border-theme pt-4 mb-4">
+           <div class="flex justify-between items-center text-lg font-semibold"><span class="text-theme-secondary">Total Amount:</span> <span id="total-amount" class="text-theme-primary">0</span>
            </div>
           </div>
           <div class="flex items-center gap-2 py-2 mb-2">
-           <input type="checkbox" id="booking-festival-qr" class="w-4 h-4 text-amber-600 border-amber-300 rounded focus:ring-amber-500">
-           <label for="booking-festival-qr" class="text-sm font-medium text-amber-800">Festival booking – Include QR codes (Darshan &amp; Prasadam) for validation</label>
+           <input type="checkbox" id="booking-festival-qr" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus">
+           <label for="booking-festival-qr" class="text-sm font-medium text-theme-secondary">Festival booking – Include QR codes (Darshan &amp; Prasadam) for validation</label>
           </div>
           <div class="space-y-3"><button id="save-booking-btn" class="w-full btn-primary text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"> Save Booking </button> <button id="razorpay-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition">
             <svg class="w-5 h-5" viewbox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
@@ -603,7 +652,7 @@
       <div id="tab-donors" class="tab-content hidden">
        <div class="bg-white rounded-xl card-shadow p-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-         <h3 class="font-display text-xl font-semibold text-amber-900">Registered Donors</h3>
+         <h3 class="font-display text-xl font-semibold text-theme-primary">Registered Donors</h3>
          <div class="flex gap-2">
           <div class="relative">
            <button id="download-donors-dropdown-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition">
@@ -635,24 +684,24 @@
         <div class="overflow-x-auto">
          <table class="w-full">
           <thead>
-           <tr class="border-b border-amber-200">
-            <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">S.No</th>
-            <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Name</th>
-            <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Mobile</th>
-            <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">WhatsApp</th>
-            <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Email</th>
-            <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Address</th>
-            <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Bookings</th>
-            <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Total Donated</th>
-            <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Last Donation</th>
-            <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Actions</th>
+           <tr class="border-b border-theme">
+            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">S.No</th>
+            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Name</th>
+            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Mobile</th>
+            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">WhatsApp</th>
+            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Email</th>
+            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Address</th>
+            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Bookings</th>
+            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Total Donated</th>
+            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Last Donation</th>
+            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Actions</th>
            </tr>
           </thead>
           <tbody id="donors-table-body"><!-- Donors will be populated here -->
           </tbody>
          </table>
         </div>
-        <div id="no-donors" class="text-center py-8 text-amber-600 hidden">
+        <div id="no-donors" class="text-center py-8 text-theme-muted hidden">
          <p>No donors registered yet.</p>
         </div>
        </div>
@@ -660,13 +709,13 @@
       <div id="tab-sevas" class="tab-content hidden">
        <div class="bg-white rounded-xl card-shadow p-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-         <h3 class="font-display text-xl font-semibold text-amber-900">Manage Sevas / Donations</h3><button id="add-seva-btn" class="btn-primary text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2">
+         <h3 class="font-display text-xl font-semibold text-theme-primary">Manage Sevas / Donations</h3><button id="add-seva-btn" class="btn-primary text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg> Add Seva </button>
         </div>
         <div id="sevas-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"><!-- Sevas will be populated here -->
         </div>
-        <div id="no-sevas" class="text-center py-8 text-amber-600 hidden">
+        <div id="no-sevas" class="text-center py-8 text-theme-muted hidden">
          <p>No sevas configured yet.</p>
         </div>
        </div>
@@ -674,22 +723,22 @@
       <div id="tab-users" class="tab-content hidden">
        <div class="bg-white rounded-xl card-shadow p-6 space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-         <h3 class="font-display text-xl font-semibold text-amber-900">Manage Users</h3><button id="add-user-btn" class="btn-primary text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2">
+         <h3 class="font-display text-xl font-semibold text-theme-primary">Manage Users</h3><button id="add-user-btn" class="btn-primary text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg> Add User </button>
         </div>
-        <div class="flex flex-col sm:flex-row gap-4 pb-4 border-b border-amber-200">
-         <div class="flex-1"><label class="block text-sm font-medium text-amber-700 mb-2">Filter by Center</label> <select id="users-center-filter" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"> <option value="">All Centers</option> <option value="center_bangalore">Bangalore Center</option> <option value="center_delhi">Delhi Center</option> <option value="center_mumbai">Mumbai Center</option> <option value="center_chennai">Chennai Center</option> <option value="center_kolkata">Kolkata Center</option> </select>
+        <div class="flex flex-col sm:flex-row gap-4 pb-4 border-b border-theme">
+         <div class="flex-1"><label class="block text-sm font-medium text-theme-secondary mb-2">Filter by Center</label> <select id="users-center-filter" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none"> <option value="">All Centers</option> <option value="center_bangalore">Bangalore Center</option> <option value="center_delhi">Delhi Center</option> <option value="center_mumbai">Mumbai Center</option> <option value="center_chennai">Chennai Center</option> <option value="center_kolkata">Kolkata Center</option> </select>
          </div>
         </div>
         <div class="overflow-x-auto">
          <table class="w-full">
           <thead>
-           <tr class="border-b border-amber-200">
-            <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Username</th>
-            <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Role</th>
-            <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Center</th>
-            <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Actions</th>
+           <tr class="border-b border-theme">
+            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Username</th>
+            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Role</th>
+            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Center</th>
+            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Actions</th>
            </tr>
           </thead>
           <tbody id="users-table-body"><!-- Users will be populated here -->
@@ -701,8 +750,8 @@
       <div id="tab-permissions" class="tab-content hidden">
        <div class="space-y-6">
         <div class="bg-white rounded-xl card-shadow p-6">
-         <h3 class="font-display text-2xl font-semibold text-amber-900 mb-2">🔐 Manage User Access</h3>
-         <p class="text-amber-600 mb-6">Control what features each admin can access. Check or uncheck permissions below.</p>
+         <h3 class="font-display text-2xl font-semibold text-theme-primary mb-2">🔐 Manage User Access</h3>
+         <p class="text-theme-muted mb-6">Control what features each admin can access. Check or uncheck permissions below.</p>
          <div id="permissions-container" class="grid grid-cols-1 gap-4"><!-- Permission cards will be populated here -->
          </div>
         </div>
@@ -711,25 +760,25 @@
       <div id="tab-donor-logins" class="tab-content hidden">
        <div class="space-y-6">
         <div class="bg-white rounded-xl card-shadow p-6">
-         <h3 class="font-display text-2xl font-semibold text-amber-900 mb-2">🔑 Donor Login Credentials</h3>
-         <p class="text-amber-600 mb-4">Share these login details with donors so they can access their donation history and make new donations.</p>
-         <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-          <p class="text-sm text-amber-800"><strong>Note:</strong> For demo purposes, both username and password are the donor's Legal Name. Donors can view their own bookings, download PDF reports, and make new donations.</p>
+         <h3 class="font-display text-2xl font-semibold text-theme-primary mb-2">🔑 Donor Login Credentials</h3>
+         <p class="text-theme-muted mb-4">Share these login details with donors so they can access their donation history and make new donations.</p>
+         <div class="bg-theme-page border border-theme rounded-lg p-4 mb-4">
+          <p class="text-sm text-theme-secondary"><strong>Note:</strong> For demo purposes, both username and password are the donor's Legal Name. Donors can view their own bookings, download PDF reports, and make new donations.</p>
          </div>
          <!-- Filters -->
          <div id="donor-logins-filter" class="mb-4 hidden">
           <div class="grid sm:grid-cols-2 gap-4">
            <div>
-            <label class="block text-sm font-medium text-amber-700 mb-2">Filter by Center</label>
-            <select id="donor-logins-center-filter" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-2">Filter by Center</label>
+            <select id="donor-logins-center-filter" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
              <option value="">All Centers</option>
              <!-- Centers populated dynamically -->
             </select>
            </div>
            <div class="relative">
-            <label class="block text-sm font-medium text-amber-700 mb-2">Search Donor</label>
-            <input type="text" id="donor-logins-search" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Type name or mobile...">
-            <div id="donor-logins-search-dropdown" class="absolute z-10 w-full mt-1 bg-white border border-amber-200 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
+            <label class="block text-sm font-medium text-theme-secondary mb-2">Search Donor</label>
+            <input type="text" id="donor-logins-search" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="Type name or mobile...">
+            <div id="donor-logins-search-dropdown" class="absolute z-10 w-full mt-1 bg-white border border-theme rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
              <!-- Search results will appear here -->
             </div>
            </div>
@@ -737,15 +786,15 @@
          </div>
          <div class="overflow-x-auto">
           <table class="w-full">
-           <thead class="bg-amber-100">
+           <thead class="bg-theme-muted">
             <tr>
-             <th class="text-left py-3 px-4 text-amber-900 font-semibold">#</th>
-             <th class="text-left py-3 px-4 text-amber-900 font-semibold">Legal Name</th>
-             <th class="text-left py-3 px-4 text-amber-900 font-semibold">Spiritual Name</th>
-             <th class="text-left py-3 px-4 text-amber-900 font-semibold">Mobile</th>
-             <th class="text-left py-3 px-4 text-amber-900 font-semibold">Username</th>
-             <th class="text-left py-3 px-4 text-amber-900 font-semibold">Password</th>
-             <th class="text-left py-3 px-4 text-amber-900 font-semibold">Total Donations</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">#</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Legal Name</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Spiritual Name</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Mobile</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Username</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Password</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Total Donations</th>
             </tr>
            </thead>
            <tbody id="donor-logins-table-body">
@@ -753,7 +802,7 @@
            </tbody>
           </table>
          </div>
-         <p id="no-donor-logins" class="text-amber-600 text-center py-8 hidden">No donors found.</p>
+         <p id="no-donor-logins" class="text-theme-muted text-center py-8 hidden">No donors found.</p>
         </div>
        </div>
       </div><!-- Centers Tab (Superadmin Only) -->
@@ -762,8 +811,8 @@
         <div class="bg-white rounded-xl card-shadow p-6">
          <div class="flex items-center justify-between mb-6">
           <div>
-           <h3 class="font-display text-2xl font-semibold text-amber-900 mb-2">🏛️ Center Management</h3>
-           <p class="text-amber-600">Add, edit, or remove centers. Changes will reflect across all dropdowns.</p>
+           <h3 class="font-display text-2xl font-semibold text-theme-primary mb-2">🏛️ Center Management</h3>
+           <p class="text-theme-muted">Add, edit, or remove centers. Changes will reflect across all dropdowns.</p>
           </div>
           <button id="add-center-btn" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center gap-2">
            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -772,15 +821,15 @@
          </div>
          <div class="overflow-x-auto">
           <table class="w-full">
-           <thead class="bg-amber-100">
+           <thead class="bg-theme-muted">
             <tr>
-             <th class="text-left py-3 px-4 text-amber-900 font-semibold">#</th>
-             <th class="text-left py-3 px-4 text-amber-900 font-semibold">Center ID</th>
-             <th class="text-left py-3 px-4 text-amber-900 font-semibold">Center Name</th>
-             <th class="text-left py-3 px-4 text-amber-900 font-semibold">City</th>
-             <th class="text-left py-3 px-4 text-amber-900 font-semibold">State</th>
-             <th class="text-left py-3 px-4 text-amber-900 font-semibold">Donors</th>
-             <th class="text-left py-3 px-4 text-amber-900 font-semibold">Actions</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">#</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Center ID</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Center Name</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">City</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">State</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Donors</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Actions</th>
             </tr>
            </thead>
            <tbody id="centers-table-body">
@@ -788,30 +837,30 @@
            </tbody>
           </table>
          </div>
-         <p id="no-centers" class="text-amber-600 text-center py-8 hidden">No centers found. Add your first center!</p>
+         <p id="no-centers" class="text-theme-muted text-center py-8 hidden">No centers found. Add your first center!</p>
         </div>
        </div>
       </div><!-- Reports Tab -->
       <div id="tab-reports" class="tab-content hidden">
        <div class="space-y-6"><!-- Filters -->
         <div class="bg-white rounded-xl card-shadow p-6">
-         <h3 class="font-display text-lg font-semibold text-amber-900 mb-4">Filter Reports</h3>
+         <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Filter Reports</h3>
          <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div><label class="block text-sm font-medium text-amber-700 mb-2">Status</label> <select id="report-status-filter" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"> <option value="">All Status</option> <option value="paid">Paid</option> <option value="pending">Pending</option> </select>
+          <div><label class="block text-sm font-medium text-theme-secondary mb-2">Status</label> <select id="report-status-filter" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none"> <option value="">All Status</option> <option value="paid">Paid</option> <option value="pending">Pending</option> </select>
           </div>
-          <div><label class="block text-sm font-medium text-amber-700 mb-2">Collected By</label> <select id="report-collector-filter" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"> <option value="">All Collectors</option> </select>
+          <div><label class="block text-sm font-medium text-theme-secondary mb-2">Collected By</label> <select id="report-collector-filter" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none"> <option value="">All Collectors</option> </select>
           </div>
-          <div><label class="block text-sm font-medium text-amber-700 mb-2">Date Range</label> <select id="report-date-filter" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"> <option value="all">All Time</option> <option value="today">Today</option> <option value="week">This Week</option> <option value="month">This Month</option> <option value="year">This Year</option> </select>
+          <div><label class="block text-sm font-medium text-theme-secondary mb-2">Date Range</label> <select id="report-date-filter" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none"> <option value="all">All Time</option> <option value="today">Today</option> <option value="week">This Week</option> <option value="month">This Month</option> <option value="year">This Year</option> </select>
           </div>
-          <div><label class="block text-sm font-medium text-amber-700 mb-2">Start Date</label> <input type="date" id="report-start-date" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+          <div><label class="block text-sm font-medium text-theme-secondary mb-2">Start Date</label> <input type="date" id="report-start-date" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
-          <div><label class="block text-sm font-medium text-amber-700 mb-2">End Date</label> <input type="date" id="report-end-date" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+          <div><label class="block text-sm font-medium text-theme-secondary mb-2">End Date</label> <input type="date" id="report-end-date" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
          </div>
         </div><!-- Bookings Table -->
         <div class="bg-white rounded-xl card-shadow p-6">
          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-          <h3 class="font-display text-lg font-semibold text-amber-900">Booking Reports</h3>
+          <h3 class="font-display text-lg font-semibold text-theme-primary">Booking Reports</h3>
           <div class="relative">
            <button id="download-reports-dropdown-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -840,22 +889,22 @@
          <div class="overflow-x-auto">
           <table class="w-full">
            <thead>
-            <tr class="border-b border-amber-200">
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Date</th>
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Donor</th>
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Sevas</th>
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Amount</th>
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Collected By</th>
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Center</th>
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Status</th>
-             <th class="text-left py-3 px-4 text-amber-700 font-medium text-sm">Actions</th>
+            <tr class="border-b border-theme">
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Date</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Donor</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Sevas</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Amount</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Collected By</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Center</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Status</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Actions</th>
             </tr>
            </thead>
            <tbody id="reports-table-body"><!-- Reports will be populated here -->
            </tbody>
           </table>
          </div>
-         <div id="no-reports" class="text-center py-8 text-amber-600 hidden">
+         <div id="no-reports" class="text-center py-8 text-theme-muted hidden">
           <p>No bookings recorded yet.</p>
          </div>
         </div>
@@ -866,14 +915,14 @@
    </div><!-- Seva Slide-Out Panel -->
    <div id="seva-panel-backdrop" class="fixed inset-0 z-30 hidden modal-backdrop"></div>
    <div id="seva-slide-panel" class="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl z-40 hidden flex flex-col overflow-hidden">
-    <div class="flex items-center justify-between p-6 border-b border-amber-200 flex-shrink-0">
-     <h3 class="font-display text-xl font-semibold text-amber-900">Available Sevas</h3><button id="close-seva-panel-btn" class="text-amber-600 hover:text-amber-800 transition">
+    <div class="flex items-center justify-between p-6 border-b border-theme flex-shrink-0">
+     <h3 class="font-display text-xl font-semibold text-theme-primary">Available Sevas</h3><button id="close-seva-panel-btn" class="text-theme-muted hover:text-theme-secondary transition">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg></button>
     </div>
     <div id="sliding-seva-list" class="flex-1 overflow-y-auto p-4 space-y-3"><!-- Sevas will be populated here -->
     </div>
-    <div class="p-4 border-t border-amber-200 flex-shrink-0"><button id="finish-seva-selection-btn" class="w-full btn-primary text-white py-3 rounded-lg font-semibold"> Done Selecting </button>
+    <div class="p-4 border-t border-theme flex-shrink-0"><button id="finish-seva-selection-btn" class="w-full btn-primary text-white py-3 rounded-lg font-semibold"> Done Selecting </button>
     </div>
    </div><!-- Modal Container -->
    <div id="modal-container" class="fixed inset-0 z-40 hidden">
@@ -968,7 +1017,7 @@
     function showToast(message, type = 'success') {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
-      const bgColor = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-amber-600';
+      const bgColor = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-theme-accent';
       toast.className = `toast ${bgColor} text-white px-4 py-3 rounded-lg shadow-lg max-w-sm`;
       toast.textContent = message;
       container.appendChild(toast);
@@ -1207,7 +1256,7 @@
       const shortcutSevas = sevasForCenter.filter(seva => seva.shortcut !== false);
       
       if (shortcutSevas.length === 0) {
-        container.innerHTML = '<p class="col-span-2 text-amber-600 text-sm text-center py-4">No sevas for this center. Select another center or add sevas in Manage Sevas.</p>';
+        container.innerHTML = '<p class="col-span-2 text-theme-muted text-sm text-center py-4">No sevas for this center. Select another center or add sevas in Manage Sevas.</p>';
         return;
       }
       
@@ -1219,14 +1268,14 @@
         return `
           <button type="button" 
             class="quick-seva-btn p-3 rounded-lg border-2 text-left transition-all ${isSelected 
-              ? 'border-amber-500 bg-amber-50 shadow-md' 
-              : 'border-amber-200 hover:border-amber-400 hover:bg-amber-50'}"
+              ? 'border-theme-strong bg-theme-page shadow-md' 
+              : 'border-theme hover:border-theme-strong hover:bg-theme-page'}"
             data-seva-id="${seva.id}">
             <div class="flex justify-between items-start">
-              <span class="font-semibold text-amber-900 text-sm leading-tight">${seva.name}</span>
-              ${isSelected ? `<span class="bg-amber-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">${quantity}</span>` : ''}
+              <span class="font-semibold text-theme-primary text-sm leading-tight">${seva.name}</span>
+              ${isSelected ? `<span class="bg-theme-accent text-white text-xs px-1.5 py-0.5 rounded-full font-bold">${quantity}</span>` : ''}
             </div>
-            <div class="text-amber-700 font-bold text-sm mt-1">₹${seva.amount}</div>
+            <div class="text-theme-secondary font-bold text-sm mt-1">₹${seva.amount}</div>
           </button>
         `;
       }).join('');
@@ -1271,28 +1320,28 @@
         const bookingDate = cartItem ? cartItem.bookingDate : '';
         
         return `
-          <div class="border-2 ${quantity > 0 ? 'border-amber-500 bg-amber-50' : 'border-amber-200'} rounded-lg p-3 transition hover:border-amber-400" data-seva-id="${seva.id}">
+          <div class="border-2 ${quantity > 0 ? 'border-theme-strong bg-theme-page' : 'border-theme'} rounded-lg p-3 transition hover:border-theme-strong" data-seva-id="${seva.id}">
             <div class="flex justify-between items-start mb-2">
               <div class="flex-1">
-                <h4 class="font-semibold text-amber-900">${seva.name}</h4>
-                <p class="text-xs text-amber-600">${seva.description}</p>
+                <h4 class="font-semibold text-theme-primary">${seva.name}</h4>
+                <p class="text-xs text-theme-muted">${seva.description}</p>
               </div>
-              <span class="font-bold text-amber-800 text-sm">₹${seva.amount}</span>
+              <span class="font-bold text-theme-secondary text-sm">₹${seva.amount}</span>
             </div>
-            <div class="space-y-2 mt-3 pt-3 border-t border-amber-200">
+            <div class="space-y-2 mt-3 pt-3 border-t border-theme">
               <div>
-                <label class="text-xs text-amber-700 font-semibold block mb-1">Booking Date</label>
-                <input type="date" class="seva-date-picker w-full px-2 py-1 border border-amber-300 rounded text-xs" data-seva-id="${seva.id}" value="${bookingDate}">
+                <label class="text-xs text-theme-secondary font-semibold block mb-1">Booking Date</label>
+                <input type="date" class="seva-date-picker w-full px-2 py-1 border border-theme-strong rounded text-xs" data-seva-id="${seva.id}" value="${bookingDate}">
               </div>
               <div class="flex items-center justify-between gap-2">
-                <span class="text-xs font-semibold text-amber-900">
+                <span class="text-xs font-semibold text-theme-primary">
                   ${quantity > 0 ? `${quantity} Selected` : 'Click to Add'}
                 </span>
                 <div class="flex gap-1 items-center">
                   ${quantity > 0 ? `
-                    <button type="button" class="minus-seva-btn bg-amber-300 hover:bg-amber-400 text-amber-900 px-2 py-1 rounded text-sm font-bold transition" data-seva-id="${seva.id}" title="Decrease quantity">&minus;</button>
+                    <button type="button" class="minus-seva-btn bg-theme-muted hover:bg-theme-border text-theme-primary px-2 py-1 rounded text-sm font-bold transition" data-seva-id="${seva.id}" title="Decrease quantity">&minus;</button>
                   ` : ''}
-                  <button type="button" class="click-seva-btn bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white px-3 py-1 rounded text-sm font-bold transition" data-seva-id="${seva.id}">
+                  <button type="button" class="click-seva-btn bg-theme-accent hover:opacity-90 text-white px-3 py-1 rounded text-sm font-bold transition" data-seva-id="${seva.id}">
                     ${quantity > 0 ? '+' : 'Add'}
                   </button>
                   ${quantity > 0 ? `
@@ -1381,7 +1430,7 @@
       const container = document.getElementById('seva-list');
       
       if (cart.length === 0) {
-        container.innerHTML = '<p class="text-amber-600 text-sm">No sevas selected yet</p>';
+        container.innerHTML = '<p class="text-theme-muted text-sm">No sevas selected yet</p>';
         return;
       }
 
@@ -1389,18 +1438,18 @@
         const isGeneral = item.id === 'general_donation';
         const sevaDate = item.bookingDate ? new Date(item.bookingDate).toLocaleDateString('en-GB') : 'N/A';
         return `
-          <div class="border border-amber-300 rounded-lg p-3 bg-amber-50">
+          <div class="border border-theme-strong rounded-lg p-3 bg-theme-page">
             <div class="flex justify-between items-start mb-2">
               <div>
-                <h4 class="font-semibold text-amber-900">${item.name}</h4>
-                ${isGeneral ? '' : `<p class="text-xs text-amber-600">Date: ${sevaDate}</p>`}
+                <h4 class="font-semibold text-theme-primary">${item.name}</h4>
+                ${isGeneral ? '' : `<p class="text-xs text-theme-muted">Date: ${sevaDate}</p>`}
               </div>
-              ${isGeneral ? `<span class="text-sm font-semibold text-amber-800">₹${(item.amount * item.quantity).toLocaleString()}</span>` : `<span class="text-sm font-semibold text-amber-800">Qty: ${item.quantity}</span>`}
+              ${isGeneral ? `<span class="text-sm font-semibold text-theme-secondary">₹${(item.amount * item.quantity).toLocaleString()}</span>` : `<span class="text-sm font-semibold text-theme-secondary">Qty: ${item.quantity}</span>`}
             </div>
-            <div class="flex items-center gap-2 pt-2 border-t border-amber-200">
-              ${isGeneral ? '' : `<button type="button" class="decrease-item-btn text-xs bg-amber-300 hover:bg-amber-400 text-amber-900 px-2 py-1 rounded font-bold" data-seva-id="${item.sevaId}">&minus;</button>`}
-              <span class="text-xs text-amber-700 flex-1">₹${(item.amount * item.quantity).toLocaleString()}</span>
-              ${isGeneral ? '' : `<button type="button" class="increase-item-btn text-xs bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded font-bold" data-seva-id="${item.sevaId}">+</button>`}
+            <div class="flex items-center gap-2 pt-2 border-t border-theme">
+              ${isGeneral ? '' : `<button type="button" class="decrease-item-btn text-xs bg-theme-muted hover:bg-theme-border text-theme-primary px-2 py-1 rounded font-bold" data-seva-id="${item.sevaId}">&minus;</button>`}
+              <span class="text-xs text-theme-secondary flex-1">₹${(item.amount * item.quantity).toLocaleString()}</span>
+              ${isGeneral ? '' : `<button type="button" class="increase-item-btn text-xs bg-theme-accent hover:opacity-90 text-white px-2 py-1 rounded font-bold" data-seva-id="${item.sevaId}">+</button>`}
               <button type="button" class="remove-selected-btn text-red-600 hover:text-red-800 ml-2" data-seva-id="${item.sevaId}">×</button>
             </div>
           </div>
@@ -1450,7 +1499,7 @@
       const totalEl = document.getElementById('total-amount');
       
       if (cart.length === 0) {
-        container.innerHTML = '<p class="text-amber-600 text-sm">No sevas selected</p>';
+        container.innerHTML = '<p class="text-theme-muted text-sm">No sevas selected</p>';
         totalEl.textContent = '0';
         return;
       }
@@ -1459,14 +1508,14 @@
         const isGeneral = item.id === 'general_donation';
         const sevaDate = item.bookingDate ? new Date(item.bookingDate).toLocaleDateString('en-GB') : 'N/A';
         return `
-          <div class="flex justify-between items-center text-sm py-2 border-b border-amber-100">
+          <div class="flex justify-between items-center text-sm py-2 border-b border-theme">
             <div class="flex-1">
-              <span class="text-amber-800">${item.name}</span>
-              ${isGeneral ? '' : `<span class="text-xs text-amber-600 ml-2">(Qty: ${item.quantity})</span>`}
-              ${isGeneral ? '' : `<div class="text-xs text-amber-600 mt-0.5">Date: ${sevaDate}</div>`}
+              <span class="text-theme-secondary">${item.name}</span>
+              ${isGeneral ? '' : `<span class="text-xs text-theme-muted ml-2">(Qty: ${item.quantity})</span>`}
+              ${isGeneral ? '' : `<div class="text-xs text-theme-muted mt-0.5">Date: ${sevaDate}</div>`}
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-amber-900 font-medium">₹${(item.amount * item.quantity).toLocaleString()}</span>
+              <span class="text-theme-primary font-medium">₹${(item.amount * item.quantity).toLocaleString()}</span>
               <button type="button" class="text-red-600 hover:text-red-800 ml-2 remove-item-btn" data-seva-id="${item.sevaId}">×</button>
             </div>
           </div>
@@ -1493,20 +1542,20 @@
       const managedUsers = getUsers().filter(u => u.username !== 'admin');
 
       if (managedUsers.length === 0) {
-        container.innerHTML = '<p class="text-center text-amber-600 py-8">No users found. Create admins or volunteers first to manage their permissions.</p>';
+        container.innerHTML = '<p class="text-center text-theme-muted py-8">No users found. Create admins or volunteers first to manage their permissions.</p>';
         return;
       }
 
       let html = `
-        <div class="overflow-x-auto border border-amber-300 rounded-lg">
+        <div class="overflow-x-auto border border-theme-strong rounded-lg">
           <table class="w-full border-collapse bg-white">
             <thead>
-              <tr class="bg-amber-100 border-b-2 border-amber-300">
-                <th class="px-6 py-4 text-left font-semibold text-amber-900 border-r border-amber-300 min-w-max">User</th>
+              <tr class="bg-theme-muted border-b-2 border-theme-strong">
+                <th class="px-6 py-4 text-left font-semibold text-theme-primary border-r border-theme-strong min-w-max">User</th>
       `;
 
       allPermissions.forEach(perm => {
-        html += `<th class="px-4 py-4 text-center font-semibold text-amber-900 border-r border-amber-300 min-w-max">${perm.label}</th>`;
+        html += `<th class="px-4 py-4 text-center font-semibold text-theme-primary border-r border-theme-strong min-w-max">${perm.label}</th>`;
       });
 
       html += `
@@ -1517,14 +1566,14 @@
 
       managedUsers.forEach((user, idx) => {
         const perms = getUserPermissions(user);
-        const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-amber-50';
+        const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-theme-page';
         const roleColor = user.role === 'admin' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700';
         
         html += `
-              <tr class="${rowBg} border-b border-amber-200 hover:bg-amber-100 transition">
-                <td class="px-6 py-4 font-medium text-amber-900 border-r border-amber-300">
+              <tr class="${rowBg} border-b border-theme hover:bg-theme-muted transition">
+                <td class="px-6 py-4 font-medium text-theme-primary border-r border-theme-strong">
                   <div class="flex items-center gap-2 flex-wrap">
-                    <span class="w-8 h-8 flex items-center justify-center bg-amber-200 rounded-full text-sm font-bold text-amber-700">${user.username.charAt(0).toUpperCase()}</span>
+                    <span class="w-8 h-8 flex items-center justify-center bg-theme-muted rounded-full text-sm font-bold text-theme-secondary">${user.username.charAt(0).toUpperCase()}</span>
                     <div>
                       <div>${user.username}</div>
                       <span class="text-xs px-2 py-0.5 rounded-full ${roleColor}">${user.role}</span>
@@ -1535,7 +1584,7 @@
 
         allPermissions.forEach(perm => {
           html += `
-                <td class="px-4 py-4 text-center border-r border-amber-300">
+                <td class="px-4 py-4 text-center border-r border-theme-strong">
                   <input type="checkbox" class="permission-checkbox permission-${user.__backendId}-${perm.id}" ${perms[perm.id] ? 'checked' : ''} data-user-id="${user.__backendId}" data-permission="${perm.id}" style="width:20px; height:20px; cursor:pointer;">
                 </td>
           `;
@@ -1611,25 +1660,25 @@
         const shortAddress = [d.area, d.district, d.pincode].filter(Boolean).join(', ') || '-';
         
         return `
-          <tr class="border-b border-amber-100 hover:bg-amber-50">
-            <td class="py-3 px-4 text-amber-600 text-sm">${index + 1}</td>
+          <tr class="border-b border-theme hover:bg-theme-page">
+            <td class="py-3 px-4 text-theme-muted text-sm">${index + 1}</td>
             <td class="py-3 px-4">
-              <div class="text-amber-900 font-medium">${d.name}</div>
-              ${d.spiritualName ? `<div class="text-xs text-amber-600 italic">${d.spiritualName}</div>` : ''}
+              <div class="text-theme-primary font-medium">${d.name}</div>
+              ${d.spiritualName ? `<div class="text-xs text-theme-muted italic">${d.spiritualName}</div>` : ''}
             </td>
-            <td class="py-3 px-4 text-amber-700">${d.mobile || '-'}</td>
-            <td class="py-3 px-4 text-amber-700">${d.whatsapp || '-'}</td>
-            <td class="py-3 px-4 text-amber-700 text-sm">${d.email || '-'}</td>
-            <td class="py-3 px-4 text-amber-700 text-xs max-w-xs truncate" title="${shortAddress}">${shortAddress}</td>
+            <td class="py-3 px-4 text-theme-secondary">${d.mobile || '-'}</td>
+            <td class="py-3 px-4 text-theme-secondary">${d.whatsapp || '-'}</td>
+            <td class="py-3 px-4 text-theme-secondary text-sm">${d.email || '-'}</td>
+            <td class="py-3 px-4 text-theme-secondary text-xs max-w-xs truncate" title="${shortAddress}">${shortAddress}</td>
             <td class="py-3 px-4 text-center">
               <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700 font-medium">${donorBookings.length}</span>
             </td>
-            <td class="py-3 px-4 text-amber-900 font-semibold">₹${totalDonations.toLocaleString()}</td>
-            <td class="py-3 px-4 text-amber-700 text-sm">${lastDonation}</td>
+            <td class="py-3 px-4 text-theme-primary font-semibold">₹${totalDonations.toLocaleString()}</td>
+            <td class="py-3 px-4 text-theme-secondary text-sm">${lastDonation}</td>
             <td class="py-3 px-4">
               <div class="flex gap-2">
                 <button class="text-blue-600 hover:text-blue-800 font-medium text-xs view-donor-btn" data-donor-id="${d.__backendId}" title="View details">View</button>
-                <button class="text-amber-600 hover:text-amber-800 font-medium text-xs edit-donor-btn" data-donor-id="${d.__backendId}" title="Edit details">Edit</button>
+                <button class="text-theme-muted hover:text-theme-secondary font-medium text-xs edit-donor-btn" data-donor-id="${d.__backendId}" title="Edit details">Edit</button>
                 <button class="text-green-600 hover:text-green-800 font-medium text-xs select-donor-btn" data-donor-id="${d.__backendId}" title="Select for booking">Use</button>
               </div>
             </td>
@@ -1684,28 +1733,28 @@
         : users;
 
       tbody.innerHTML = filteredUsers.map(u => `
-        <tr class="border-b border-amber-100 hover:bg-amber-50">
+        <tr class="border-b border-theme hover:bg-theme-page">
           <td class="py-3 px-4">
-            <div class="text-amber-900 font-medium">${u.username}</div>
-            <div class="text-xs text-amber-600 mt-1">ID: ${u.__backendId.substring(0, 8)}...</div>
+            <div class="text-theme-primary font-medium">${u.username}</div>
+            <div class="text-xs text-theme-muted mt-1">ID: ${u.__backendId.substring(0, 8)}...</div>
           </td>
           <td class="py-3 px-4">
             <span class="px-2 py-1 text-xs rounded-full font-medium ${u.username === 'admin' ? 'bg-red-100 text-red-700' : u.role === 'admin' ? 'bg-orange-100 text-orange-700' : u.role === 'volunteer' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}">${u.username === 'admin' ? 'Superadmin' : u.role.charAt(0).toUpperCase() + u.role.slice(1)}</span>
           </td>
           <td class="py-3 px-4">
-            <div class="text-amber-700 text-sm font-medium">${getCenterName(u.centerId)}</div>
-            <div class="text-xs text-amber-600 mt-1">${u.centerId || 'All Centers'}</div>
+            <div class="text-theme-secondary text-sm font-medium">${getCenterName(u.centerId)}</div>
+            <div class="text-xs text-theme-muted mt-1">${u.centerId || 'All Centers'}</div>
           </td>
           <td class="py-3 px-4">
             ${u.username !== 'admin' ? `
               <button class="text-red-600 hover:text-red-800 font-medium text-sm delete-user-btn" data-user-id="${u.__backendId}">Delete</button>
-            ` : '<span class="text-amber-400 text-xs font-semibold">Protected</span>'}
+            ` : '<span class="text-theme-accent text-xs font-semibold">Protected</span>'}
           </td>
         </tr>
       `).join('');
 
       if (filteredUsers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-amber-600">No users found for this center</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-theme-muted">No users found for this center</td></tr>';
       }
 
       tbody.querySelectorAll('.delete-user-btn').forEach(btn => {
@@ -1729,20 +1778,20 @@
       container.innerHTML = sevasList.map(s => {
         const hasShortcut = (window.sevaShortcuts && window.sevaShortcuts[s.id] === false) ? false : (s.shortcut !== false);
         return `
-        <div class="border border-amber-200 rounded-xl p-4 hover:shadow-md transition ${hasShortcut ? 'ring-2 ring-amber-400' : ''}">
+        <div class="border border-theme rounded-xl p-4 hover:shadow-md transition ${hasShortcut ? 'ring-2 ring-theme-strong' : ''}">
           <div class="flex justify-between items-start mb-2">
-            <h4 class="font-semibold text-amber-900">${s.name}</h4>
-            <span class="font-bold text-amber-700">₹${s.amount}</span>
+            <h4 class="font-semibold text-theme-primary">${s.name}</h4>
+            <span class="font-bold text-theme-secondary">₹${s.amount}</span>
           </div>
-          <p class="text-sm text-amber-600 mb-1">${s.description}</p>
-          <p class="text-xs text-amber-500 mb-3">Center: ${centerLabel(s.centerId)}</p>
+          <p class="text-sm text-theme-muted mb-1">${s.description}</p>
+          <p class="text-xs text-theme-muted mb-3">Center: ${centerLabel(s.centerId)}</p>
           <div class="flex items-center justify-between">
             <div class="flex gap-2">
               <button class="text-xs text-blue-600 hover:text-blue-800 edit-seva-btn" data-seva-id="${s.id}">Edit</button>
               <button class="text-xs text-red-600 hover:text-red-800 delete-seva-btn" data-seva-id="${s.id}">Delete</button>
             </div>
             <button class="shortcut-toggle-btn flex items-center gap-1 text-xs px-2 py-1 rounded-full transition-all ${hasShortcut 
-              ? 'bg-amber-500 text-white hover:bg-amber-600' 
+              ? 'bg-theme-accent text-white hover:opacity-90' 
               : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}" 
               data-seva-id="${s.id}" title="${hasShortcut ? 'Remove from shortcuts' : 'Add to shortcuts'}">
               <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1860,14 +1909,14 @@
         }, 0);
         
         return `
-          <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-amber-50'} hover:bg-amber-100 transition">
-            <td class="py-3 px-4 text-amber-600 text-sm">${index + 1}</td>
+          <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-theme-page'} hover:bg-theme-muted transition">
+            <td class="py-3 px-4 text-theme-muted text-sm">${index + 1}</td>
             <td class="py-3 px-4">
-              <div class="text-amber-900 font-medium">${d.name}</div>
-              <div class="text-xs text-amber-500">${getCenterLabel(d.centerId)}</div>
+              <div class="text-theme-primary font-medium">${d.name}</div>
+              <div class="text-xs text-theme-muted">${getCenterLabel(d.centerId)}</div>
             </td>
-            <td class="py-3 px-4 text-amber-700 text-sm">${d.spiritualName || '-'}</td>
-            <td class="py-3 px-4 text-amber-700 text-sm">${d.mobile || '-'}</td>
+            <td class="py-3 px-4 text-theme-secondary text-sm">${d.spiritualName || '-'}</td>
+            <td class="py-3 px-4 text-theme-secondary text-sm">${d.mobile || '-'}</td>
             <td class="py-3 px-4">
               <code class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-mono">${d.name}</code>
             </td>
@@ -1875,8 +1924,8 @@
               <code class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono">${d.name}</code>
             </td>
             <td class="py-3 px-4">
-              <div class="text-amber-900 font-medium">${donorBookings.length} bookings</div>
-              <div class="text-xs text-amber-600">₹${totalAmount.toLocaleString()}</div>
+              <div class="text-theme-primary font-medium">${donorBookings.length} bookings</div>
+              <div class="text-xs text-theme-muted">₹${totalAmount.toLocaleString()}</div>
             </td>
           </tr>
         `;
@@ -1903,19 +1952,19 @@
         const userCount = allData.filter(d => d.type === 'user' && d.centerId === center.id).length;
         
         return `
-          <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-amber-50'} hover:bg-amber-100 transition">
-            <td class="py-3 px-4 text-amber-600 text-sm">${index + 1}</td>
+          <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-theme-page'} hover:bg-theme-muted transition">
+            <td class="py-3 px-4 text-theme-muted text-sm">${index + 1}</td>
             <td class="py-3 px-4">
               <code class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-mono">${center.id}</code>
             </td>
             <td class="py-3 px-4">
-              <div class="text-amber-900 font-medium">${center.name}</div>
+              <div class="text-theme-primary font-medium">${center.name}</div>
             </td>
-            <td class="py-3 px-4 text-amber-700">${center.city || '-'}</td>
-            <td class="py-3 px-4 text-amber-700">${center.state || '-'}</td>
+            <td class="py-3 px-4 text-theme-secondary">${center.city || '-'}</td>
+            <td class="py-3 px-4 text-theme-secondary">${center.state || '-'}</td>
             <td class="py-3 px-4">
-              <div class="text-amber-900">${donorCount} donors</div>
-              <div class="text-xs text-amber-600">${userCount} users</div>
+              <div class="text-theme-primary">${donorCount} donors</div>
+              <div class="text-xs text-theme-muted">${userCount} users</div>
             </td>
             <td class="py-3 px-4">
               <div class="flex gap-2">
@@ -1939,29 +1988,29 @@
 
     function openAddCenterModal() {
       showModal(`
-        <h3 class="font-display text-xl font-semibold text-amber-900 mb-4">Add New Center</h3>
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Add New Center</h3>
         <form id="add-center-form" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Center Name *</label>
-            <input type="text" id="new-center-name" required class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Hyderabad Center">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Center Name *</label>
+            <input type="text" id="new-center-name" required class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="Hyderabad Center">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Center ID</label>
-            <input type="text" id="new-center-id" required class="w-full px-3 py-2 border border-amber-200 rounded-lg bg-amber-50 outline-none" readonly placeholder="Auto-generated from name">
-            <p class="text-xs text-amber-500 mt-1">Auto-generated from center name</p>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Center ID</label>
+            <input type="text" id="new-center-id" required class="w-full px-3 py-2 border border-theme rounded-lg bg-theme-page outline-none" readonly placeholder="Auto-generated from name">
+            <p class="text-xs text-theme-muted mt-1">Auto-generated from center name</p>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-amber-700 mb-1">City</label>
-              <input type="text" id="new-center-city" class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Hyderabad">
+              <label class="block text-sm font-medium text-theme-secondary mb-1">City</label>
+              <input type="text" id="new-center-city" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="Hyderabad">
             </div>
             <div>
-              <label class="block text-sm font-medium text-amber-700 mb-1">State</label>
-              <input type="text" id="new-center-state" class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Telangana">
+              <label class="block text-sm font-medium text-theme-secondary mb-1">State</label>
+              <input type="text" id="new-center-state" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="Telangana">
             </div>
           </div>
-          <div class="flex gap-3 pt-4 border-t border-amber-200">
-            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50">Cancel</button>
+          <div class="flex gap-3 pt-4 border-t border-theme">
+            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
             <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Add Center</button>
           </div>
         </form>
@@ -2006,29 +2055,29 @@
       if (!center) return;
       
       showModal(`
-        <h3 class="font-display text-xl font-semibold text-amber-900 mb-4">Edit Center</h3>
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Edit Center</h3>
         <form id="edit-center-form" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Center ID</label>
-            <input type="text" value="${center.id}" class="w-full px-3 py-2 border border-amber-200 rounded-lg bg-amber-50 outline-none" readonly>
-            <p class="text-xs text-amber-500 mt-1">Center ID cannot be changed</p>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Center ID</label>
+            <input type="text" value="${center.id}" class="w-full px-3 py-2 border border-theme rounded-lg bg-theme-page outline-none" readonly>
+            <p class="text-xs text-theme-muted mt-1">Center ID cannot be changed</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Center Name *</label>
-            <input type="text" id="edit-center-name" required value="${center.name}" class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Center Name *</label>
+            <input type="text" id="edit-center-name" required value="${center.name}" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-amber-700 mb-1">City</label>
-              <input type="text" id="edit-center-city" value="${center.city || ''}" class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+              <label class="block text-sm font-medium text-theme-secondary mb-1">City</label>
+              <input type="text" id="edit-center-city" value="${center.city || ''}" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none">
             </div>
             <div>
-              <label class="block text-sm font-medium text-amber-700 mb-1">State</label>
-              <input type="text" id="edit-center-state" value="${center.state || ''}" class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+              <label class="block text-sm font-medium text-theme-secondary mb-1">State</label>
+              <input type="text" id="edit-center-state" value="${center.state || ''}" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none">
             </div>
           </div>
-          <div class="flex gap-3 pt-4 border-t border-amber-200">
-            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50">Cancel</button>
+          <div class="flex gap-3 pt-4 border-t border-theme">
+            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
             <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Save Changes</button>
           </div>
         </form>
@@ -2067,9 +2116,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
               </svg>
             </div>
-            <h3 class="font-display text-xl font-semibold text-amber-900 mb-2">Cannot Delete Center</h3>
-            <p class="text-amber-700 mb-4">This center has ${donorCount} donors and ${userCount} users assigned to it.</p>
-            <p class="text-sm text-amber-600 mb-4">Please reassign or remove all donors and users before deleting this center.</p>
+            <h3 class="font-display text-xl font-semibold text-theme-primary mb-2">Cannot Delete Center</h3>
+            <p class="text-theme-secondary mb-4">This center has ${donorCount} donors and ${userCount} users assigned to it.</p>
+            <p class="text-sm text-theme-muted mb-4">Please reassign or remove all donors and users before deleting this center.</p>
             <button onclick="hideModal()" class="w-full btn-primary text-white py-2 rounded-lg">OK</button>
           </div>
         `);
@@ -2083,10 +2132,10 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
             </svg>
           </div>
-          <h3 class="font-display text-xl font-semibold text-amber-900 mb-2">Delete Center?</h3>
-          <p class="text-amber-700 mb-4">Are you sure you want to delete <strong>${center.name}</strong>?</p>
+          <h3 class="font-display text-xl font-semibold text-theme-primary mb-2">Delete Center?</h3>
+          <p class="text-theme-secondary mb-4">Are you sure you want to delete <strong>${center.name}</strong>?</p>
           <div class="flex gap-3">
-            <button onclick="hideModal()" class="flex-1 px-4 py-2 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50">Cancel</button>
+            <button onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
             <button onclick="confirmDeleteCenter('${centerId}')" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700">Delete</button>
           </div>
         </div>
@@ -2171,20 +2220,20 @@
         const collectorColor = collectorColors[collectedByUsername] || 'bg-gray-100 text-gray-700';
         
         return `
-          <tr class="border-b border-amber-100 hover:bg-amber-50">
-            <td class="py-3 px-4 text-amber-700">${new Date(b.bookingDate).toLocaleDateString('en-GB')}</td>
-            <td class="py-3 px-4 text-amber-900">${donorName}</td>
-            <td class="py-3 px-4 text-amber-700 text-sm">${sevaDetails}</td>
-            <td class="py-3 px-4 text-amber-900 font-medium">₹${correctTotal.toLocaleString()}</td>
+          <tr class="border-b border-theme hover:bg-theme-page">
+            <td class="py-3 px-4 text-theme-secondary">${new Date(b.bookingDate).toLocaleDateString('en-GB')}</td>
+            <td class="py-3 px-4 text-theme-primary">${donorName}</td>
+            <td class="py-3 px-4 text-theme-secondary text-sm">${sevaDetails}</td>
+            <td class="py-3 px-4 text-theme-primary font-medium">₹${correctTotal.toLocaleString()}</td>
             <td class="py-3 px-4">
               <span class="px-2 py-1 text-xs rounded-full font-medium ${collectorColor}">${collectedByDisplay}</span>
             </td>
-            <td class="py-3 px-4 text-amber-700 text-sm">${centerName}</td>
+            <td class="py-3 px-4 text-theme-secondary text-sm">${centerName}</td>
             <td class="py-3 px-4">
               <span class="px-2 py-1 text-xs rounded-full ${b.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${b.paymentStatus || 'pending'}</span>
             </td>
             <td class="py-3 px-4">
-              ${hasPermission('receipts') ? `<button class="text-amber-600 hover:text-amber-800 font-medium text-sm download-receipt-btn" data-booking-id="${b.__backendId}" data-donor-id="${b.donorId}">Download</button>` : '<span class="text-gray-400 text-sm">N/A</span>'}
+              ${hasPermission('receipts') ? `<button class="text-theme-muted hover:text-theme-secondary font-medium text-sm download-receipt-btn" data-booking-id="${b.__backendId}" data-donor-id="${b.donorId}">Download</button>` : '<span class="text-gray-400 text-sm">N/A</span>'}
             </td>
           </tr>
         `;
@@ -3075,18 +3124,18 @@
 
       const tbody = document.getElementById('top-sevas-body');
       if (topSevas.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-amber-600">No data available</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-theme-muted">No data available</td></tr>';
         return;
       }
 
       tbody.innerHTML = topSevas.map(seva => {
         const avgPerBooking = Math.round(seva.revenue / seva.bookings);
         return `
-          <tr class="border-b border-amber-100 hover:bg-amber-50">
-            <td class="py-3 px-4 text-amber-900 font-medium">${seva.name}</td>
-            <td class="py-3 px-4 text-amber-700">${seva.bookings}</td>
-            <td class="py-3 px-4 text-amber-900 font-semibold">₹${seva.revenue.toLocaleString()}</td>
-            <td class="py-3 px-4 text-amber-700">₹${avgPerBooking.toLocaleString()}</td>
+          <tr class="border-b border-theme hover:bg-theme-page">
+            <td class="py-3 px-4 text-theme-primary font-medium">${seva.name}</td>
+            <td class="py-3 px-4 text-theme-secondary">${seva.bookings}</td>
+            <td class="py-3 px-4 text-theme-primary font-semibold">₹${seva.revenue.toLocaleString()}</td>
+            <td class="py-3 px-4 text-theme-secondary">₹${avgPerBooking.toLocaleString()}</td>
           </tr>
         `;
       }).join('');
@@ -3096,7 +3145,7 @@
       const tbody = document.getElementById('filtered-transactions-body');
 
       if (filteredBookings.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-amber-600">No transactions available</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-theme-muted">No transactions available</td></tr>';
         return;
       }
 
@@ -3109,11 +3158,11 @@
         const correctTotal = items.reduce((sum, item) => sum + (item.amount * (item.quantity || 1)), 0);
 
         return `
-          <tr class="border-b border-amber-100 hover:bg-amber-50">
-            <td class="py-3 px-4 text-amber-700 text-sm">${new Date(b.bookingDate).toLocaleDateString('en-GB')}</td>
-            <td class="py-3 px-4 text-amber-900 font-medium">${donorName}</td>
-            <td class="py-3 px-4 text-amber-700 text-sm">${sevaNames || '-'}</td>
-            <td class="py-3 px-4 text-amber-900 font-semibold">₹${correctTotal.toLocaleString()}</td>
+          <tr class="border-b border-theme hover:bg-theme-page">
+            <td class="py-3 px-4 text-theme-secondary text-sm">${new Date(b.bookingDate).toLocaleDateString('en-GB')}</td>
+            <td class="py-3 px-4 text-theme-primary font-medium">${donorName}</td>
+            <td class="py-3 px-4 text-theme-secondary text-sm">${sevaNames || '-'}</td>
+            <td class="py-3 px-4 text-theme-primary font-semibold">₹${correctTotal.toLocaleString()}</td>
             <td class="py-3 px-4">
               <span class="px-2 py-1 text-xs rounded-full font-medium ${b.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${b.paymentStatus || 'pending'}</span>
             </td>
@@ -3632,7 +3681,7 @@
         stateField.removeAttribute('readonly');
         statusDiv.textContent = '⚠ Pincode not found - please enter details manually below';
         statusDiv.classList.remove('text-green-600');
-        statusDiv.classList.add('text-amber-600');
+        statusDiv.classList.add('text-theme-muted');
       }
     }
 
@@ -3687,7 +3736,7 @@
       const resultDiv = document.getElementById('search-result');
 
       if (!mobile) {
-        resultDiv.innerHTML = '<span class="text-amber-600">Please enter a mobile number or name</span>';
+        resultDiv.innerHTML = '<span class="text-theme-muted">Please enter a mobile number or name</span>';
         return;
       }
 
@@ -3701,7 +3750,7 @@
         resultDiv.innerHTML = `<span class="text-green-600">Found: ${donor.name}</span>`;
         selectDonor(donor.__backendId);
       } else {
-        resultDiv.innerHTML = `<span class="text-amber-600">Not found. Fill details below for new donor.</span>`;
+        resultDiv.innerHTML = `<span class="text-theme-muted">Not found. Fill details below for new donor.</span>`;
         clearDonorForm();
         document.getElementById('donor-mobile').value = mobile;
       }
@@ -3734,7 +3783,7 @@
       if (matchingDonors.length === 0) {
         dropdown.classList.add('hidden');
         dropdown.innerHTML = '';
-        resultDiv.innerHTML = `<span class="text-amber-600">No matching donors. Type mobile or name, or add new donor below.</span>`;
+        resultDiv.innerHTML = `<span class="text-theme-muted">No matching donors. Type mobile or name, or add new donor below.</span>`;
         return;
       }
 
@@ -3742,11 +3791,11 @@
 
       // Show dropdown with matching donors
       dropdown.innerHTML = matchingDonors.map(donor => `
-        <div class="px-4 py-3 hover:bg-amber-50 cursor-pointer border-b border-amber-100 transition donor-option" data-donor-id="${donor.__backendId}">
-          <div class="font-semibold text-amber-900">${donor.name || '—'}</div>
-          <div class="text-sm text-amber-600">📱 ${donor.mobile || '—'}</div>
-          ${donor.email ? `<div class="text-sm text-amber-600">✉️ ${donor.email}</div>` : ''}
-          ${donor.pincode ? `<div class="text-sm text-amber-600">📍 ${donor.area || ''} - ${donor.pincode}</div>` : ''}
+        <div class="px-4 py-3 hover:bg-theme-page cursor-pointer border-b border-theme transition donor-option" data-donor-id="${donor.__backendId}">
+          <div class="font-semibold text-theme-primary">${donor.name || '—'}</div>
+          <div class="text-sm text-theme-muted">📱 ${donor.mobile || '—'}</div>
+          ${donor.email ? `<div class="text-sm text-theme-muted">✉️ ${donor.email}</div>` : ''}
+          ${donor.pincode ? `<div class="text-sm text-theme-muted">📍 ${donor.area || ''} - ${donor.pincode}</div>` : ''}
         </div>
       `).join('');
 
@@ -3768,26 +3817,26 @@
     // Modal Forms
     function showAddUserModal() {
       showModal(`
-        <h3 class="font-display text-xl font-semibold text-amber-900 mb-4">Add New User</h3>
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Add New User</h3>
         <form id="add-user-form" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Username *</label>
-            <input type="text" id="new-username" required class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Username *</label>
+            <input type="text" id="new-username" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Password *</label>
-            <input type="password" id="new-password" required class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Password *</label>
+            <input type="password" id="new-password" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Role *</label>
-            <select id="new-role" required class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Role *</label>
+            <select id="new-role" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
               <option value="volunteer">Volunteer</option>
               <option value="admin">Admin</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Center/Location *</label>
-            <select id="new-center-id" required class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Center/Location *</label>
+            <select id="new-center-id" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
               <option value="">Select a center...</option>
               <option value="center_bangalore">Bangalore Center</option>
               <option value="center_delhi">Delhi Center</option>
@@ -3797,7 +3846,7 @@
             </select>
           </div>
           <div class="flex gap-3 pt-2">
-            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50">Cancel</button>
+            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
             <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Add User</button>
           </div>
         </form>
@@ -3855,10 +3904,10 @@
 
     function confirmDeleteUser(userId) {
       showModal(`
-        <h3 class="font-display text-xl font-semibold text-amber-900 mb-4">Confirm Delete</h3>
-        <p class="text-amber-700 mb-6">Are you sure you want to delete this user? This action cannot be undone.</p>
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Confirm Delete</h3>
+        <p class="text-theme-secondary mb-6">Are you sure you want to delete this user? This action cannot be undone.</p>
         <div class="flex gap-3">
-          <button onclick="hideModal()" class="flex-1 px-4 py-2 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50">Cancel</button>
+          <button onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
           <button onclick="deleteUser('${userId}')" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg">Delete</button>
         </div>
       `);
@@ -3877,93 +3926,93 @@
 
     function showAddDonorModal() {
       showModal(`
-        <h3 class="font-display text-xl font-semibold text-amber-900 mb-4">Add New Donor</h3>
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Add New Donor</h3>
         <form id="add-donor-form" class="space-y-3 max-h-[80vh] overflow-y-auto pr-2">
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Legal Name *</label>
-            <input type="text" id="modal-donor-name" required class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Full name (First and Last)">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Legal Name *</label>
+            <input type="text" id="modal-donor-name" required class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="Full name (First and Last)">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Spiritual Name (Optional)</label>
-            <input type="text" id="modal-donor-spiritual-name" class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Initiated name if applicable">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Spiritual Name (Optional)</label>
+            <input type="text" id="modal-donor-spiritual-name" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="Initiated name if applicable">
           </div>
           <div class="flex items-center gap-2 py-2">
-            <input type="checkbox" id="modal-donor-indian-passport" class="w-4 h-4 text-amber-600 border-amber-300 rounded focus:ring-amber-500">
-            <label for="modal-donor-indian-passport" class="text-sm font-medium text-amber-700">Indian Passport Holder</label>
+            <input type="checkbox" id="modal-donor-indian-passport" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus">
+            <label for="modal-donor-indian-passport" class="text-sm font-medium text-theme-secondary">Indian Passport Holder</label>
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">PAN Number</label>
-            <input type="text" id="modal-donor-pan" class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none uppercase" placeholder="ABCDE1234F" maxlength="10">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">PAN Number</label>
+            <input type="text" id="modal-donor-pan" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none uppercase" placeholder="ABCDE1234F" maxlength="10">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Mobile *</label>
-            <input type="tel" id="modal-donor-mobile" required class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Mobile *</label>
+            <input type="tel" id="modal-donor-mobile" required class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">WhatsApp</label>
-            <input type="tel" id="modal-donor-whatsapp" class="w-full px-3 py-2 border border-amber-200 rounded-lg bg-amber-50 focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Auto-filled from mobile">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">WhatsApp</label>
+            <input type="tel" id="modal-donor-whatsapp" class="w-full px-3 py-2 border border-theme rounded-lg bg-theme-page theme-focus outline-none" placeholder="Auto-filled from mobile">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Email</label>
-            <input type="email" id="modal-donor-email" class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Email</label>
+            <input type="email" id="modal-donor-email" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           
-          <div class="border-t border-amber-200 pt-3 mt-3">
-            <p class="text-xs font-semibold text-amber-800 mb-2">📍 Address Details</p>
+          <div class="border-t border-theme pt-3 mt-3">
+            <p class="text-xs font-semibold text-theme-secondary mb-2">📍 Address Details</p>
             
             <div>
-              <label class="block text-xs font-medium text-amber-700 mb-1">Flat / Door / Building</label>
-              <input type="text" id="modal-donor-flat" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+              <label class="block text-xs font-medium text-theme-secondary mb-1">Flat / Door / Building</label>
+              <input type="text" id="modal-donor-flat" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
             </div>
             
             <div class="mt-2">
-              <label class="block text-xs font-medium text-amber-700 mb-1">Road / Street / Block / Sector</label>
-              <input type="text" id="modal-donor-road" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+              <label class="block text-xs font-medium text-theme-secondary mb-1">Road / Street / Block / Sector</label>
+              <input type="text" id="modal-donor-road" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
             </div>
             
             <div class="mt-2">
-              <label class="block text-xs font-medium text-amber-700 mb-1">Post Office</label>
-              <input type="text" id="modal-donor-po" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+              <label class="block text-xs font-medium text-theme-secondary mb-1">Post Office</label>
+              <input type="text" id="modal-donor-po" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
             </div>
             
             <div class="mt-2">
-              <label class="block text-xs font-medium text-amber-700 mb-1">Area / Locality</label>
-              <input type="text" id="modal-donor-area" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+              <label class="block text-xs font-medium text-theme-secondary mb-1">Area / Locality</label>
+              <input type="text" id="modal-donor-area" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
             </div>
             
             <div class="mt-2">
-              <label class="block text-xs font-medium text-amber-700 mb-1">Pincode *</label>
-              <input type="text" id="modal-donor-pincode" maxlength="6" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Enter 6-digit pincode">
-              <div id="modal-pincode-status" class="text-xs mt-1 text-amber-600"></div>
+              <label class="block text-xs font-medium text-theme-secondary mb-1">Pincode *</label>
+              <input type="text" id="modal-donor-pincode" maxlength="6" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none" placeholder="Enter 6-digit pincode">
+              <div id="modal-pincode-status" class="text-xs mt-1 text-theme-muted"></div>
             </div>
             
             <div class="grid grid-cols-2 gap-2 mt-2">
               <div>
-                <label class="block text-xs font-medium text-amber-700 mb-1">District</label>
-                <input type="text" id="modal-donor-district" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50" readonly placeholder="Auto-filled">
+                <label class="block text-xs font-medium text-theme-secondary mb-1">District</label>
+                <input type="text" id="modal-donor-district" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none bg-theme-page" readonly placeholder="Auto-filled">
               </div>
               <div>
-                <label class="block text-xs font-medium text-amber-700 mb-1">State</label>
-                <input type="text" id="modal-donor-state" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50" readonly placeholder="Auto-filled">
+                <label class="block text-xs font-medium text-theme-secondary mb-1">State</label>
+                <input type="text" id="modal-donor-state" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none bg-theme-page" readonly placeholder="Auto-filled">
               </div>
             </div>
             
             <div class="grid grid-cols-2 gap-2 mt-2">
               <div>
-                <label class="block text-xs font-medium text-amber-700 mb-1">Country</label>
-                <input type="text" id="modal-donor-country" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50" readonly value="India">
+                <label class="block text-xs font-medium text-theme-secondary mb-1">Country</label>
+                <input type="text" id="modal-donor-country" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none bg-theme-page" readonly value="India">
               </div>
               <div>
-                <label class="block text-xs font-medium text-amber-700 mb-1">Center *</label>
-                <select id="modal-donor-center" required class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                <label class="block text-xs font-medium text-theme-secondary mb-1">Center *</label>
+                <select id="modal-donor-center" required class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
                   ${centersList.map(c => `<option value="${c.id}" ${c.id === currentUser.centerId || (currentUser.username === 'admin' && c.id === centersList[0]?.id) ? 'selected' : ''}>${c.name}</option>`).join('')}
                 </select>
               </div>
             </div>
           </div>
           
-          <div class="flex gap-3 pt-4 border-t border-amber-200 sticky bottom-0 bg-white">
-            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50">Cancel</button>
+          <div class="flex gap-3 pt-4 border-t border-theme sticky bottom-0 bg-white">
+            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
             <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Add Donor</button>
           </div>
         </form>
@@ -3980,15 +4029,15 @@
         
         if (mobile && !whatsappField.dataset.manuallyEdited) {
           whatsappField.value = mobile;
-          whatsappField.classList.remove('border-amber-200');
-          whatsappField.classList.add('bg-amber-100', 'border-amber-400');
+          whatsappField.classList.remove('border-theme');
+          whatsappField.classList.add('bg-theme-muted', 'border-theme-strong');
           whatsappField.setAttribute('data-auto-filled', 'true');
         }
       });
 
       document.getElementById('modal-donor-whatsapp').addEventListener('focus', (e) => {
-        e.target.classList.remove('bg-amber-50', 'bg-amber-100', 'border-amber-400');
-        e.target.classList.add('border-amber-200');
+        e.target.classList.remove('bg-theme-page', 'bg-theme-muted', 'border-theme-strong');
+        e.target.classList.add('border-theme');
         e.target.dataset.manuallyEdited = 'true';
       });
 
@@ -4002,8 +4051,8 @@
           const mobile = document.getElementById('modal-donor-mobile').value.trim();
           if (mobile) {
             e.target.value = mobile;
-            e.target.classList.add('bg-amber-100', 'border-amber-400');
-            e.target.classList.remove('bg-amber-50', 'border-amber-200');
+            e.target.classList.add('bg-theme-muted', 'border-theme-strong');
+            e.target.classList.remove('bg-theme-page', 'border-theme');
             e.target.removeAttribute('data-auto-filled');
           }
         }
@@ -4057,30 +4106,30 @@
       }, 0);
 
       showModal(`
-        <h3 class="font-display text-2xl font-semibold text-amber-900 mb-6">Donor Profile</h3>
+        <h3 class="font-display text-2xl font-semibold text-theme-primary mb-6">Donor Profile</h3>
         
         <div class="grid lg:grid-cols-2 gap-6 max-h-[80vh] overflow-y-auto pr-2">
           <!-- Contact Information -->
-          <div class="bg-amber-50 rounded-lg p-4 border border-amber-200">
-            <h4 class="font-semibold text-amber-900 mb-4 flex items-center gap-2">
+          <div class="bg-theme-page rounded-lg p-4 border border-theme">
+            <h4 class="font-semibold text-theme-primary mb-4 flex items-center gap-2">
               <span class="text-lg">👤</span> Personal Details
             </h4>
             <div class="space-y-3">
               <div>
-                <p class="text-xs text-amber-600 font-medium">Legal Name</p>
-                <p class="text-sm font-semibold text-amber-900">${donor.name}</p>
+                <p class="text-xs text-theme-muted font-medium">Legal Name</p>
+                <p class="text-sm font-semibold text-theme-primary">${donor.name}</p>
               </div>
               <div>
-                <p class="text-xs text-amber-600 font-medium">📱 Mobile Number</p>
-                <p class="text-sm font-semibold text-amber-900">${donor.mobile}</p>
+                <p class="text-xs text-theme-muted font-medium">📱 Mobile Number</p>
+                <p class="text-sm font-semibold text-theme-primary">${donor.mobile}</p>
               </div>
               <div>
-                <p class="text-xs text-amber-600 font-medium">💬 WhatsApp Number</p>
-                <p class="text-sm font-semibold text-amber-900">${donor.whatsapp || '-'}</p>
+                <p class="text-xs text-theme-muted font-medium">💬 WhatsApp Number</p>
+                <p class="text-sm font-semibold text-theme-primary">${donor.whatsapp || '-'}</p>
               </div>
               <div>
-                <p class="text-xs text-amber-600 font-medium">✉️ Email</p>
-                <p class="text-sm font-semibold text-amber-900">${donor.email || '-'}</p>
+                <p class="text-xs text-theme-muted font-medium">✉️ Email</p>
+                <p class="text-sm font-semibold text-theme-primary">${donor.email || '-'}</p>
               </div>
             </div>
           </div>
@@ -4173,8 +4222,8 @@
           </div>
         </div>
 
-        <div class="flex gap-3 mt-6 pt-4 border-t border-amber-200">
-          <button onclick="hideModal()" class="flex-1 px-4 py-2 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50">Close</button>
+        <div class="flex gap-3 mt-6 pt-4 border-t border-theme">
+          <button onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Close</button>
           <button onclick="showEditDonorModal('${donorId}')" class="flex-1 btn-primary text-white py-2 rounded-lg">Edit Details</button>
         </div>
       `);
@@ -4189,93 +4238,93 @@
 
       hideModal();
       showModal(`
-        <h3 class="font-display text-xl font-semibold text-amber-900 mb-4">Edit Donor</h3>
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Edit Donor</h3>
         <form id="edit-donor-form" class="space-y-3 max-h-[80vh] overflow-y-auto pr-2">
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Legal Name *</label>
-            <input type="text" id="edit-modal-donor-name" value="${donor.name || ''}" required class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Full name (First and Last)">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Legal Name *</label>
+            <input type="text" id="edit-modal-donor-name" value="${donor.name || ''}" required class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="Full name (First and Last)">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Spiritual Name (Optional)</label>
-            <input type="text" id="edit-modal-donor-spiritual-name" value="${donor.spiritualName || ''}" class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Initiated name if applicable">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Spiritual Name (Optional)</label>
+            <input type="text" id="edit-modal-donor-spiritual-name" value="${donor.spiritualName || ''}" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="Initiated name if applicable">
           </div>
           <div class="flex items-center gap-2 py-2">
-            <input type="checkbox" id="edit-modal-donor-indian-passport" ${donor.indianPassport ? 'checked' : ''} class="w-4 h-4 text-amber-600 border-amber-300 rounded focus:ring-amber-500">
-            <label for="edit-modal-donor-indian-passport" class="text-sm font-medium text-amber-700">Indian Passport Holder</label>
+            <input type="checkbox" id="edit-modal-donor-indian-passport" ${donor.indianPassport ? 'checked' : ''} class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus">
+            <label for="edit-modal-donor-indian-passport" class="text-sm font-medium text-theme-secondary">Indian Passport Holder</label>
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">PAN Number</label>
-            <input type="text" id="edit-modal-donor-pan" value="${donor.pan || ''}" class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none uppercase" placeholder="ABCDE1234F" maxlength="10">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">PAN Number</label>
+            <input type="text" id="edit-modal-donor-pan" value="${donor.pan || ''}" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none uppercase" placeholder="ABCDE1234F" maxlength="10">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Mobile *</label>
-            <input type="tel" id="edit-modal-donor-mobile" value="${donor.mobile || ''}" required class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Mobile *</label>
+            <input type="tel" id="edit-modal-donor-mobile" value="${donor.mobile || ''}" required class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">WhatsApp</label>
-            <input type="tel" id="edit-modal-donor-whatsapp" value="${donor.whatsapp || ''}" class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">WhatsApp</label>
+            <input type="tel" id="edit-modal-donor-whatsapp" value="${donor.whatsapp || ''}" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Email</label>
-            <input type="email" id="edit-modal-donor-email" value="${donor.email || ''}" class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Email</label>
+            <input type="email" id="edit-modal-donor-email" value="${donor.email || ''}" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           
-          <div class="border-t border-amber-200 pt-3 mt-3">
-            <p class="text-xs font-semibold text-amber-800 mb-2">📍 Address Details</p>
+          <div class="border-t border-theme pt-3 mt-3">
+            <p class="text-xs font-semibold text-theme-secondary mb-2">📍 Address Details</p>
             
             <div>
-              <label class="block text-xs font-medium text-amber-700 mb-1">Flat / Door / Building</label>
-              <input type="text" id="edit-modal-donor-flat" value="${donor.flat || ''}" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+              <label class="block text-xs font-medium text-theme-secondary mb-1">Flat / Door / Building</label>
+              <input type="text" id="edit-modal-donor-flat" value="${donor.flat || ''}" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
             </div>
             
             <div class="mt-2">
-              <label class="block text-xs font-medium text-amber-700 mb-1">Road / Street / Block / Sector</label>
-              <input type="text" id="edit-modal-donor-road" value="${donor.road || ''}" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+              <label class="block text-xs font-medium text-theme-secondary mb-1">Road / Street / Block / Sector</label>
+              <input type="text" id="edit-modal-donor-road" value="${donor.road || ''}" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
             </div>
             
             <div class="mt-2">
-              <label class="block text-xs font-medium text-amber-700 mb-1">Post Office</label>
-              <input type="text" id="edit-modal-donor-po" value="${donor.po || ''}" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+              <label class="block text-xs font-medium text-theme-secondary mb-1">Post Office</label>
+              <input type="text" id="edit-modal-donor-po" value="${donor.po || ''}" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
             </div>
             
             <div class="mt-2">
-              <label class="block text-xs font-medium text-amber-700 mb-1">Area / Locality</label>
-              <input type="text" id="edit-modal-donor-area" value="${donor.area || ''}" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+              <label class="block text-xs font-medium text-theme-secondary mb-1">Area / Locality</label>
+              <input type="text" id="edit-modal-donor-area" value="${donor.area || ''}" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
             </div>
             
             <div class="mt-2">
-              <label class="block text-xs font-medium text-amber-700 mb-1">Pincode *</label>
-              <input type="text" id="edit-modal-donor-pincode" value="${donor.pincode || ''}" maxlength="6" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
-              <div id="edit-modal-pincode-status" class="text-xs mt-1 text-amber-600"></div>
+              <label class="block text-xs font-medium text-theme-secondary mb-1">Pincode *</label>
+              <input type="text" id="edit-modal-donor-pincode" value="${donor.pincode || ''}" maxlength="6" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
+              <div id="edit-modal-pincode-status" class="text-xs mt-1 text-theme-muted"></div>
             </div>
             
             <div class="grid grid-cols-2 gap-2 mt-2">
               <div>
-                <label class="block text-xs font-medium text-amber-700 mb-1">District</label>
-                <input type="text" id="edit-modal-donor-district" value="${donor.district || ''}" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50" readonly>
+                <label class="block text-xs font-medium text-theme-secondary mb-1">District</label>
+                <input type="text" id="edit-modal-donor-district" value="${donor.district || ''}" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none bg-theme-page" readonly>
               </div>
               <div>
-                <label class="block text-xs font-medium text-amber-700 mb-1">State</label>
-                <input type="text" id="edit-modal-donor-state" value="${donor.state || ''}" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50" readonly>
+                <label class="block text-xs font-medium text-theme-secondary mb-1">State</label>
+                <input type="text" id="edit-modal-donor-state" value="${donor.state || ''}" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none bg-theme-page" readonly>
               </div>
             </div>
             
             <div class="grid grid-cols-2 gap-2 mt-2">
               <div>
-                <label class="block text-xs font-medium text-amber-700 mb-1">Country</label>
-                <input type="text" id="edit-modal-donor-country" value="${donor.country || 'India'}" class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-amber-50" readonly>
+                <label class="block text-xs font-medium text-theme-secondary mb-1">Country</label>
+                <input type="text" id="edit-modal-donor-country" value="${donor.country || 'India'}" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none bg-theme-page" readonly>
               </div>
               <div>
-                <label class="block text-xs font-medium text-amber-700 mb-1">Center *</label>
-                <select id="edit-modal-donor-center" required class="w-full px-3 py-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                <label class="block text-xs font-medium text-theme-secondary mb-1">Center *</label>
+                <select id="edit-modal-donor-center" required class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
                   ${centersList.map(c => `<option value="${c.id}" ${c.id === donor.centerId ? 'selected' : ''}>${c.name}</option>`).join('')}
                 </select>
               </div>
             </div>
           </div>
           
-          <div class="flex gap-3 pt-4 border-t border-amber-200 sticky bottom-0 bg-white">
-            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50">Cancel</button>
+          <div class="flex gap-3 pt-4 border-t border-theme sticky bottom-0 bg-white">
+            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
             <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Save Changes</button>
           </div>
         </form>
@@ -4318,7 +4367,7 @@
           stateField.removeAttribute('readonly');
           statusDiv.textContent = '⚠ Pincode not found - enter details manually';
           statusDiv.classList.remove('text-green-600');
-          statusDiv.classList.add('text-amber-600');
+          statusDiv.classList.add('text-theme-muted');
         }
       });
 
@@ -4364,29 +4413,29 @@
         ? '<option value="all_centers">All centers</option>' + centers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')
         : `<option value="${currentUser.centerId || ''}">${(centers.find(c => c.id === currentUser.centerId) || {}).name || currentUser.centerId || 'My center'}</option>`;
       showModal(`
-        <h3 class="font-display text-xl font-semibold text-amber-900 mb-4">Add New Seva</h3>
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Add New Seva</h3>
         <form id="add-seva-form" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Center *</label>
-            <select id="new-seva-center" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" ${!isSuperadmin ? 'disabled' : ''}>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Center *</label>
+            <select id="new-seva-center" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" ${!isSuperadmin ? 'disabled' : ''}>
               ${centerOptions}
             </select>
             ${!isSuperadmin ? '<input type="hidden" id="new-seva-center-hidden" value="' + (currentUser.centerId || '') + '">' : ''}
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Seva Name *</label>
-            <input type="text" id="new-seva-name" required class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Seva Name *</label>
+            <input type="text" id="new-seva-name" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Description</label>
-            <input type="text" id="new-seva-desc" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Description</label>
+            <input type="text" id="new-seva-desc" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Amount (Rs.) *</label>
-            <input type="number" id="new-seva-amount" required min="1" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Amount (Rs.) *</label>
+            <input type="number" id="new-seva-amount" required min="1" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           <div class="flex gap-3 pt-2">
-            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50">Cancel</button>
+            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
             <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Add Seva</button>
           </div>
         </form>
@@ -4436,29 +4485,29 @@
         : `<option value="${seva.centerId || ''}" selected>${(centers.find(c => c.id === (seva.centerId || '')) || {}).name || seva.centerId || 'My center'}</option>`;
       const esc = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
       showModal(`
-        <h3 class="font-display text-xl font-semibold text-amber-900 mb-4">Edit Seva</h3>
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Edit Seva</h3>
         <form id="edit-seva-form" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Center</label>
-            <select id="edit-seva-center" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" ${!isSuperadmin ? 'disabled' : ''}>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Center</label>
+            <select id="edit-seva-center" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" ${!isSuperadmin ? 'disabled' : ''}>
               ${centerOptions}
             </select>
             ${!isSuperadmin ? '<input type="hidden" id="edit-seva-center-hidden" value="' + esc(seva.centerId || '') + '">' : ''}
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Seva Name *</label>
-            <input type="text" id="edit-seva-name" value="${esc(seva.name)}" required class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Seva Name *</label>
+            <input type="text" id="edit-seva-name" value="${esc(seva.name)}" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Description</label>
-            <input type="text" id="edit-seva-desc" value="${esc(seva.description)}" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Description</label>
+            <input type="text" id="edit-seva-desc" value="${esc(seva.description)}" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Amount (Rs.) *</label>
-            <input type="number" id="edit-seva-amount" value="${seva.amount}" required min="1" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Amount (Rs.) *</label>
+            <input type="number" id="edit-seva-amount" value="${seva.amount}" required min="1" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           <div class="flex gap-3 pt-2">
-            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50">Cancel</button>
+            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
             <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Update</button>
           </div>
         </form>
@@ -4804,26 +4853,26 @@
     function showPasswordChangeModal() {
       showModal(`
         <div class="text-center mb-4">
-          <div class="w-16 h-16 mx-auto mb-4 bg-amber-100 rounded-full flex items-center justify-center">
-            <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-16 h-16 mx-auto mb-4 bg-theme-muted rounded-full flex items-center justify-center">
+            <svg class="w-8 h-8 text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
             </svg>
           </div>
-          <h3 class="font-display text-xl font-semibold text-amber-900 mb-2">Change Default Password</h3>
-          <p class="text-amber-700 text-sm mb-4">For security, please change your default password.</p>
+          <h3 class="font-display text-xl font-semibold text-theme-primary mb-2">Change Default Password</h3>
+          <p class="text-theme-secondary text-sm mb-4">For security, please change your default password.</p>
         </div>
         <form id="change-password-form" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Current Password</label>
-            <input type="password" id="current-password" required class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Enter current password">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Current Password</label>
+            <input type="password" id="current-password" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="Enter current password">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">New Password</label>
-            <input type="password" id="new-password-change" required minlength="8" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Minimum 8 characters">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">New Password</label>
+            <input type="password" id="new-password-change" required minlength="8" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="Minimum 8 characters">
           </div>
           <div>
-            <label class="block text-sm font-medium text-amber-700 mb-1">Confirm New Password</label>
-            <input type="password" id="confirm-password-change" required class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Confirm new password">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Confirm New Password</label>
+            <input type="password" id="confirm-password-change" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="Confirm new password">
           </div>
           <div id="password-change-error" class="text-red-600 text-sm hidden"></div>
           <button type="submit" class="w-full btn-primary text-white py-2 rounded-lg font-semibold">Change Password</button>
@@ -4885,7 +4934,7 @@
       if (!container) return;
       const centers = getCenters();
       if (centers.length === 0) {
-        container.innerHTML = '<p class="text-amber-600 text-sm">No centers loaded.</p>';
+        container.innerHTML = '<p class="text-theme-muted text-sm">No centers loaded.</p>';
         return;
       }
       if (selectedBookingCenterId === null && centers.length) {
@@ -4893,7 +4942,7 @@
       }
       container.innerHTML = centers.map(c => {
         const isActive = (c.id || '') === selectedBookingCenterId;
-        return `<button type="button" class="booking-center-tab px-4 py-2 rounded-lg text-sm font-medium transition ${isActive ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-800 hover:bg-amber-200'}" data-center-id="${c.id || ''}">${c.name || c.id}</button>`;
+        return `<button type="button" class="booking-center-tab px-4 py-2 rounded-lg text-sm font-medium transition ${isActive ? 'bg-theme-accent text-white' : 'bg-theme-muted text-theme-secondary hover:bg-theme-muted'}" data-center-id="${c.id || ''}">${c.name || c.id}</button>`;
       }).join('');
       container.querySelectorAll('.booking-center-tab').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -5184,12 +5233,12 @@
         ).slice(0, 8); // Limit to 8 results
         
         if (matchingDonors.length === 0) {
-          donorLoginsDropdown.innerHTML = '<div class="px-4 py-3 text-amber-600 text-sm">No donors found</div>';
+          donorLoginsDropdown.innerHTML = '<div class="px-4 py-3 text-theme-muted text-sm">No donors found</div>';
         } else {
           donorLoginsDropdown.innerHTML = matchingDonors.map(d => `
-            <div class="donor-search-item px-4 py-3 hover:bg-amber-50 cursor-pointer border-b border-amber-100 last:border-0" data-name="${d.name}">
-              <div class="font-medium text-amber-900">${d.name}</div>
-              <div class="text-xs text-amber-600">${d.spiritualName ? d.spiritualName + ' • ' : ''}${d.mobile}</div>
+            <div class="donor-search-item px-4 py-3 hover:bg-theme-page cursor-pointer border-b border-theme last:border-0" data-name="${d.name}">
+              <div class="font-medium text-theme-primary">${d.name}</div>
+              <div class="text-xs text-theme-muted">${d.spiritualName ? d.spiritualName + ' • ' : ''}${d.mobile}</div>
             </div>
           `).join('');
           
@@ -5262,14 +5311,14 @@
         
         if (mobile && !whatsappField.dataset.manuallyEdited) {
           whatsappField.value = mobile;
-          whatsappField.classList.add('bg-amber-50');
+          whatsappField.classList.add('bg-theme-page');
           whatsappField.setAttribute('data-auto-filled', 'true');
         }
       });
 
       document.getElementById('donor-whatsapp').addEventListener('focus', (e) => {
         // User is focusing on the field - allow editing
-        e.target.classList.remove('bg-amber-50');
+        e.target.classList.remove('bg-theme-page');
         e.target.dataset.manuallyEdited = 'true';
       });
 
@@ -5285,7 +5334,7 @@
           const mobile = document.getElementById('donor-mobile').value.trim();
           if (mobile) {
             e.target.value = mobile;
-            e.target.classList.add('bg-amber-50');
+            e.target.classList.add('bg-theme-page');
             e.target.removeAttribute('data-auto-filled');
           }
         }
