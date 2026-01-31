@@ -9,6 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <!-- MyISKCON Accounts - Production SDK -->
   <script>
     // ==================== CONFIGURATION ====================
@@ -4500,34 +4501,140 @@
       }
     }
 
-    function openRazorpay() {
+    async function openRazorpay() {
+      const donorId = document.getElementById('donor-id').value;
+      const name = document.getElementById('donor-name').value.trim();
+      const mobile = document.getElementById('donor-mobile').value.trim();
       const total = cart.reduce((sum, item) => sum + item.amount, 0);
-      if (total === 0) {
-        showToast('Please select sevas first', 'error');
+
+      if (!name || !mobile) {
+        showToast('Please fill donor name and mobile', 'error');
         return;
       }
-      
-      showModal(`
-        <div class="text-center">
-          <div class="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
-            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-          </div>
-          <h3 class="font-display text-xl font-semibold text-amber-900 mb-2">Razorpay Integration</h3>
-          <p class="text-amber-700 mb-4">Amount to pay: <strong>₹${total.toLocaleString()}</strong></p>
-          <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-left text-sm text-amber-700 mb-4">
-            <p class="font-medium mb-2">To integrate Razorpay:</p>
-            <ol class="list-decimal list-inside space-y-1">
-              <li>Sign up at razorpay.com</li>
-              <li>Get your API key from Dashboard</li>
-              <li>Add Razorpay checkout script</li>
-              <li>Configure payment options</li>
-            </ol>
-          </div>
-          <button onclick="hideModal()" class="w-full btn-primary text-white py-2 rounded-lg">Close</button>
-        </div>
-      `);
+      if (total === 0) {
+        showToast('Please select at least one seva', 'error');
+        return;
+      }
+      if (typeof Razorpay === 'undefined') {
+        showToast('Razorpay is loading. Please try again.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('razorpay-btn');
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Preparing...';
+
+      try {
+        let finalDonorId = donorId;
+        if (!donorId) {
+          const donorResult = await window.dataSdk.create({
+            type: 'donor',
+            name,
+            spiritualName: document.getElementById('donor-spiritual-name').value.trim(),
+            indianPassport: document.getElementById('donor-indian-passport').checked,
+            pan: document.getElementById('donor-pan').value.trim().toUpperCase(),
+            mobile,
+            whatsapp: document.getElementById('donor-whatsapp').value.trim(),
+            email: document.getElementById('donor-email').value.trim(),
+            flat: document.getElementById('donor-flat').value.trim(),
+            road: document.getElementById('donor-road').value.trim(),
+            po: document.getElementById('donor-po').value.trim(),
+            area: document.getElementById('donor-area').value.trim(),
+            pincode: document.getElementById('donor-pincode').value.trim(),
+            district: document.getElementById('donor-district').value.trim(),
+            state: document.getElementById('donor-state').value.trim(),
+            country: document.getElementById('donor-country').value.trim(),
+            centerId: document.getElementById('donor-center').value,
+            createdBy: currentUser.username,
+            createdAt: new Date().toISOString()
+          });
+          if (!donorResult.isOk) {
+            showToast('Failed to save donor', 'error');
+            return;
+          }
+          await new Promise(r => setTimeout(r, 400));
+          const finalDonor = getDonors().find(d => d.mobile === mobile);
+          if (finalDonor) finalDonorId = finalDonor.__backendId;
+          else {
+            showToast('Donor created but could not get ID', 'error');
+            return;
+          }
+        }
+
+        const isSuperadmin = currentUser.username === 'admin';
+        const bookingCenterId = isSuperadmin ? 'all_centers' : (currentUser.centerId || 'center_bangalore');
+        const collectorCenter = isSuperadmin ? 'all_centers' : currentUser.centerId;
+        const festivalQR = document.getElementById('booking-festival-qr').checked;
+
+        const bookingResult = await window.dataSdk.create({
+          type: 'booking',
+          donorId: finalDonorId,
+          items: JSON.stringify(cart),
+          totalAmount: total,
+          paymentStatus: 'pending',
+          bookingDate: new Date().toISOString(),
+          centerId: bookingCenterId,
+          collectedBy: currentUser.username,
+          collectedByCenter: collectorCenter,
+          festivalQR: festivalQR,
+          createdAt: new Date().toISOString()
+        });
+
+        if (!bookingResult.isOk) {
+          showToast(bookingResult.error || 'Failed to create booking', 'error');
+          return;
+        }
+
+        const bookingId = bookingResult.data.__backendId;
+        const amountPaise = Math.round(total * 100);
+
+        const orderResult = await apiClient.call('createRazorpayOrder', {
+          amount: amountPaise,
+          receipt: bookingId,
+          currency: 'INR'
+        });
+
+        if (!orderResult.isOk) {
+          showToast(orderResult.error || 'Failed to create payment order', 'error');
+          return;
+        }
+
+        const options = {
+          key: orderResult.keyId,
+          amount: orderResult.amount,
+          order_id: orderResult.orderId,
+          name: 'ISKCON Cultural Centre',
+          description: 'Seva Donation',
+          handler: async function(response) {
+            const verifyResult = await apiClient.call('verifyRazorpayPayment', {
+              orderId: response.razorpay_order_id,
+              paymentId: response.razorpay_payment_id,
+              signature: response.razorpay_signature,
+              bookingId: bookingId
+            });
+            if (verifyResult.isOk) {
+              showToast('Payment successful! Booking saved.');
+              cart.length = 0;
+              clearDonorForm();
+              renderCart();
+              renderSlidingSevaList();
+              window.dataSdk.refreshData().then(() => renderAll());
+            } else {
+              showToast(verifyResult.error || 'Payment verification failed', 'error');
+            }
+          },
+          modal: { ondismiss: function() { btn.disabled = false; btn.textContent = originalText; } }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      } catch (e) {
+        showToast(e.message || 'Something went wrong', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
     }
 
     // Login/Logout
