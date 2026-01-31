@@ -549,6 +549,12 @@
         </div><!-- Seva Selection & Date -->
         <div class="lg:col-span-1">
          <div class="bg-white rounded-xl card-shadow p-6 h-full flex flex-col">
+          <div class="mb-3">
+           <p class="text-xs font-medium text-amber-700 mb-2">Select Center</p>
+           <div id="booking-center-tabs" class="flex flex-wrap gap-2 mb-3">
+            <!-- Center tabs populated dynamically -->
+           </div>
+          </div>
           <div class="flex items-center justify-between mb-3">
            <h3 class="font-display text-lg font-semibold text-amber-900">Select Sevas</h3>
            <button id="browse-sevas-btn" class="text-amber-600 hover:text-amber-800 text-sm font-medium flex items-center gap-1">
@@ -942,14 +948,20 @@
     let currentUser = null;
     let allData = [];
     let cart = [];
-    // Load sevas from localStorage or use defaults
-    let sevasList = JSON.parse(localStorage.getItem('myiskcon_sevas')) || [...demoSevas];
+    // Sevas from API (synced from allData); for Manage Sevas we use this list from API
+    let sevasList = [];
+    let selectedBookingCenterId = null;
     let chartSevaInstance = null;
     let chartTrendInstance = null;
 
-    // Save sevas to localStorage
-    function saveSevas() {
-      localStorage.setItem('myiskcon_sevas', JSON.stringify(sevasList));
+    function getCenters() {
+      const data = (allData && allData.length > 0) ? allData : (window.dataSdk && typeof window.dataSdk.getCachedData === 'function' ? window.dataSdk.getCachedData() : []);
+      return data.filter(d => d.type === 'center') || [];
+    }
+
+    function getSevasForBookingCenter(centerId) {
+      if (!centerId) return sevasList;
+      return sevasList.filter(s => (s.centerId || '') === centerId || (s.centerId || '') === 'all_centers');
     }
 
     // Helper Functions
@@ -1191,12 +1203,11 @@
     function renderQuickSevaGrid() {
       const container = document.getElementById('quick-seva-grid');
       const today = new Date().toISOString().split('T')[0];
-      
-      // Filter sevas that have shortcuts enabled (default is true)
-      const shortcutSevas = sevasList.filter(seva => seva.shortcut !== false);
+      const sevasForCenter = getSevasForBookingCenter(selectedBookingCenterId);
+      const shortcutSevas = sevasForCenter.filter(seva => seva.shortcut !== false);
       
       if (shortcutSevas.length === 0) {
-        container.innerHTML = '<p class="col-span-2 text-amber-600 text-sm text-center py-4">No shortcuts configured. Go to Manage Sevas to add shortcuts.</p>';
+        container.innerHTML = '<p class="col-span-2 text-amber-600 text-sm text-center py-4">No sevas for this center. Select another center or add sevas in Manage Sevas.</p>';
         return;
       }
       
@@ -1252,8 +1263,9 @@
 
     function renderSlidingSevaList() {
       const container = document.getElementById('sliding-seva-list');
+      const sevasForCenter = getSevasForBookingCenter(selectedBookingCenterId);
 
-      container.innerHTML = sevasList.map(seva => {
+      container.innerHTML = sevasForCenter.map(seva => {
         const cartItem = cart.find(c => c.sevaId === seva.id);
         const quantity = cartItem ? cartItem.quantity : 0;
         const bookingDate = cartItem ? cartItem.bookingDate : '';
@@ -1712,15 +1724,18 @@
       }
 
       noData.classList.add('hidden');
+      const centers = getCenters();
+      const centerLabel = (cid) => (cid === 'all_centers' || !cid) ? 'All centers' : (centers.find(c => c.id === cid) || {}).name || cid;
       container.innerHTML = sevasList.map(s => {
-        const hasShortcut = s.shortcut !== false; // Default to true if not set
+        const hasShortcut = (window.sevaShortcuts && window.sevaShortcuts[s.id] === false) ? false : (s.shortcut !== false);
         return `
         <div class="border border-amber-200 rounded-xl p-4 hover:shadow-md transition ${hasShortcut ? 'ring-2 ring-amber-400' : ''}">
           <div class="flex justify-between items-start mb-2">
             <h4 class="font-semibold text-amber-900">${s.name}</h4>
             <span class="font-bold text-amber-700">₹${s.amount}</span>
           </div>
-          <p class="text-sm text-amber-600 mb-3">${s.description}</p>
+          <p class="text-sm text-amber-600 mb-1">${s.description}</p>
+          <p class="text-xs text-amber-500 mb-3">Center: ${centerLabel(s.centerId)}</p>
           <div class="flex items-center justify-between">
             <div class="flex gap-2">
               <button class="text-xs text-blue-600 hover:text-blue-800 edit-seva-btn" data-seva-id="${s.id}">Edit</button>
@@ -1744,28 +1759,39 @@
       });
 
       container.querySelectorAll('.delete-seva-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           const id = btn.dataset.sevaId;
-          sevasList = sevasList.filter(s => s.id !== id);
-          saveSevas();
-          renderSevasGrid();
-          renderSlidingSevaList();
-          renderQuickSevaGrid();
-          showToast('Seva deleted');
+          const seva = sevasList.find(s => s.id === id);
+          if (!seva) return;
+          const record = { type: 'seva', __backendId: id, centerId: seva.centerId };
+          const result = await window.dataSdk.delete(record);
+          if (result && result.isOk) {
+            sevasList = sevasList.filter(s => s.id !== id);
+            if (window.dataSdk && window.dataSdk.getCachedData) {
+              const cached = window.dataSdk.getCachedData();
+              const without = (cached || []).filter(d => !(d.type === 'seva' && d.id === id));
+              window.dataSdk.setCachedData && window.dataSdk.setCachedData(without);
+            }
+            renderSevasGrid();
+            renderSlidingSevaList();
+            renderQuickSevaGrid();
+            renderBookingCenterTabs();
+            showToast('Seva deleted');
+          } else {
+            showToast(result && result.error ? result.error : 'Failed to delete seva', 'error');
+          }
         });
       });
 
       container.querySelectorAll('.shortcut-toggle-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const id = btn.dataset.sevaId;
+          window.sevaShortcuts = window.sevaShortcuts || {};
+          window.sevaShortcuts[id] = window.sevaShortcuts[id] === false;
           const seva = sevasList.find(s => s.id === id);
-          if (seva) {
-            seva.shortcut = seva.shortcut === false ? true : false;
-            saveSevas();
-            renderSevasGrid();
-            renderQuickSevaGrid();
-            showToast(seva.shortcut ? `${seva.name} added to shortcuts` : `${seva.name} removed from shortcuts`);
-          }
+          if (seva) showToast(window.sevaShortcuts[id] ? `${seva.name} added to shortcuts` : `${seva.name} removed from shortcuts`);
+          renderSevasGrid();
+          renderQuickSevaGrid();
         });
       });
     }
@@ -4332,9 +4358,21 @@
     }
 
     function showAddSevaModal() {
+      const centers = getCenters();
+      const isSuperadmin = currentUser && currentUser.username === 'admin';
+      const centerOptions = isSuperadmin
+        ? '<option value="all_centers">All centers</option>' + centers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')
+        : `<option value="${currentUser.centerId || ''}">${(centers.find(c => c.id === currentUser.centerId) || {}).name || currentUser.centerId || 'My center'}</option>`;
       showModal(`
         <h3 class="font-display text-xl font-semibold text-amber-900 mb-4">Add New Seva</h3>
         <form id="add-seva-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-amber-700 mb-1">Center *</label>
+            <select id="new-seva-center" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" ${!isSuperadmin ? 'disabled' : ''}>
+              ${centerOptions}
+            </select>
+            ${!isSuperadmin ? '<input type="hidden" id="new-seva-center-hidden" value="' + (currentUser.centerId || '') + '">' : ''}
+          </div>
           <div>
             <label class="block text-sm font-medium text-amber-700 mb-1">Seva Name *</label>
             <input type="text" id="new-seva-name" required class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
@@ -4354,42 +4392,66 @@
         </form>
       `);
 
-      document.getElementById('add-seva-form').addEventListener('submit', (e) => {
+      document.getElementById('add-seva-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const newSeva = {
-          id: 'seva_' + Date.now(),
+        const centerEl = document.getElementById('new-seva-center');
+        const centerHidden = document.getElementById('new-seva-center-hidden');
+        const centerId = centerHidden ? centerHidden.value : (centerEl && centerEl.value) || 'all_centers';
+        const record = {
+          type: 'seva',
           name: document.getElementById('new-seva-name').value.trim(),
           description: document.getElementById('new-seva-desc').value.trim(),
           amount: parseInt(document.getElementById('new-seva-amount').value),
-          shortcut: true // New sevas show in shortcuts by default
+          centerId: centerId
         };
-        sevasList.push(newSeva);
-        saveSevas();
-        renderSevasGrid();
-        renderSlidingSevaList();
-        renderSelectedSevasList();
-        renderQuickSevaGrid();
-        populateSevaFilter();
-        updateDashboard();
-        hideModal();
-        showToast('Seva added successfully');
+        const result = await window.dataSdk.create(record);
+        if (result && result.isOk && result.data) {
+          sevasList = (sevasList || []).concat([result.data]);
+          if (window.dataSdk && window.dataSdk.getCachedData) {
+            const cached = window.dataSdk.getCachedData() || [];
+            window.dataSdk.setCachedData && window.dataSdk.setCachedData(cached.concat([Object.assign({}, result.data, { type: 'seva' })]));
+          }
+          renderSevasGrid();
+          renderSlidingSevaList();
+          renderQuickSevaGrid();
+          renderBookingCenterTabs();
+          populateSevaFilter();
+          updateDashboard();
+          hideModal();
+          showToast('Seva added successfully');
+        } else {
+          showToast((result && result.error) || 'Failed to add seva', 'error');
+        }
       });
     }
 
     function showEditSevaModal(sevaId) {
       const seva = sevasList.find(s => s.id === sevaId);
       if (!seva) return;
-
+      const centers = getCenters();
+      const isSuperadmin = currentUser && currentUser.username === 'admin';
+      const centerOptions = isSuperadmin
+        ? '<option value="all_centers"' + ((seva.centerId || '') === 'all_centers' ? ' selected' : '') + '>All centers</option>' +
+          centers.map(c => `<option value="${c.id}"${(seva.centerId || '') === c.id ? ' selected' : ''}>${c.name}</option>`).join('')
+        : `<option value="${seva.centerId || ''}" selected>${(centers.find(c => c.id === (seva.centerId || '')) || {}).name || seva.centerId || 'My center'}</option>`;
+      const esc = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
       showModal(`
         <h3 class="font-display text-xl font-semibold text-amber-900 mb-4">Edit Seva</h3>
         <form id="edit-seva-form" class="space-y-4">
           <div>
+            <label class="block text-sm font-medium text-amber-700 mb-1">Center</label>
+            <select id="edit-seva-center" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" ${!isSuperadmin ? 'disabled' : ''}>
+              ${centerOptions}
+            </select>
+            ${!isSuperadmin ? '<input type="hidden" id="edit-seva-center-hidden" value="' + esc(seva.centerId || '') + '">' : ''}
+          </div>
+          <div>
             <label class="block text-sm font-medium text-amber-700 mb-1">Seva Name *</label>
-            <input type="text" id="edit-seva-name" value="${seva.name}" required class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <input type="text" id="edit-seva-name" value="${esc(seva.name)}" required class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
           </div>
           <div>
             <label class="block text-sm font-medium text-amber-700 mb-1">Description</label>
-            <input type="text" id="edit-seva-desc" value="${seva.description}" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            <input type="text" id="edit-seva-desc" value="${esc(seva.description)}" class="w-full px-4 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
           </div>
           <div>
             <label class="block text-sm font-medium text-amber-700 mb-1">Amount (Rs.) *</label>
@@ -4402,22 +4464,38 @@
         </form>
       `);
 
-      document.getElementById('edit-seva-form').addEventListener('submit', (e) => {
+      document.getElementById('edit-seva-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const idx = sevasList.findIndex(s => s.id === sevaId);
-        if (idx >= 0) {
-          sevasList[idx] = {
-            ...sevasList[idx],
-            name: document.getElementById('edit-seva-name').value.trim(),
-            description: document.getElementById('edit-seva-desc').value.trim(),
-            amount: parseInt(document.getElementById('edit-seva-amount').value)
-          };
-          saveSevas();
+        const centerEl = document.getElementById('edit-seva-center');
+        const centerHidden = document.getElementById('edit-seva-center-hidden');
+        const centerId = centerHidden ? centerHidden.value : (centerEl && centerEl.value) || seva.centerId || 'all_centers';
+        const record = {
+          type: 'seva',
+          __backendId: sevaId,
+          id: sevaId,
+          name: document.getElementById('edit-seva-name').value.trim(),
+          description: document.getElementById('edit-seva-desc').value.trim(),
+          amount: parseInt(document.getElementById('edit-seva-amount').value),
+          centerId: centerId,
+          isActive: true
+        };
+        const result = await window.dataSdk.update(record);
+        if (result && result.isOk) {
+          const idx = sevasList.findIndex(s => s.id === sevaId);
+          if (idx >= 0) sevasList[idx] = Object.assign({}, sevasList[idx], { name: record.name, description: record.description, amount: record.amount, centerId: record.centerId });
+          if (window.dataSdk && window.dataSdk.getCachedData) {
+            const cached = window.dataSdk.getCachedData() || [];
+            const out = cached.map(d => d.type === 'seva' && d.id === sevaId ? Object.assign({}, d, record) : d);
+            window.dataSdk.setCachedData && window.dataSdk.setCachedData(out);
+          }
           renderSevasGrid();
           renderSlidingSevaList();
           renderQuickSevaGrid();
+          renderBookingCenterTabs();
           hideModal();
           showToast('Seva updated');
+        } else {
+          showToast((result && result.error) || 'Failed to update seva', 'error');
         }
       });
     }
@@ -4802,7 +4880,33 @@
       showToast('Logged out successfully');
     }
 
+    function renderBookingCenterTabs() {
+      const container = document.getElementById('booking-center-tabs');
+      if (!container) return;
+      const centers = getCenters();
+      if (centers.length === 0) {
+        container.innerHTML = '<p class="text-amber-600 text-sm">No centers loaded.</p>';
+        return;
+      }
+      if (selectedBookingCenterId === null && centers.length) {
+        selectedBookingCenterId = (currentUser && currentUser.centerId && currentUser.role === 'donor') ? currentUser.centerId : (centers[0].id || '');
+      }
+      container.innerHTML = centers.map(c => {
+        const isActive = (c.id || '') === selectedBookingCenterId;
+        return `<button type="button" class="booking-center-tab px-4 py-2 rounded-lg text-sm font-medium transition ${isActive ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-800 hover:bg-amber-200'}" data-center-id="${c.id || ''}">${c.name || c.id}</button>`;
+      }).join('');
+      container.querySelectorAll('.booking-center-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedBookingCenterId = btn.dataset.centerId;
+          renderBookingCenterTabs();
+          renderQuickSevaGrid();
+          renderSlidingSevaList();
+        });
+      });
+    }
+
     function renderAll() {
+      renderBookingCenterTabs();
       renderQuickSevaGrid();
       renderSlidingSevaList();
       renderSelectedSevasList();
@@ -4824,7 +4928,11 @@
     const dataHandler = {
       onDataChanged(data) {
         allData = data;
-        
+        sevasList = (data || []).filter(d => d.type === 'seva');
+        const centers = (data || []).filter(d => d.type === 'center');
+        if (centers.length && selectedBookingCenterId === null) {
+          selectedBookingCenterId = (currentUser && currentUser.centerId && currentUser.role === 'donor') ? currentUser.centerId : (centers[0] && centers[0].id);
+        }
         if (currentUser) {
           renderAll();
         }
