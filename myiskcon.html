@@ -8,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <!-- MyISKCON Accounts - Production SDK -->
   <script>
     // ==================== CONFIGURATION ====================
@@ -563,6 +564,10 @@
           <div class="border-t border-amber-200 pt-4 mb-4">
            <div class="flex justify-between items-center text-lg font-semibold"><span class="text-amber-800">Total Amount:</span> <span id="total-amount" class="text-amber-900">0</span>
            </div>
+          </div>
+          <div class="flex items-center gap-2 py-2 mb-2">
+           <input type="checkbox" id="booking-festival-qr" class="w-4 h-4 text-amber-600 border-amber-300 rounded focus:ring-amber-500">
+           <label for="booking-festival-qr" class="text-sm font-medium text-amber-800">Festival booking – Include QR codes (Darshan &amp; Prasadam) for validation</label>
           </div>
           <div class="space-y-3"><button id="save-booking-btn" class="w-full btn-primary text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"> Save Booking </button> <button id="razorpay-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition">
             <svg class="w-5 h-5" viewbox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
@@ -2215,6 +2220,29 @@
       });
     }
 
+    function getQRCodeDataURL(text, size) {
+      size = size || 100;
+      try {
+        if (typeof QRCode === 'undefined') return '';
+        const div = document.createElement('div');
+        div.style.cssText = 'position:absolute;left:-9999px;top:0;';
+        document.body.appendChild(div);
+        new QRCode(div, { text: text, width: size, height: size });
+        const canvas = div.querySelector('canvas');
+        const img = div.querySelector('img');
+        let dataUrl = '';
+        if (canvas) {
+          dataUrl = canvas.toDataURL('image/png');
+        } else if (img && img.src) {
+          dataUrl = img.src;
+        }
+        document.body.removeChild(div);
+        return dataUrl;
+      } catch (e) {
+        return '';
+      }
+    }
+
     function generateReceipts(bookingId, donorId) {
       const booking = getBookings().find(b => b.__backendId === bookingId);
       
@@ -2237,6 +2265,8 @@
         return;
       }
 
+      const hasFestivalQR = booking.festivalQR === true || booking.festivalQR === 'true';
+
       let allReceiptsHTML = '<div style="margin:0;padding:0;">';
 
       items.forEach((item, index) => {
@@ -2246,13 +2276,27 @@
           month: 'long',
           day: 'numeric'
         });
-        const sevaDate = new Date(item.bookingDate).toLocaleDateString('en-GB', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-
         const totalForSeva = item.amount * item.quantity;
+
+        let qrSectionHTML = '';
+        if (hasFestivalQR) {
+          const payloadDarshan = `${booking.__backendId}|${index}|darshan`;
+          const payloadPrasadam = `${booking.__backendId}|${index}|prasadam`;
+          const qrDarshan = getQRCodeDataURL(payloadDarshan, 90);
+          const qrPrasadam = getQRCodeDataURL(payloadPrasadam, 90);
+          qrSectionHTML = `
+            <div style="display:flex;justify-content:center;gap:24px;margin:12px 0;flex-shrink:0;">
+              <div style="text-align:center;">
+                <p style="margin:0 0 4px 0;font-size:10px;font-weight:bold;color:#5a3600;">Darshan</p>
+                <img src="${qrDarshan}" alt="Darshan QR" style="width:90px;height:90px;display:block;border:1px solid #c9a24d;border-radius:4px;">
+              </div>
+              <div style="text-align:center;">
+                <p style="margin:0 0 4px 0;font-size:10px;font-weight:bold;color:#5a3600;">Prasadam</p>
+                <img src="${qrPrasadam}" alt="Prasadam QR" style="width:90px;height:90px;display:block;border:1px solid #c9a24d;border-radius:4px;">
+              </div>
+            </div>
+          `;
+        }
 
         const receiptHTML = `
           <div style="width:210mm;height:148mm;margin:8px auto;padding:16px;font-family:Arial, Helvetica, sans-serif;border:2px solid #c9a24d;border-radius:8px;background:#fffdf7;color:#333;box-sizing:border-box;display:flex;flex-direction:column;page-break-after:always;overflow:hidden;">
@@ -2266,6 +2310,7 @@
               <tr><td><strong>Seva:</strong></td><td colspan="3">${item.name}</td></tr>
               <tr><td><strong>Donor:</strong></td><td colspan="3">${donor.name}</td></tr>
             </table>
+            ${qrSectionHTML}
             <div style="margin-top:auto;text-align:center;font-size:9px;">
               <p style="margin:3px 0;"><strong>Amount: ₹${totalForSeva.toLocaleString()}</strong></p>
               <p style="margin:3px 0;font-style:italic;"><strong>Thank you for your support</strong></p>
@@ -4418,6 +4463,7 @@
         const bookingCenterId = isSuperadmin ? 'all_centers' : (currentUser.centerId || 'center_bangalore');
         const collectorCenter = isSuperadmin ? 'all_centers' : currentUser.centerId;
         
+        const festivalQR = document.getElementById('booking-festival-qr').checked;
         const bookingResult = await window.dataSdk.create({
           type: 'booking',
           donorId: finalDonorId,
@@ -4428,6 +4474,7 @@
           centerId: bookingCenterId,
           collectedBy: currentUser.username,
           collectedByCenter: collectorCenter,
+          festivalQR: festivalQR,
           createdAt: new Date().toISOString()
         });
 
