@@ -333,34 +333,41 @@
  <body class="h-full bg-amber-50">
   <div id="app" class="h-full overflow-auto"><!-- Toast Container -->
    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div><!-- Login Screen -->
-   <div id="login-screen" class="min-h-full flex items-center justify-center p-4">
-    <div class="w-full max-w-md">
-     <div class="text-center mb-8">
-      <div class="w-28 h-28 mx-auto mb-4 flex items-center justify-center"><img src="https://iskconsouthbengaluru.com/wp-content/uploads/sites/7/2022/03/cropped-ISB-vertical-logo-Red-2.png" alt="ISKCON South Bengaluru Logo" style="max-width:100%; height:auto; object-fit:contain;" onerror="this.style.display='none'">
+   <div id="login-screen" class="min-h-full flex flex-col p-4">
+    <div class="flex-1 flex items-center justify-center">
+     <div class="w-full max-w-md">
+      <div class="text-center mb-8">
+       <div class="w-28 h-28 mx-auto mb-4 flex items-center justify-center"><img src="https://iskconsouthbengaluru.com/wp-content/uploads/sites/7/2022/03/cropped-ISB-vertical-logo-Red-2.png" alt="ISKCON South Bengaluru Logo" style="max-width:100%; height:auto; object-fit:contain;" onerror="this.style.display='none'">
+       </div>
+       <h1 id="temple-title" class="font-display text-3xl font-bold text-amber-900">My ISKCON Accounts</h1>
+       <p id="welcome-text" class="text-amber-700 mt-2">Account Management System</p>
       </div>
-      <h1 id="temple-title" class="font-display text-3xl font-bold text-amber-900">My ISKCON Accounts</h1>
-      <p id="welcome-text" class="text-amber-700 mt-2">Account Management System</p>
-     </div>
-     <div class="bg-white rounded-2xl card-shadow p-8">
-      <h2 class="font-display text-2xl font-semibold text-amber-900 mb-6 text-center">Login</h2>
-      <form id="login-form" class="space-y-4">
-       <div><label for="login-username" class="block text-sm font-medium text-amber-800 mb-1">Username</label> <input type="text" id="login-username" class="w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition" placeholder="Enter username">
-       </div>
-       <div><label for="login-password" class="block text-sm font-medium text-amber-800 mb-1">Password</label> <input type="password" id="login-password" class="w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition" placeholder="Enter password">
-       </div>
-       <div id="login-error" class="text-red-600 text-sm hidden"></div><button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold"> Login </button>
-      </form>
-      <div class="mt-6 pt-6 border-t border-amber-200">
-       <p class="text-center text-amber-600 text-sm font-medium mb-3">Demo Accounts:</p>
-       <div class="space-y-2 text-sm text-amber-700">
-        <p><strong>Superadmin:</strong> admin / admin</p>
-        <p><strong>Admin 1:</strong> admin1 / admin1</p>
-        <p><strong>Admin 2:</strong> admin2 / admin2</p>
-        <p><strong>Volunteer:</strong> volunteer1 / volunteer1</p>
+      <div class="bg-white rounded-2xl card-shadow p-8">
+       <h2 class="font-display text-2xl font-semibold text-amber-900 mb-6 text-center">Login</h2>
+       <form id="login-form" class="space-y-4">
+        <div><label for="login-username" class="block text-sm font-medium text-amber-800 mb-1">Username</label> <input type="text" id="login-username" class="w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition" placeholder="Enter username">
+        </div>
+        <div><label for="login-password" class="block text-sm font-medium text-amber-800 mb-1">Password</label> <input type="password" id="login-password" class="w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition" placeholder="Enter password">
+        </div>
+        <div id="login-error" class="text-red-600 text-sm hidden"></div><button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold"> Login </button>
+       </form>
+       <div class="mt-6 pt-6 border-t border-amber-200">
+        <p class="text-center text-amber-600 text-sm font-medium mb-3">Demo Accounts:</p>
+        <div class="space-y-2 text-sm text-amber-700">
+         <p><strong>Superadmin:</strong> admin / admin</p>
+         <p><strong>Admin 1:</strong> admin1 / admin1</p>
+         <p><strong>Admin 2:</strong> admin2 / admin2</p>
+         <p><strong>Volunteer:</strong> volunteer1 / volunteer1</p>
+        </div>
        </div>
       </div>
      </div>
     </div>
+    <footer class="mt-auto py-6 text-center text-amber-800 text-sm border-t border-amber-200/60">
+     <p class="font-medium">Contact: <a href="mailto:iccabhilekhah@gmail.com" class="text-amber-700 hover:text-amber-900 underline">iccabhilekhah@gmail.com</a> &nbsp;|&nbsp; Phone: <a href="tel:+918073222508" class="text-amber-700 hover:text-amber-900 underline">+91-8073222508</a></p>
+     <p class="mt-1 text-amber-700">Address: No.1, Samvruddhi Enclave, 3rd Main, Bangalore-560111, India</p>
+     <p class="mt-3 text-amber-600 text-xs">© <span id="footer-year"></span> ISKCON Cultural Centre. All rights reserved.</p>
+    </footer>
    </div><!-- Main Dashboard -->
    <div id="dashboard" class="hidden min-h-full flex flex-col"><!-- Header -->
     <header class="bg-white border-b border-amber-200 px-4 py-3">
@@ -4690,6 +4697,9 @@
 
     // Initialize
     async function init() {
+      const yearEl = document.getElementById('footer-year');
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+
       if (window.elementSdk) {
         await window.elementSdk.init({
           defaultConfig,
