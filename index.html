@@ -13,7 +13,9 @@
   <!-- MyISKCON Accounts - Production SDK -->
   <script>
     // ==================== CONFIGURATION ====================
-    // Google Apps Script Web App URL
+    // Google Apps Script Web App URL (BASE URL for API)
+    // HOW TO GET THIS: In your Apps Script project: Deploy > Manage deployments >
+    // click the pencil (Edit) on "Web app" > copy the "Web app URL" (ends with /exec)
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVAuEfk2a6Lepa6AyAZfItEyzs2VSnwFhI3qMFeGX9cwApXDEcoyxF1rTO2PN4CKwv/exec';
     
     // Session storage key
@@ -568,6 +570,13 @@
           <h3 class="font-display text-lg font-semibold text-amber-900 mb-4">Booking Summary</h3>
           <div id="cart-items" class="space-y-2 mb-4 max-h-48 overflow-y-auto">
            <p class="text-amber-600 text-sm">No sevas selected</p>
+          </div>
+          <div class="border border-amber-200 rounded-lg p-3 mb-4 bg-amber-50/50">
+           <p class="text-xs font-semibold text-amber-800 mb-2">General Donation</p>
+           <div class="flex gap-2">
+            <input type="number" id="general-donation-amount" min="1" step="1" placeholder="Amount (₹)" class="flex-1 px-3 py-2 border border-amber-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+            <button type="button" id="add-general-donation-btn" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap">Add</button>
+           </div>
           </div>
           <div class="border-t border-amber-200 pt-4 mb-4">
            <div class="flex justify-between items-center text-lg font-semibold"><span class="text-amber-800">Total Amount:</span> <span id="total-amount" class="text-amber-900">0</span>
@@ -1363,20 +1372,21 @@
       }
 
       container.innerHTML = cart.map(item => {
+        const isGeneral = item.id === 'general_donation';
         const sevaDate = item.bookingDate ? new Date(item.bookingDate).toLocaleDateString('en-GB') : 'N/A';
         return `
           <div class="border border-amber-300 rounded-lg p-3 bg-amber-50">
             <div class="flex justify-between items-start mb-2">
               <div>
                 <h4 class="font-semibold text-amber-900">${item.name}</h4>
-                <p class="text-xs text-amber-600">Date: ${sevaDate}</p>
+                ${isGeneral ? '' : `<p class="text-xs text-amber-600">Date: ${sevaDate}</p>`}
               </div>
-              <span class="text-sm font-semibold text-amber-800">Qty: ${item.quantity}</span>
+              ${isGeneral ? `<span class="text-sm font-semibold text-amber-800">₹${(item.amount * item.quantity).toLocaleString()}</span>` : `<span class="text-sm font-semibold text-amber-800">Qty: ${item.quantity}</span>`}
             </div>
             <div class="flex items-center gap-2 pt-2 border-t border-amber-200">
-              <button type="button" class="decrease-item-btn text-xs bg-amber-300 hover:bg-amber-400 text-amber-900 px-2 py-1 rounded font-bold" data-seva-id="${item.sevaId}">&minus;</button>
+              ${isGeneral ? '' : `<button type="button" class="decrease-item-btn text-xs bg-amber-300 hover:bg-amber-400 text-amber-900 px-2 py-1 rounded font-bold" data-seva-id="${item.sevaId}">&minus;</button>`}
               <span class="text-xs text-amber-700 flex-1">₹${(item.amount * item.quantity).toLocaleString()}</span>
-              <button type="button" class="increase-item-btn text-xs bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded font-bold" data-seva-id="${item.sevaId}">+</button>
+              ${isGeneral ? '' : `<button type="button" class="increase-item-btn text-xs bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded font-bold" data-seva-id="${item.sevaId}">+</button>`}
               <button type="button" class="remove-selected-btn text-red-600 hover:text-red-800 ml-2" data-seva-id="${item.sevaId}">×</button>
             </div>
           </div>
@@ -1432,13 +1442,14 @@
       }
 
       container.innerHTML = cart.map(item => {
+        const isGeneral = item.id === 'general_donation';
         const sevaDate = item.bookingDate ? new Date(item.bookingDate).toLocaleDateString('en-GB') : 'N/A';
         return `
           <div class="flex justify-between items-center text-sm py-2 border-b border-amber-100">
             <div class="flex-1">
               <span class="text-amber-800">${item.name}</span>
-              <span class="text-xs text-amber-600 ml-2">(Qty: ${item.quantity})</span>
-              <div class="text-xs text-amber-600 mt-0.5">Date: ${sevaDate}</div>
+              ${isGeneral ? '' : `<span class="text-xs text-amber-600 ml-2">(Qty: ${item.quantity})</span>`}
+              ${isGeneral ? '' : `<div class="text-xs text-amber-600 mt-0.5">Date: ${sevaDate}</div>`}
             </div>
             <div class="flex items-center gap-2">
               <span class="text-amber-900 font-medium">₹${(item.amount * item.quantity).toLocaleString()}</span>
@@ -4408,7 +4419,7 @@
       }
 
       if (cart.length === 0) {
-        showToast('Please select at least one seva', 'error');
+        showToast('Please add at least one seva or general donation', 'error');
         return;
       }
 
@@ -4465,7 +4476,7 @@
           finalDonor = getDonors().find(d => d.__backendId === donorId);
         }
 
-        const total = cart.reduce((sum, item) => sum + item.amount, 0);
+        const total = cart.reduce((sum, item) => sum + (item.amount * item.quantity), 0);
         // Determine center for booking
         const isSuperadmin = currentUser.username === 'admin';
         const bookingCenterId = isSuperadmin ? 'all_centers' : (currentUser.centerId || 'center_bangalore');
@@ -4505,14 +4516,14 @@
       const donorId = document.getElementById('donor-id').value;
       const name = document.getElementById('donor-name').value.trim();
       const mobile = document.getElementById('donor-mobile').value.trim();
-      const total = cart.reduce((sum, item) => sum + item.amount, 0);
+      const total = cart.reduce((sum, item) => sum + (item.amount * item.quantity), 0);
 
       if (!name || !mobile) {
         showToast('Please fill donor name and mobile', 'error');
         return;
       }
       if (total === 0) {
-        showToast('Please select at least one seva', 'error');
+        showToast('Please add at least one seva or general donation', 'error');
         return;
       }
       if (typeof Razorpay === 'undefined') {
@@ -4911,6 +4922,30 @@
 
       document.getElementById('save-booking-btn').addEventListener('click', saveBooking);
       document.getElementById('razorpay-btn').addEventListener('click', openRazorpay);
+      document.getElementById('add-general-donation-btn').addEventListener('click', () => {
+        const input = document.getElementById('general-donation-amount');
+        const amt = parseFloat(input.value);
+        if (isNaN(amt) || amt < 1) {
+          showToast('Please enter a valid amount (₹1 or more)', 'error');
+          return;
+        }
+        const today = new Date().toISOString().split('T')[0];
+        cart.push({
+          sevaId: 'general_donation_' + Date.now(),
+          id: 'general_donation',
+          name: 'General Donation',
+          description: 'Voluntary donation',
+          amount: amt,
+          quantity: 1,
+          bookingDate: today
+        });
+        input.value = '';
+        renderCart();
+        renderSelectedSevasList();
+        renderSlidingSevaList();
+        renderQuickSevaGrid();
+        showToast('General donation added');
+      });
 
       document.getElementById('add-user-btn').addEventListener('click', showAddUserModal);
       document.getElementById('add-donor-btn').addEventListener('click', showAddDonorModal);
