@@ -1008,14 +1008,16 @@
 
     function getDonors() {
       if (!currentUser) return [];
+      // Use SDK cache if allData not yet populated (e.g. data still loading)
+      const data = (allData && allData.length > 0) ? allData : (window.dataSdk && typeof window.dataSdk.getCachedData === 'function' ? window.dataSdk.getCachedData() : []);
       
       // Superadmin sees all donors
       if (currentUser.username === 'admin') {
-        return allData.filter(d => d.type === 'donor');
+        return data.filter(d => d.type === 'donor');
       }
       
       // Other users see donors from their center
-      return allData.filter(d => d.type === 'donor' && d.centerId === currentUser.centerId);
+      return data.filter(d => d.type === 'donor' && d.centerId === currentUser.centerId);
     }
 
     // Get list of users created by current user (for admins)
@@ -3659,11 +3661,15 @@
       const resultDiv = document.getElementById('search-result');
 
       if (!mobile) {
-        resultDiv.innerHTML = '<span class="text-amber-600">Please enter a mobile number</span>';
+        resultDiv.innerHTML = '<span class="text-amber-600">Please enter a mobile number or name</span>';
         return;
       }
 
-      const donor = getDonors().find(d => d.mobile === mobile);
+      if (window.dataSdk && typeof window.dataSdk.ensureDataLoaded === 'function') {
+        await window.dataSdk.ensureDataLoaded();
+      }
+
+      const donor = getDonors().find(d => d.mobile === mobile || (d.name && d.name.toLowerCase() === mobile.toLowerCase()));
       
       if (donor) {
         resultDiv.innerHTML = `<span class="text-green-600">Found: ${donor.name}</span>`;
@@ -3675,33 +3681,44 @@
       }
     }
 
-    function showSearchDropdown() {
+    async function showSearchDropdown() {
       const searchInput = document.getElementById('search-mobile').value.trim();
       const dropdown = document.getElementById('search-dropdown');
       const resultDiv = document.getElementById('search-result');
 
       if (!searchInput) {
         dropdown.classList.add('hidden');
+        dropdown.innerHTML = '';
         resultDiv.innerHTML = '';
         return;
       }
 
-      // Find all donors matching the search input
-      const matchingDonors = getDonors().filter(d => 
-        d.mobile.includes(searchInput)
-      );
+      // Ensure data is loaded before searching (handles lazy load / first visit to booking tab)
+      if (window.dataSdk && typeof window.dataSdk.ensureDataLoaded === 'function') {
+        await window.dataSdk.ensureDataLoaded();
+      }
+
+      const searchLower = searchInput.toLowerCase();
+      const matchingDonors = getDonors().filter(d => {
+        const mobileMatch = d.mobile && String(d.mobile).includes(searchInput);
+        const nameMatch = d.name && d.name.toLowerCase().includes(searchLower);
+        return mobileMatch || nameMatch;
+      });
 
       if (matchingDonors.length === 0) {
         dropdown.classList.add('hidden');
-        resultDiv.innerHTML = `<span class="text-amber-600">No matching donors found</span>`;
+        dropdown.innerHTML = '';
+        resultDiv.innerHTML = `<span class="text-amber-600">No matching donors. Type mobile or name, or add new donor below.</span>`;
         return;
       }
+
+      resultDiv.innerHTML = '';
 
       // Show dropdown with matching donors
       dropdown.innerHTML = matchingDonors.map(donor => `
         <div class="px-4 py-3 hover:bg-amber-50 cursor-pointer border-b border-amber-100 transition donor-option" data-donor-id="${donor.__backendId}">
-          <div class="font-semibold text-amber-900">${donor.name}</div>
-          <div class="text-sm text-amber-600">📱 ${donor.mobile}</div>
+          <div class="font-semibold text-amber-900">${donor.name || '—'}</div>
+          <div class="text-sm text-amber-600">📱 ${donor.mobile || '—'}</div>
           ${donor.email ? `<div class="text-sm text-amber-600">✉️ ${donor.email}</div>` : ''}
           ${donor.pincode ? `<div class="text-sm text-amber-600">📍 ${donor.area || ''} - ${donor.pincode}</div>` : ''}
         </div>
@@ -3716,6 +3733,7 @@
           selectDonor(donorId);
           document.getElementById('search-mobile').value = '';
           dropdown.classList.add('hidden');
+          dropdown.innerHTML = '';
           resultDiv.innerHTML = '';
         });
       });
