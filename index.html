@@ -4515,14 +4515,31 @@
         btn.textContent = 'Sending...';
         try {
           const result = await apiClient.call('sendWhatsAppMessage', { phone, text });
+          const apiResponse = (result.response != null && result.response !== undefined) ? String(result.response).trim() : '';
           if (result.isOk) {
             showToast('Message sent successfully');
-            hideModal();
+            document.getElementById('modal-content').innerHTML = `
+              <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">WhatsApp sent</h3>
+              <p class="text-theme-secondary mb-3">Message sent to ${phone.replace(/\d(?=\d{4})/g, '*')}.</p>
+              ${apiResponse ? `<div class="mb-4"><p class="text-sm font-medium text-theme-secondary mb-1">API response:</p><pre class="text-xs bg-theme-muted p-3 rounded-lg overflow-x-auto text-left whitespace-pre-wrap break-words">${apiResponse.replace(/</g, '&lt;')}</pre></div>` : ''}
+              <button type="button" onclick="hideModal()" class="w-full px-4 py-2 btn-primary text-white rounded-lg">Close</button>
+            `;
           } else {
             showToast(result.error || 'Failed to send', 'error');
+            document.getElementById('modal-content').innerHTML = `
+              <h3 class="font-display text-xl font-semibold text-red-600 mb-4">Send failed</h3>
+              <p class="text-theme-secondary mb-2">${(result.error || 'Failed to send').replace(/</g, '&lt;')}</p>
+              ${apiResponse ? `<div class="mb-4"><p class="text-sm font-medium text-theme-secondary mb-1">API response:</p><pre class="text-xs bg-theme-muted p-3 rounded-lg overflow-x-auto text-left whitespace-pre-wrap break-words">${apiResponse.replace(/</g, '&lt;')}</pre></div>` : ''}
+              <button type="button" onclick="hideModal()" class="w-full px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Close</button>
+            `;
           }
         } catch (err) {
           showToast(err.message || 'Failed to send', 'error');
+          document.getElementById('modal-content').innerHTML = `
+            <h3 class="font-display text-xl font-semibold text-red-600 mb-4">Error</h3>
+            <p class="text-theme-secondary mb-4">${(err.message || 'Failed to send').replace(/</g, '&lt;')}</p>
+            <button type="button" onclick="hideModal()" class="w-full px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Close</button>
+          `;
         } finally {
           btn.disabled = false;
           btn.textContent = 'Send';
