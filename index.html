@@ -1254,6 +1254,13 @@
         } else {
           paymentTabs.classList.remove('hidden');
           saveBookingBtn.classList.remove('hidden');
+          // Hide Cash tab if user has no cashbooks (superadmin always has cash)
+          const hasCashbooks = currentUser.username === 'admin' || (currentUser.cashbooks && String(currentUser.cashbooks).trim().length > 0);
+          const cashTab = paymentTabs.querySelector('.payment-mode-tab[data-mode="cash"]');
+          if (cashTab) {
+            cashTab.classList.toggle('hidden', !hasCashbooks);
+            if (!hasCashbooks && currentPaymentMode === 'cash') currentPaymentMode = 'online';
+          }
         }
       }
     }
@@ -1868,7 +1875,10 @@
           </td>
           <td class="py-3 px-4">
             ${u.username !== 'admin' ? `
-              <button class="text-red-600 hover:text-red-800 font-medium text-sm delete-user-btn" data-user-id="${u.__backendId}">Delete</button>
+              <div class="flex gap-2 items-center">
+                <button class="text-blue-600 hover:text-blue-800 font-medium text-sm edit-user-btn" data-user-id="${u.__backendId}" title="Edit cashbooks">Edit</button>
+                <button class="text-red-600 hover:text-red-800 font-medium text-sm delete-user-btn" data-user-id="${u.__backendId}">Delete</button>
+              </div>
             ` : '<span class="text-theme-accent text-xs font-semibold">Protected</span>'}
           </td>
         </tr>
@@ -1880,6 +1890,9 @@
 
       tbody.querySelectorAll('.delete-user-btn').forEach(btn => {
         btn.addEventListener('click', () => confirmDeleteUser(btn.dataset.userId));
+      });
+      tbody.querySelectorAll('.edit-user-btn').forEach(btn => {
+        btn.addEventListener('click', () => showEditUserModal(btn.dataset.userId));
       });
     }
 
@@ -4102,6 +4115,11 @@
               <option value="center_kolkata">Kolkata Center</option>
             </select>
           </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Cashbooks (optional)</label>
+            <input type="text" id="new-cashbooks" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="e.g. Counter A, Counter B. Leave empty to disable cash transactions for this user.">
+            <p class="text-xs text-theme-muted mt-1">Comma-separated names. Users with no cashbooks cannot record cash payments.</p>
+          </div>
           <div class="flex gap-3 pt-2">
             <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
             <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Add User</button>
@@ -4115,6 +4133,8 @@
         const password = document.getElementById('new-password').value;
         const role = document.getElementById('new-role').value;
         const centerId = document.getElementById('new-center-id').value;
+        const cashbooksEl = document.getElementById('new-cashbooks');
+        const cashbooks = cashbooksEl ? cashbooksEl.value.trim() : '';
 
         if (!centerId) {
           showToast('Please select a center', 'error');
@@ -4146,6 +4166,7 @@
           role,
           centerId,
           permissions: JSON.stringify(defaultPermissions),
+          cashbooks: cashbooks,
           createdBy: currentUser.username,
           createdAt: new Date().toISOString()
         });
@@ -4155,6 +4176,46 @@
           showToast('User added successfully');
         } else {
           showToast('Failed to add user', 'error');
+        }
+      });
+    }
+
+    function showEditUserModal(userId) {
+      const user = allData.find(d => d.type === 'user' && d.__backendId === userId);
+      if (!user) return;
+      const cashbooksVal = (user.cashbooks != null && user.cashbooks !== undefined) ? String(user.cashbooks) : '';
+      showModal(`
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Edit user: ${user.username}</h3>
+        <form id="edit-user-form" class="space-y-4">
+          <input type="hidden" id="edit-user-id" value="${userId}">
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Cashbooks</label>
+            <input type="text" id="edit-user-cashbooks" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" value="${cashbooksVal.replace(/"/g, '&quot;')}" placeholder="e.g. Counter A, Counter B. Leave empty to disable cash transactions.">
+            <p class="text-xs text-theme-muted mt-1">Comma-separated names. Users with no cashbooks cannot record cash payments.</p>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
+            <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Save</button>
+          </div>
+        </form>
+      `);
+      document.getElementById('edit-user-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const cashbooks = document.getElementById('edit-user-cashbooks').value.trim();
+        const updatedUser = { ...user, cashbooks: cashbooks };
+        const result = await window.dataSdk.update(updatedUser);
+        if (result.isOk) {
+          hideModal();
+          showToast('User updated');
+          if (window.dataSdk && window.dataSdk.getCachedData) {
+            const cached = window.dataSdk.getCachedData() || [];
+            const out = cached.map(d => d.type === 'user' && d.__backendId === userId ? { ...d, cashbooks } : d);
+            window.dataSdk.setCachedData && window.dataSdk.setCachedData(out);
+          }
+          renderUsersTable();
+          if (typeof renderPermissionsTable === 'function') renderPermissionsTable();
+        } else {
+          showToast(result.error || 'Failed to update user', 'error');
         }
       });
     }
@@ -4855,6 +4916,14 @@
       }
       if (!validateFlexibleCartAmounts()) return;
 
+      if (currentPaymentMode === 'cash') {
+        const hasCashbooks = currentUser.username === 'admin' || (currentUser.cashbooks && String(currentUser.cashbooks).trim().length > 0);
+        if (!hasCashbooks) {
+          showToast('Your account has no cashbooks assigned. You cannot record cash transactions.', 'error');
+          return;
+        }
+      }
+
       if (allData.length >= 999) {
         showToast('Maximum data limit reached. Please contact administrator.', 'error');
         return;
@@ -5531,11 +5600,12 @@
         function populateCashbookDropdown() {
           if (!cashbookSelect || !currentUser) return;
           const isSuperadmin = currentUser.username === 'admin';
+          const data = (allData && allData.length) ? allData : (window.dataSdk && window.dataSdk.getCachedData ? (window.dataSdk.getCachedData() || []) : []);
+          const usersWithCashbooks = data.filter(d => d.type === 'user' && d.username && (d.username === 'admin' || (d.cashbooks && String(d.cashbooks).trim().length > 0)));
           const usernames = [];
           if (isSuperadmin) {
-            usernames.push(currentUser.username);
-            const centerUsers = getCenterUsers();
-            centerUsers.forEach(u => { if (u.username && !usernames.includes(u.username)) usernames.push(u.username); });
+            if (currentUser.username) usernames.push(currentUser.username);
+            usersWithCashbooks.forEach(u => { if (u.username && !usernames.includes(u.username)) usernames.push(u.username); });
           } else {
             usernames.push(currentUser.username);
           }
