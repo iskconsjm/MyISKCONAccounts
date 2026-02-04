@@ -994,6 +994,8 @@
     let cart = [];
     // Sevas from API (synced from allData); for Manage Sevas we use this list from API
     let sevasList = [];
+    // Reports filter UX: default to showing paid transactions unless user changes it
+    let reportStatusTouched = false;
     let selectedBookingCenterId = null;
     let chartSevaInstance = null;
     let chartTrendInstance = null;
@@ -3005,6 +3007,9 @@
       const endDate = document.getElementById('filter-end-date').value;
 
       return bookings.filter(b => {
+        // Across dashboards, only show paid transactions by default
+        if ((b.paymentStatus || 'pending') !== 'paid') return false;
+
         if (sevaFilter) {
           const items = b.items ? JSON.parse(b.items) : [];
           const hasSevaId = items.some(item => item.id === sevaFilter);
@@ -5159,6 +5164,12 @@
     }
 
     function renderAll() {
+      // Default Reports status filter to "paid" unless the user explicitly changes it
+      const statusEl = document.getElementById('report-status-filter');
+      if (statusEl && !reportStatusTouched && !statusEl.value) {
+        statusEl.value = 'paid';
+      }
+
       renderBookingCenterTabs();
       renderQuickSevaGrid();
       renderSlidingSevaList();
@@ -5408,7 +5419,10 @@
       document.getElementById('filter-start-date').addEventListener('change', updateDashboard);
       document.getElementById('filter-end-date').addEventListener('change', updateDashboard);
 
-      document.getElementById('report-status-filter').addEventListener('change', renderReportsTable);
+      document.getElementById('report-status-filter').addEventListener('change', () => {
+        reportStatusTouched = true;
+        renderReportsTable();
+      });
       document.getElementById('report-collector-filter').addEventListener('change', renderReportsTable);
       document.getElementById('report-date-filter').addEventListener('change', renderReportsTable);
       document.getElementById('report-start-date').addEventListener('change', renderReportsTable);
