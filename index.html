@@ -438,7 +438,7 @@
     </header><!-- Navigation Tabs -->
     <nav class="bg-white border-b border-theme">
      <div class="max-w-7xl mx-auto">
-      <div id="nav-tabs" class="flex overflow-x-auto"><button data-tab="dashboard" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition tab-active"> Dashboard </button> <button data-tab="booking" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="booking-tab"> Booking </button> <button data-tab="reports" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="reports-tab"> Reports </button> <button data-tab="donors" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donors-tab"> Donors </button> <button data-tab="sevas" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="sevas-tab"> Manage Sevas </button> <button data-tab="users" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="users-tab"> Users </button> <button data-tab="permissions" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="permissions-tab"> 🔐 Manage Access </button> <button data-tab="donor-logins" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donor-logins-tab"> 🔑 Donor Logins </button> <button data-tab="centers" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="centers-tab"> 🏛️ Centers </button>
+      <div id="nav-tabs" class="flex overflow-x-auto"><button data-tab="dashboard" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition tab-active"> Dashboard </button> <button data-tab="booking" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="booking-tab"> Booking </button> <button data-tab="reports" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="reports-tab"> Reports </button> <button data-tab="donors" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donors-tab"> Donors </button> <button data-tab="sevas" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="sevas-tab"> Manage Sevas </button> <button data-tab="users" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="users-tab"> Users </button> <button data-tab="permissions" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="permissions-tab"> 🔐 Manage Access </button> <button data-tab="donor-logins" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donor-logins-tab"> 🔑 Donor Logins </button> <button data-tab="bank-accounts" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="bank-accounts-tab"> 🏦 Bank Accounts </button> <button data-tab="centers" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="centers-tab"> 🏛️ Centers </button>
       </div>
      </div>
     </nav><!-- Tab Content -->
@@ -857,6 +857,40 @@
          <p id="no-centers" class="text-theme-muted text-center py-8 hidden">No centers found. Add your first center!</p>
         </div>
        </div>
+      </div><!-- Bank Accounts Tab -->
+      <div id="tab-bank-accounts" class="tab-content hidden">
+       <div class="space-y-6">
+        <div class="bg-white rounded-xl card-shadow p-6">
+         <div class="flex items-center justify-between mb-6">
+          <div>
+           <h3 class="font-display text-2xl font-semibold text-theme-primary mb-2">🏦 Bank Accounts</h3>
+           <p class="text-theme-muted">Add bank accounts for cheque deposits. These appear in the Cheque tab dropdown when taking a booking. Assign a center so admins see only their center's accounts.</p>
+          </div>
+          <button id="add-bank-account-btn" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center gap-2">
+           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+           Add Bank Account
+          </button>
+         </div>
+         <div class="overflow-x-auto">
+          <table class="w-full">
+           <thead class="bg-theme-muted">
+            <tr>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">#</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Account Name</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Account Number</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Bank Name</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Center</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Status</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Actions</th>
+            </tr>
+           </thead>
+           <tbody id="bank-accounts-table-body">
+           </tbody>
+          </table>
+         </div>
+         <p id="no-bank-accounts" class="text-theme-muted text-center py-8 hidden">No bank accounts yet. Add one to use in the Cheque tab.</p>
+        </div>
+       </div>
       </div><!-- Reports Tab -->
       <div id="tab-reports" class="tab-content hidden">
        <div class="space-y-6"><!-- Filters -->
@@ -974,6 +1008,7 @@
       { id: 'manage_donors', label: 'Manage Donors', default: false },
       { id: 'manage_sevas', label: 'Manage Sevas', default: false },
       { id: 'manage_users', label: 'Manage Users', default: false },
+      { id: 'manage_bank_accounts', label: 'Bank Accounts', default: false },
       { id: 'donor_logins', label: 'View Donor Logins', default: false },
       { id: 'receipts', label: 'Download Receipts', default: true }
     ];
@@ -1179,6 +1214,15 @@
       );
     }
 
+    function getBankAccounts() {
+      if (!currentUser) return [];
+      const data = (allData && allData.length) ? allData : (window.dataSdk && window.dataSdk.getCachedData ? (window.dataSdk.getCachedData() || []) : []);
+      const accounts = data.filter(d => d.type === 'bankAccount');
+      if (currentUser.username === 'admin') return accounts;
+      const userCenterId = currentUser.centerId || '';
+      return accounts.filter(ba => (ba.centerId || '') === userCenterId || (ba.centerId || '') === 'all_centers');
+    }
+
     // Modal Functions
     function showModal(content) {
       document.getElementById('modal-content').innerHTML = content;
@@ -1195,6 +1239,11 @@
       let hasAccess = true;
       if (tabName === 'donors' || tabName === 'sevas' || tabName === 'users') {
         if (!hasPermission('manage_' + tabName)) {
+          showToast('You do not have access to this section', 'error');
+          return;
+        }
+      } else if (tabName === 'bank-accounts') {
+        if (!hasPermission('manage_bank_accounts')) {
           showToast('You do not have access to this section', 'error');
           return;
         }
@@ -1219,6 +1268,7 @@
         content.classList.add('hidden');
       });
       document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+      if (tabName === 'bank-accounts' && typeof renderBankAccountsTable === 'function') renderBankAccountsTable();
     }
 
     function updateUIBasedOnPermissions() {
@@ -1235,6 +1285,7 @@
       document.getElementById('donor-logins-tab').classList.toggle('hidden', !hasPermission('donor_logins') || isDonor);
       // Centers management - superadmin only
       document.getElementById('centers-tab').classList.toggle('hidden', currentUser.username !== 'admin');
+      document.getElementById('bank-accounts-tab').classList.toggle('hidden', !hasPermission('manage_bank_accounts') || isDonor);
       
       // Show dashboard for everyone (donors see their own donations)
       const dashboardTab = document.querySelector('[data-tab="dashboard"]');
@@ -1901,6 +1952,39 @@
       });
       tbody.querySelectorAll('.edit-user-btn').forEach(btn => {
         btn.addEventListener('click', () => showEditUserModal(btn.dataset.userId));
+      });
+    }
+
+    function renderBankAccountsTable() {
+      const tbody = document.getElementById('bank-accounts-table-body');
+      const noData = document.getElementById('no-bank-accounts');
+      if (!tbody) return;
+      const accounts = getBankAccounts();
+      if (accounts.length === 0) {
+        tbody.innerHTML = '';
+        if (noData) noData.classList.remove('hidden');
+        return;
+      }
+      if (noData) noData.classList.add('hidden');
+      tbody.innerHTML = accounts.map((ba, idx) => `
+        <tr class="border-b border-theme hover:bg-theme-page">
+          <td class="py-3 px-4 text-theme-muted">${idx + 1}</td>
+          <td class="py-3 px-4 font-medium text-theme-primary">${(ba.name || '').replace(/</g, '&lt;')}</td>
+          <td class="py-3 px-4 text-theme-secondary">${(ba.accountNumber || '-').replace(/</g, '&lt;')}</td>
+          <td class="py-3 px-4 text-theme-secondary">${(ba.bankName || '-').replace(/</g, '&lt;')}</td>
+          <td class="py-3 px-4 text-theme-secondary">${getCenterName(ba.centerId || '')}</td>
+          <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full ${(ba.isActive !== false && ba.isActive !== 'false') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${(ba.isActive !== false && ba.isActive !== 'false') ? 'Active' : 'Inactive'}</span></td>
+          <td class="py-3 px-4">
+            <button class="text-blue-600 hover:text-blue-800 font-medium text-sm edit-bank-account-btn" data-id="${ba.id}">Edit</button>
+            <button class="text-red-600 hover:text-red-800 font-medium text-sm delete-bank-account-btn ml-2" data-id="${ba.id}">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+      tbody.querySelectorAll('.edit-bank-account-btn').forEach(btn => {
+        btn.addEventListener('click', () => showEditBankAccountModal(btn.dataset.id));
+      });
+      tbody.querySelectorAll('.delete-bank-account-btn').forEach(btn => {
+        btn.addEventListener('click', () => confirmDeleteBankAccount(btn.dataset.id));
       });
     }
 
@@ -4250,6 +4334,147 @@
       }
     }
 
+    function showAddBankAccountModal() {
+      let centers = getCenters();
+      if (currentUser.username !== 'admin') centers = centers.filter(c => c.id === currentUser.centerId);
+      const centerOptions = (currentUser.username === 'admin' ? '<option value="all_centers">All Centers</option>' : '') + centers.map(c => `<option value="${c.id}">${c.name || c.id}</option>`).join('');
+      showModal(`
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Add Bank Account</h3>
+        <form id="add-bank-account-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Account name *</label>
+            <input type="text" id="bank-account-name" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="e.g. HDFC Main, SBI Donations">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Account number</label>
+            <input type="text" id="bank-account-number" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="Last 4 digits or full number">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Bank name</label>
+            <input type="text" id="bank-account-bank-name" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="e.g. HDFC Bank, SBI">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Center *</label>
+            <select id="bank-account-center" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
+              ${centerOptions}
+            </select>
+            <p class="text-xs text-theme-muted mt-1">Which center this account belongs to. Admins will only see accounts for their center (or All Centers).</p>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
+            <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Add Bank Account</button>
+          </div>
+        </form>
+      `);
+      if (currentUser.username !== 'admin' && currentUser.centerId) {
+        const el = document.getElementById('bank-account-center');
+        if (el) el.value = currentUser.centerId;
+      }
+      document.getElementById('add-bank-account-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const result = await window.dataSdk.create({
+          type: 'bank_account',
+          name: document.getElementById('bank-account-name').value.trim(),
+          accountNumber: document.getElementById('bank-account-number').value.trim(),
+          bankName: document.getElementById('bank-account-bank-name').value.trim(),
+          centerId: document.getElementById('bank-account-center').value,
+          isActive: true,
+          createdAt: new Date().toISOString()
+        });
+        if (result.isOk) {
+          hideModal();
+          showToast('Bank account added');
+          renderBankAccountsTable();
+        } else {
+          showToast(result.error || 'Failed to add bank account', 'error');
+        }
+      });
+    }
+
+    function showEditBankAccountModal(id) {
+      const ba = (allData || []).find(d => d.type === 'bankAccount' && (d.id === id || d.__backendId === id));
+      if (!ba) return;
+      let centers = getCenters();
+      if (currentUser.username !== 'admin') centers = centers.filter(c => c.id === currentUser.centerId);
+      const centerOptions = (currentUser.username === 'admin' ? '<option value="all_centers">All Centers</option>' : '') + centers.map(c => `<option value="${c.id}" ${(c.id === (ba.centerId || '')) ? 'selected' : ''}>${c.name || c.id}</option>`).join('');
+      showModal(`
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Edit Bank Account</h3>
+        <form id="edit-bank-account-form" class="space-y-4">
+          <input type="hidden" id="edit-bank-account-id" value="${ba.id}">
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Account name *</label>
+            <input type="text" id="edit-bank-account-name" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" value="${(ba.name || '').replace(/"/g, '&quot;')}" placeholder="e.g. HDFC Main">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Account number</label>
+            <input type="text" id="edit-bank-account-number" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" value="${(ba.accountNumber || '').replace(/"/g, '&quot;')}">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Bank name</label>
+            <input type="text" id="edit-bank-account-bank-name" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" value="${(ba.bankName || '').replace(/"/g, '&quot;')}">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Center *</label>
+            <select id="edit-bank-account-center" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
+              ${centerOptions}
+            </select>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
+            <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Save</button>
+          </div>
+        </form>
+      `);
+      document.getElementById('edit-bank-account-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const updated = {
+          type: 'bankAccount',
+          __backendId: ba.id,
+          id: ba.id,
+          name: document.getElementById('edit-bank-account-name').value.trim(),
+          accountNumber: document.getElementById('edit-bank-account-number').value.trim(),
+          bankName: document.getElementById('edit-bank-account-bank-name').value.trim(),
+          centerId: document.getElementById('edit-bank-account-center').value,
+          isActive: true
+        };
+        const result = await window.dataSdk.update(updated);
+        if (result.isOk) {
+          hideModal();
+          showToast('Bank account updated');
+          renderBankAccountsTable();
+        } else {
+          showToast(result.error || 'Failed to update bank account', 'error');
+        }
+      });
+    }
+
+    function confirmDeleteBankAccount(id) {
+      showModal(`
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Confirm Delete</h3>
+        <p class="text-theme-secondary mb-6">Are you sure you want to delete this bank account? It will be removed from the Cheque tab dropdown.</p>
+        <div class="flex gap-3">
+          <button onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
+          <button id="confirm-delete-bank-account-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg" data-id="${id}">Delete</button>
+        </div>
+      `);
+      document.getElementById('confirm-delete-bank-account-btn').addEventListener('click', async () => {
+        const ba = (allData || []).find(d => d.type === 'bankAccount' && (d.id === id || d.__backendId === id));
+        if (!ba) return;
+        const result = await window.dataSdk.delete(ba);
+        if (result.isOk) {
+          hideModal();
+          showToast('Bank account deleted');
+          if (window.dataSdk && window.dataSdk.getCachedData) {
+            const cached = window.dataSdk.getCachedData().filter(d => !(d.type === 'bankAccount' && (d.id === id || d.__backendId === id)));
+            window.dataSdk.setCachedData && window.dataSdk.setCachedData(cached);
+          }
+          renderBankAccountsTable();
+        } else {
+          showToast(result.error || 'Failed to delete', 'error');
+        }
+      });
+    }
+
     function showAddDonorModal() {
       showModal(`
         <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Add New Donor</h3>
@@ -5471,6 +5696,7 @@
       renderUsersTable();
       renderSevasGrid();
       renderReportsTable();
+      if (typeof renderBankAccountsTable === 'function') renderBankAccountsTable();
       renderPermissionsPage();
       renderDonorLoginsTable();
       renderCentersTable();
@@ -5740,6 +5966,8 @@
       document.getElementById('add-user-btn').addEventListener('click', showAddUserModal);
       document.getElementById('add-donor-btn').addEventListener('click', showAddDonorModal);
       document.getElementById('add-seva-btn').addEventListener('click', showAddSevaModal);
+      const addBankAccountBtn = document.getElementById('add-bank-account-btn');
+      if (addBankAccountBtn) addBankAccountBtn.addEventListener('click', showAddBankAccountModal);
 
       // Download dropdown toggles
       document.getElementById('download-reports-dropdown-btn').addEventListener('click', (e) => {
