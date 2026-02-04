@@ -970,7 +970,10 @@
     function getCenterName(centerId) {
       if (!centerId || centerId === 'all_centers') return 'All Centers';
       const center = centersList.find(c => c.id === centerId);
-      return center ? center.name : centerId;
+      if (center) return center.name;
+      const centersFromData = (allData || []).filter(d => d.type === 'center');
+      const fromData = centersFromData.find(c => c.id === centerId);
+      return fromData ? fromData.name : centerId;
     }
 
     // Demo Sevas (reference data)
@@ -2110,7 +2113,7 @@
         document.getElementById('new-center-id').value = id;
       });
       
-      document.getElementById('add-center-form').addEventListener('submit', (e) => {
+      document.getElementById('add-center-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const id = document.getElementById('new-center-id').value.trim().toLowerCase().replace(/\s+/g, '_');
@@ -2118,18 +2121,32 @@
         const city = document.getElementById('new-center-city').value.trim();
         const state = document.getElementById('new-center-state').value.trim();
         
-        // Check for duplicate ID
+        // Check for duplicate ID in current list
         if (centersList.some(c => c.id === id)) {
           showToast('A center with this ID already exists', 'error');
           return;
         }
-        
-        centersList.push({ id, name, city, state });
-        saveCenters();
-        hideModal();
-        renderCentersTable();
-        populateAllCenterDropdowns();
-        showToast('Center added successfully');
+
+        if (!window.dataSdk) {
+          showToast('Data service not available', 'error');
+          return;
+        }
+
+        const result = await window.dataSdk.create({
+          type: 'center',
+          id,
+          name,
+          city,
+          state
+        });
+
+        if (result && result.isOk) {
+          hideModal();
+          showToast('Center added successfully');
+          // `dataSdk.create` triggers onDataChanged which refreshes allData + centersList + UI
+        } else {
+          showToast((result && result.error) || 'Failed to add center', 'error');
+        }
       });
     }
 
@@ -2166,19 +2183,34 @@
         </form>
       `);
       
-      document.getElementById('edit-center-form').addEventListener('submit', (e) => {
+      document.getElementById('edit-center-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const idx = centersList.findIndex(c => c.id === centerId);
-        if (idx !== -1) {
-          centersList[idx].name = document.getElementById('edit-center-name').value.trim();
-          centersList[idx].city = document.getElementById('edit-center-city').value.trim();
-          centersList[idx].state = document.getElementById('edit-center-state').value.trim();
-          saveCenters();
+        const name = document.getElementById('edit-center-name').value.trim();
+        const city = document.getElementById('edit-center-city').value.trim();
+        const state = document.getElementById('edit-center-state').value.trim();
+
+        if (!window.dataSdk) {
+          showToast('Data service not available', 'error');
+          return;
+        }
+
+        const result = await window.dataSdk.update({
+          type: 'center',
+          __backendId: centerId,
+          id: centerId,
+          name,
+          city,
+          state,
+          isActive: true
+        });
+
+        if (result && result.isOk) {
           hideModal();
-          renderCentersTable();
-          populateAllCenterDropdowns();
           showToast('Center updated successfully');
+          // onDataChanged will refresh allData + centersList + UI
+        } else {
+          showToast((result && result.error) || 'Failed to update center', 'error');
         }
       });
     }
@@ -2226,12 +2258,23 @@
     }
 
     function confirmDeleteCenter(centerId) {
-      centersList = centersList.filter(c => c.id !== centerId);
-      saveCenters();
-      hideModal();
-      renderCentersTable();
-      populateAllCenterDropdowns();
-      showToast('Center deleted successfully');
+      if (!window.dataSdk) {
+        showToast('Data service not available', 'error');
+        return;
+      }
+
+      window.dataSdk.delete({
+        type: 'center',
+        __backendId: centerId
+      }).then(result => {
+        hideModal();
+        if (result && result.isOk) {
+          showToast('Center deleted successfully');
+          // onDataChanged will refresh allData + centersList + UI
+        } else {
+          showToast((result && result.error) || 'Failed to delete center', 'error');
+        }
+      });
     }
 
     function populateAllCenterDropdowns() {
@@ -5298,6 +5341,15 @@
         allData = data;
         sevasList = (data || []).filter(d => d.type === 'seva');
         const centers = (data || []).filter(d => d.type === 'center');
+        if (centers && centers.length) {
+          centersList = centers.map(c => ({
+            id: c.id,
+            name: c.name,
+            city: c.city || '',
+            state: c.state || ''
+          }));
+          saveCenters();
+        }
         if (centers.length && selectedBookingCenterId === null) {
           selectedBookingCenterId = (currentUser && currentUser.centerId && currentUser.role === 'donor') ? currentUser.centerId : (centers[0] && centers[0].id);
         }
