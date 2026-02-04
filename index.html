@@ -5627,22 +5627,42 @@
         const cashbookSelect = document.getElementById('booking-cashbook');
         const chequeBankSelect = document.getElementById('booking-cheque-bank');
         
+        function parseCashbooks(cashbooksStr) {
+          if (!cashbooksStr || typeof cashbooksStr !== 'string') return [];
+          return cashbooksStr.split(',').map(s => s.trim()).filter(Boolean);
+        }
+        
         function populateCashbookDropdown() {
           if (!cashbookSelect || !currentUser) return;
           const isSuperadmin = currentUser.username === 'admin';
           const data = (allData && allData.length) ? allData : (window.dataSdk && window.dataSdk.getCachedData ? (window.dataSdk.getCachedData() || []) : []);
-          const usersWithCashbooks = data.filter(d => d.type === 'user' && d.username && (d.username === 'admin' || (d.cashbooks && String(d.cashbooks).trim().length > 0)));
-          const usernames = [];
+          let options = []; // { value: username (for collectedBy), text: display label }
           if (isSuperadmin) {
-            if (currentUser.username) usernames.push(currentUser.username);
-            usersWithCashbooks.forEach(u => { if (u.username && !usernames.includes(u.username)) usernames.push(u.username); });
+            // Super admin: one option per cashbook from every user; value = username so collectedBy is set
+            const users = [];
+            if (currentUser.username) users.push({ username: currentUser.username, cashbooks: (currentUser.cashbooks || '*').toString().trim() });
+            getCenterUsers().forEach(u => { users.push({ username: u.username, cashbooks: (u.cashbooks || '').toString().trim() }); });
+            users.forEach(u => {
+              const raw = (u.cashbooks || '').toString().trim();
+              const names = (raw === '*' || raw === '') ? [] : parseCashbooks(u.cashbooks);
+              if (names.length === 0) options.push({ value: u.username, text: u.username });
+              else names.forEach(name => options.push({ value: u.username, text: name + ' (' + u.username + ')' }));
+            });
           } else {
-            usernames.push(currentUser.username);
+            // Admin/volunteer: options = their comma-separated cashbooks; value = their username for all
+            const cashbooksStr = (currentUser.cashbooks || '').toString().trim() || (data.find(d => d.type === 'user' && d.__backendId === currentUser.__backendId) || {}).cashbooks;
+            const names = parseCashbooks(cashbooksStr);
+            if (names.length === 0) options.push({ value: currentUser.username, text: currentUser.username });
+            else names.forEach(name => options.push({ value: currentUser.username, text: name }));
           }
-          cashbookSelect.innerHTML = usernames.map(u => `<option value="${u}">${u}</option>`).join('');
-          cashbookSelect.disabled = !isSuperadmin;
-          if (!isSuperadmin) cashbookSelect.value = currentUser.username;
-          else if (usernames.length && !cashbookSelect.value) cashbookSelect.value = currentUser.username;
+          const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+          const optionsHtml = '<option value="">Select cashbook</option>' + options.map(o => `<option value="${esc(o.value)}">${esc(o.text)}</option>`).join('');
+          cashbookSelect.innerHTML = optionsHtml;
+          cashbookSelect.disabled = options.length <= 1 && !isSuperadmin;
+          if (options.length > 0) {
+            const firstVal = options[0].value;
+            if (!cashbookSelect.value || !options.some(o => o.value === cashbookSelect.value)) cashbookSelect.value = firstVal;
+          }
         }
         
         function populateChequeBankDropdown() {
