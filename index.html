@@ -1449,17 +1449,25 @@
         return;
       }
 
+      const todayIso = new Date().toISOString().split('T')[0];
+
       container.innerHTML = cart.map(item => {
         const isGeneral = item.id === 'general_donation';
         const isFlexible = !isGeneral && item.isFlexibleAmount === true;
-        const sevaDate = item.bookingDate ? new Date(item.bookingDate).toLocaleDateString('en-GB') : 'N/A';
+        const dateValue = item.bookingDate || '';
         const lineTotal = (parseFloat(item.amount) || 0) * (item.quantity || 1);
         return `
           <div class="border border-theme-strong rounded-lg p-3 bg-theme-page">
             <div class="flex justify-between items-start mb-2">
               <div>
                 <h4 class="font-semibold text-theme-primary">${item.name}</h4>
-                ${isGeneral ? '' : `<p class="text-xs text-theme-muted">Date: ${sevaDate}</p>`}
+                ${isGeneral ? '' : `
+                  <label class="text-xs text-theme-secondary mt-1 inline-flex items-center gap-1">
+                    <span>Date:</span>
+                    <input type="date" class="selected-seva-date px-1 py-0.5 border border-theme-strong rounded text-[11px] theme-focus outline-none bg-white"
+                      data-seva-id="${item.sevaId}" value="${dateValue}" min="${todayIso}">
+                  </label>
+                `}
               </div>
               ${isGeneral ? `<span class="text-sm font-semibold text-theme-secondary">₹${(item.amount * item.quantity).toLocaleString()}</span>` : `<span class="text-sm font-semibold text-theme-secondary">Qty: ${item.quantity}</span>`}
             </div>
@@ -1518,6 +1526,17 @@
           renderSelectedSevasList();
           renderQuickSevaGrid();
           renderSlidingSevaList();
+          renderCart();
+        });
+      });
+
+      container.querySelectorAll('.selected-seva-date').forEach(input => {
+        input.addEventListener('change', () => {
+          const sevaId = input.dataset.sevaId;
+          const item = cart.find(c => c.sevaId === sevaId);
+          if (!item) return;
+          item.bookingDate = input.value;
+          renderSelectedSevasList();
           renderCart();
         });
       });
