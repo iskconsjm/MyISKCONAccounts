@@ -4509,11 +4509,8 @@
         };
         const result = await window.dataSdk.create(record);
         if (result && result.isOk && result.data) {
-          sevasList = (sevasList || []).concat([result.data]);
-          if (window.dataSdk && window.dataSdk.getCachedData) {
-            const cached = window.dataSdk.getCachedData() || [];
-            window.dataSdk.setCachedData && window.dataSdk.setCachedData(cached.concat([Object.assign({}, result.data, { type: 'seva' })]));
-          }
+          // `dataSdk.create()` already updates the local cache and notifies `onDataChanged`,
+          // which refreshes `allData` + `sevasList`. Avoid pushing again here (causes duplicates).
           renderSevasGrid();
           renderSlidingSevaList();
           renderQuickSevaGrid();
