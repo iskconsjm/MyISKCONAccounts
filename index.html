@@ -627,6 +627,13 @@
            <div class="flex justify-between items-center text-lg font-semibold"><span class="text-theme-secondary">Total Amount:</span> <span id="total-amount" class="text-theme-primary">0</span>
            </div>
           </div>
+          <div id="payment-mode-tabs" class="mb-3 hidden">
+           <div class="inline-flex rounded-lg border border-theme overflow-hidden text-xs font-semibold">
+            <button type="button" data-mode="cash" class="payment-mode-tab px-3 py-1.5 bg-theme-page text-theme-secondary hover:bg-theme-muted border-r border-theme focus:outline-none">Cash</button>
+            <button type="button" data-mode="cheque" class="payment-mode-tab px-3 py-1.5 bg-theme-page text-theme-secondary hover:bg-theme-muted border-r border-theme focus:outline-none">Cheque</button>
+            <button type="button" data-mode="online" class="payment-mode-tab px-3 py-1.5 bg-theme-accent text-white focus:outline-none">Online</button>
+           </div>
+          </div>
           <div class="mb-3">
            <label class="block text-sm font-medium text-theme-secondary mb-1">Remarks (optional)</label>
            <textarea id="booking-remarks" rows="2" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none resize-y" placeholder="E.g. In memory of..., for birthday, for anniversary, etc."></textarea>
@@ -992,6 +999,8 @@
     let currentUser = null;
     let allData = [];
     let cart = [];
+    // Current booking payment mode: 'online' | 'cash' | 'cheque'
+    let currentPaymentMode = 'online';
     // Sevas from API (synced from allData); for Manage Sevas we use this list from API
     let sevasList = [];
     // Reports filter UX: default to showing paid transactions unless user changes it
@@ -1218,6 +1227,22 @@
         switchTab('dashboard');
       } else if (document.getElementById('permissions-tab').classList.contains('hidden')) {
         switchTab('dashboard');
+      }
+
+      // Payment mode tabs & buttons visibility
+      const paymentTabs = document.getElementById('payment-mode-tabs');
+      const saveBookingBtn = document.getElementById('save-booking-btn');
+      const razorpayBtn = document.getElementById('razorpay-btn');
+      if (paymentTabs && saveBookingBtn && razorpayBtn) {
+        if (isDonor) {
+          paymentTabs.classList.add('hidden');
+          saveBookingBtn.classList.add('hidden');
+          razorpayBtn.classList.remove('hidden');
+          currentPaymentMode = 'online';
+        } else {
+          paymentTabs.classList.remove('hidden');
+          saveBookingBtn.classList.remove('hidden');
+        }
       }
     }
     
@@ -4871,7 +4896,7 @@
           finalDonor = getDonors().find(d => d.__backendId === donorId);
         }
 
-        const total = cart.reduce((sum, item) => sum + (item.amount * item.quantity), 0);
+        const total = cart.reduce((sum, item) => sum + ((parseFloat(item.amount) || 0) * (item.quantity || 1)), 0);
         // Determine center for booking
         const isSuperadmin = currentUser.username === 'admin';
         const bookingCenterId = isSuperadmin ? 'all_centers' : (currentUser.centerId || 'center_bangalore');
@@ -4882,7 +4907,8 @@
           donorId: finalDonorId,
           items: JSON.stringify(cart),
           totalAmount: total,
-          paymentStatus: 'pending',
+          paymentStatus: (currentPaymentMode === 'cash' || currentPaymentMode === 'cheque') ? 'paid' : 'pending',
+          paymentMode: currentPaymentMode || 'online',
           bookingDate: new Date().toISOString(),
           centerId: bookingCenterId,
           collectedBy: currentUser.username,
@@ -4979,6 +5005,7 @@
           items: JSON.stringify(cart),
           totalAmount: total,
           paymentStatus: 'pending',
+          paymentMode: 'online',
           bookingDate: new Date().toISOString(),
           centerId: bookingCenterId,
           collectedBy: currentUser.username,
@@ -5468,6 +5495,39 @@
 
       document.getElementById('save-booking-btn').addEventListener('click', saveBooking);
       document.getElementById('razorpay-btn').addEventListener('click', openRazorpay);
+      // Payment mode micro-tabs
+      (function() {
+        const tabsContainer = document.getElementById('payment-mode-tabs');
+        if (!tabsContainer) return;
+        const tabs = tabsContainer.querySelectorAll('.payment-mode-tab');
+        const razorpayBtn = document.getElementById('razorpay-btn');
+        const saveBtn = document.getElementById('save-booking-btn');
+        
+        function setActiveMode(mode) {
+          currentPaymentMode = mode;
+          tabs.forEach(tab => {
+            const isActive = tab.dataset.mode === mode;
+            tab.classList.toggle('bg-theme-accent', isActive);
+            tab.classList.toggle('text-white', isActive);
+            tab.classList.toggle('bg-theme-page', !isActive);
+            tab.classList.toggle('text-theme-secondary', !isActive);
+          });
+          if (razorpayBtn && saveBtn) {
+            if (mode === 'online') {
+              razorpayBtn.classList.remove('hidden');
+            } else {
+              razorpayBtn.classList.add('hidden');
+            }
+          }
+        }
+        
+        tabs.forEach(tab => {
+          tab.addEventListener('click', () => setActiveMode(tab.dataset.mode));
+        });
+        
+        // Default mode
+        setActiveMode('online');
+      })();
       (function() {
         const input = document.getElementById('general-donation-amount');
         if (!input) return;
