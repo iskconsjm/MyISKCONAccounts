@@ -636,10 +636,6 @@
            <div class="flex justify-between items-center text-lg font-semibold"><span class="text-theme-secondary">Total Amount:</span> <span id="total-amount" class="text-theme-primary">0</span>
            </div>
           </div>
-          <div class="flex items-center gap-2 py-2 mb-2">
-           <input type="checkbox" id="booking-festival-qr" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus">
-           <label for="booking-festival-qr" class="text-sm font-medium text-theme-secondary">Festival booking – Include QR codes (Darshan &amp; Prasadam) for validation</label>
-          </div>
           <div class="space-y-3"><button id="save-booking-btn" class="w-full btn-primary text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"> Save Booking </button> <button id="razorpay-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition">
             <svg class="w-5 h-5" viewbox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
             </svg> Pay with Razorpay </button>
@@ -2365,7 +2361,7 @@
         return;
       }
 
-      const hasFestivalQR = booking.festivalQR === true || booking.festivalQR === 'true';
+      const sevas = (allData && allData.length) ? allData.filter(d => d.type === 'seva') : (window.dataSdk && window.dataSdk.getCachedData ? (window.dataSdk.getCachedData() || []).filter(d => d.type === 'seva') : []);
 
       let allReceiptsHTML = '<div style="margin:0;padding:0;">';
 
@@ -2378,24 +2374,25 @@
         });
         const totalForSeva = item.amount * item.quantity;
 
+        const isGeneralDonation = (item.id && item.id === 'general_donation') || (item.sevaId && String(item.sevaId).indexOf('general_donation') === 0);
+        const seva = isGeneralDonation ? null : sevas.find(s => s.id === item.sevaId);
+        const showDarshanQR = seva && (seva.darshanQR === true || seva.darshanQR === 'true');
+        const showPrasadamQR = seva && (seva.prasadamQR === true || seva.prasadamQR === 'true');
+
         let qrSectionHTML = '';
-        if (hasFestivalQR) {
-          const payloadDarshan = `${booking.__backendId}|${index}|darshan`;
-          const payloadPrasadam = `${booking.__backendId}|${index}|prasadam`;
-          const qrDarshan = getQRCodeDataURL(payloadDarshan, 90);
-          const qrPrasadam = getQRCodeDataURL(payloadPrasadam, 90);
-          qrSectionHTML = `
-            <div style="display:flex;justify-content:center;gap:24px;margin:12px 0;flex-shrink:0;">
-              <div style="text-align:center;">
-                <p style="margin:0 0 4px 0;font-size:10px;font-weight:bold;color:#5a3600;">Darshan</p>
-                <img src="${qrDarshan}" alt="Darshan QR" style="width:90px;height:90px;display:block;border:1px solid #c9a24d;border-radius:4px;">
-              </div>
-              <div style="text-align:center;">
-                <p style="margin:0 0 4px 0;font-size:10px;font-weight:bold;color:#5a3600;">Prasadam</p>
-                <img src="${qrPrasadam}" alt="Prasadam QR" style="width:90px;height:90px;display:block;border:1px solid #c9a24d;border-radius:4px;">
-              </div>
-            </div>
-          `;
+        if (showDarshanQR || showPrasadamQR) {
+          const parts = [];
+          if (showDarshanQR) {
+            const payloadDarshan = `${booking.__backendId}|${index}|darshan`;
+            const qrDarshan = getQRCodeDataURL(payloadDarshan, 90);
+            parts.push(`<div style="text-align:center;"><p style="margin:0 0 4px 0;font-size:10px;font-weight:bold;color:#5a3600;">Darshan</p><img src="${qrDarshan}" alt="Darshan QR" style="width:90px;height:90px;display:block;border:1px solid #c9a24d;border-radius:4px;"></div>`);
+          }
+          if (showPrasadamQR) {
+            const payloadPrasadam = `${booking.__backendId}|${index}|prasadam`;
+            const qrPrasadam = getQRCodeDataURL(payloadPrasadam, 90);
+            parts.push(`<div style="text-align:center;"><p style="margin:0 0 4px 0;font-size:10px;font-weight:bold;color:#5a3600;">Prasadam</p><img src="${qrPrasadam}" alt="Prasadam QR" style="width:90px;height:90px;display:block;border:1px solid #c9a24d;border-radius:4px;"></div>`);
+          }
+          qrSectionHTML = `<div style="display:flex;justify-content:center;gap:24px;margin:12px 0;flex-shrink:0;">${parts.join('')}</div>`;
         }
 
         const receiptHTML = `
@@ -4438,6 +4435,17 @@
             <label class="block text-sm font-medium text-theme-secondary mb-1">Amount (Rs.) *</label>
             <input type="number" id="new-seva-amount" required min="1" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
+          <div class="flex flex-col gap-2 pt-2">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Receipt QR codes</label>
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="new-seva-darshan-qr" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus">
+              <label for="new-seva-darshan-qr" class="text-sm text-theme-secondary">Include Darshan QR on receipt</label>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="new-seva-prasadam-qr" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus">
+              <label for="new-seva-prasadam-qr" class="text-sm text-theme-secondary">Include Prasadam QR on receipt</label>
+            </div>
+          </div>
           <div class="flex gap-3 pt-2">
             <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
             <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Add Seva</button>
@@ -4455,7 +4463,9 @@
           name: document.getElementById('new-seva-name').value.trim(),
           description: document.getElementById('new-seva-desc').value.trim(),
           amount: parseInt(document.getElementById('new-seva-amount').value),
-          centerId: centerId
+          centerId: centerId,
+          darshanQR: document.getElementById('new-seva-darshan-qr').checked,
+          prasadamQR: document.getElementById('new-seva-prasadam-qr').checked
         };
         const result = await window.dataSdk.create(record);
         if (result && result.isOk && result.data) {
@@ -4510,6 +4520,17 @@
             <label class="block text-sm font-medium text-theme-secondary mb-1">Amount (Rs.) *</label>
             <input type="number" id="edit-seva-amount" value="${seva.amount}" required min="1" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
+          <div class="flex flex-col gap-2 pt-2">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Receipt QR codes</label>
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="edit-seva-darshan-qr" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus" ${(seva.darshanQR === true || seva.darshanQR === 'true') ? 'checked' : ''}>
+              <label for="edit-seva-darshan-qr" class="text-sm text-theme-secondary">Include Darshan QR on receipt</label>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="edit-seva-prasadam-qr" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus" ${(seva.prasadamQR === true || seva.prasadamQR === 'true') ? 'checked' : ''}>
+              <label for="edit-seva-prasadam-qr" class="text-sm text-theme-secondary">Include Prasadam QR on receipt</label>
+            </div>
+          </div>
           <div class="flex gap-3 pt-2">
             <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
             <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Update</button>
@@ -4530,12 +4551,14 @@
           description: document.getElementById('edit-seva-desc').value.trim(),
           amount: parseInt(document.getElementById('edit-seva-amount').value),
           centerId: centerId,
-          isActive: true
+          isActive: true,
+          darshanQR: document.getElementById('edit-seva-darshan-qr').checked,
+          prasadamQR: document.getElementById('edit-seva-prasadam-qr').checked
         };
         const result = await window.dataSdk.update(record);
         if (result && result.isOk) {
           const idx = sevasList.findIndex(s => s.id === sevaId);
-          if (idx >= 0) sevasList[idx] = Object.assign({}, sevasList[idx], { name: record.name, description: record.description, amount: record.amount, centerId: record.centerId });
+          if (idx >= 0) sevasList[idx] = Object.assign({}, sevasList[idx], { name: record.name, description: record.description, amount: record.amount, centerId: record.centerId, darshanQR: record.darshanQR, prasadamQR: record.prasadamQR });
           if (window.dataSdk && window.dataSdk.getCachedData) {
             const cached = window.dataSdk.getCachedData() || [];
             const out = cached.map(d => d.type === 'seva' && d.id === sevaId ? Object.assign({}, d, record) : d);
@@ -4631,7 +4654,6 @@
         const bookingCenterId = isSuperadmin ? 'all_centers' : (currentUser.centerId || 'center_bangalore');
         const collectorCenter = isSuperadmin ? 'all_centers' : currentUser.centerId;
         
-        const festivalQR = document.getElementById('booking-festival-qr').checked;
         const bookingResult = await window.dataSdk.create({
           type: 'booking',
           donorId: finalDonorId,
@@ -4642,7 +4664,6 @@
           centerId: bookingCenterId,
           collectedBy: currentUser.username,
           collectedByCenter: collectorCenter,
-          festivalQR: festivalQR,
           createdAt: new Date().toISOString()
         });
 
@@ -4725,8 +4746,6 @@
         const isSuperadmin = currentUser.username === 'admin';
         const bookingCenterId = isSuperadmin ? 'all_centers' : (currentUser.centerId || 'center_bangalore');
         const collectorCenter = isSuperadmin ? 'all_centers' : currentUser.centerId;
-        const festivalQR = document.getElementById('booking-festival-qr').checked;
-
         const bookingResult = await window.dataSdk.create({
           type: 'booking',
           donorId: finalDonorId,
@@ -4737,7 +4756,6 @@
           centerId: bookingCenterId,
           collectedBy: currentUser.username,
           collectedByCenter: collectorCenter,
-          festivalQR: festivalQR,
           createdAt: new Date().toISOString()
         });
 
