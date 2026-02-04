@@ -1010,6 +1010,15 @@
       return sevasList.filter(s => (s.centerId || '') === centerId || (s.centerId || '') === 'all_centers');
     }
 
+    function validateFlexibleCartAmounts() {
+      const invalid = cart.find(item => item && item.id !== 'general_donation' && item.isFlexibleAmount === true && !(parseFloat(item.amount) >= 1));
+      if (invalid) {
+        showToast(`Please enter amount for ${invalid.name} (₹1 or more)`, 'error');
+        return false;
+      }
+      return true;
+    }
+
     // Helper Functions
     function showToast(message, type = 'success') {
       const container = document.getElementById('toast-container');
@@ -1258,6 +1267,8 @@
       }
       
       container.innerHTML = shortcutSevas.map(seva => {
+        const amt = parseFloat(seva.amount) || 0;
+        const amtLabel = amt > 0 ? `₹${amt}` : 'Flexible';
         const cartItem = cart.find(c => c.sevaId === seva.id);
         const isSelected = cartItem && cartItem.quantity > 0;
         const quantity = cartItem ? cartItem.quantity : 0;
@@ -1272,7 +1283,7 @@
               <span class="font-semibold text-theme-primary text-sm leading-tight">${seva.name}</span>
               ${isSelected ? `<span class="bg-theme-accent text-white text-xs px-1.5 py-0.5 rounded-full font-bold">${quantity}</span>` : ''}
             </div>
-            <div class="text-theme-secondary font-bold text-sm mt-1">₹${seva.amount}</div>
+            <div class="text-theme-secondary font-bold text-sm mt-1">${amtLabel}</div>
           </button>
         `;
       }).join('');
@@ -1283,16 +1294,20 @@
           const sevaId = btn.dataset.sevaId;
           const seva = sevasList.find(s => s.id === sevaId);
           if (seva) {
+            const sevaAmount = parseFloat(seva.amount) || 0;
+            const isFlexibleAmount = !(sevaAmount > 0);
             const cartItem = cart.find(c => c.sevaId === seva.id);
             if (cartItem) {
               cartItem.quantity++;
+              if (typeof cartItem.isFlexibleAmount === 'undefined') cartItem.isFlexibleAmount = isFlexibleAmount;
             } else {
               cart.push({ 
                 sevaId: seva.id, 
                 id: seva.id,
                 name: seva.name, 
                 description: seva.description, 
-                amount: seva.amount, 
+                amount: sevaAmount,
+                isFlexibleAmount: isFlexibleAmount,
                 quantity: 1,
                 bookingDate: today
               });
@@ -1312,6 +1327,8 @@
       const sevasForCenter = getSevasForBookingCenter(selectedBookingCenterId);
 
       container.innerHTML = sevasForCenter.map(seva => {
+        const amt = parseFloat(seva.amount) || 0;
+        const amtLabel = amt > 0 ? `₹${amt}` : 'Flexible';
         const cartItem = cart.find(c => c.sevaId === seva.id);
         const quantity = cartItem ? cartItem.quantity : 0;
         const bookingDate = cartItem ? cartItem.bookingDate : '';
@@ -1323,7 +1340,7 @@
                 <h4 class="font-semibold text-theme-primary">${seva.name}</h4>
                 <p class="text-xs text-theme-muted">${seva.description}</p>
               </div>
-              <span class="font-bold text-theme-secondary text-sm">₹${seva.amount}</span>
+              <span class="font-bold text-theme-secondary text-sm">${amtLabel}</span>
             </div>
             <div class="space-y-2 mt-3 pt-3 border-t border-theme">
               <div>
@@ -1362,16 +1379,20 @@
           const sevaId = btn.dataset.sevaId;
           const seva = sevasList.find(s => s.id === sevaId);
           if (seva) {
+            const sevaAmount = parseFloat(seva.amount) || 0;
+            const isFlexibleAmount = !(sevaAmount > 0);
             const cartItem = cart.find(c => c.sevaId === seva.id);
             if (cartItem) {
               cartItem.quantity++;
+              if (typeof cartItem.isFlexibleAmount === 'undefined') cartItem.isFlexibleAmount = isFlexibleAmount;
             } else {
               cart.push({ 
                 sevaId: seva.id, 
                 id: seva.id,
                 name: seva.name, 
                 description: seva.description, 
-                amount: seva.amount, 
+                amount: sevaAmount,
+                isFlexibleAmount: isFlexibleAmount,
                 quantity: 1,
                 bookingDate: today
               });
@@ -1433,7 +1454,9 @@
 
       container.innerHTML = cart.map(item => {
         const isGeneral = item.id === 'general_donation';
+        const isFlexible = !isGeneral && item.isFlexibleAmount === true;
         const sevaDate = item.bookingDate ? new Date(item.bookingDate).toLocaleDateString('en-GB') : 'N/A';
+        const lineTotal = (parseFloat(item.amount) || 0) * (item.quantity || 1);
         return `
           <div class="border border-theme-strong rounded-lg p-3 bg-theme-page">
             <div class="flex justify-between items-start mb-2">
@@ -1445,7 +1468,14 @@
             </div>
             <div class="flex items-center gap-2 pt-2 border-t border-theme">
               ${isGeneral ? '' : `<button type="button" class="decrease-item-btn text-xs bg-theme-muted hover:bg-theme-border text-theme-primary px-2 py-1 rounded font-bold" data-seva-id="${item.sevaId}">&minus;</button>`}
-              <span class="text-xs text-theme-secondary flex-1">₹${(item.amount * item.quantity).toLocaleString()}</span>
+              ${isFlexible ? `
+                <div class="flex-1 flex items-center gap-2">
+                  <input type="number" min="1" step="1" class="flexible-amount-input w-28 px-2 py-1 border border-theme-strong rounded text-xs theme-focus outline-none bg-white" data-seva-id="${item.sevaId}" placeholder="₹ Amount" value="${(parseFloat(item.amount) || 0) > 0 ? (parseFloat(item.amount) || 0) : ''}">
+                  <span class="text-xs text-theme-secondary">Total: ₹${lineTotal.toLocaleString()}</span>
+                </div>
+              ` : `
+                <span class="text-xs text-theme-secondary flex-1">₹${lineTotal.toLocaleString()}</span>
+              `}
               ${isGeneral ? '' : `<button type="button" class="increase-item-btn text-xs bg-theme-accent hover:opacity-90 text-white px-2 py-1 rounded font-bold" data-seva-id="${item.sevaId}">+</button>`}
               <button type="button" class="remove-selected-btn text-red-600 hover:text-red-800 ml-2" data-seva-id="${item.sevaId}">×</button>
             </div>
@@ -1494,6 +1524,18 @@
           renderCart();
         });
       });
+
+      container.querySelectorAll('.flexible-amount-input').forEach(input => {
+        input.addEventListener('input', () => {
+          const sevaId = input.dataset.sevaId;
+          const item = cart.find(c => c.sevaId === sevaId);
+          if (!item) return;
+          const v = parseFloat(input.value);
+          item.amount = (!isNaN(v) && v >= 0) ? v : 0;
+          renderSelectedSevasList();
+          renderCart();
+        });
+      });
     }
 
     function renderCart() {
@@ -1508,16 +1550,19 @@
 
       container.innerHTML = cart.map(item => {
         const isGeneral = item.id === 'general_donation';
+        const isFlexible = !isGeneral && item.isFlexibleAmount === true;
         const sevaDate = item.bookingDate ? new Date(item.bookingDate).toLocaleDateString('en-GB') : 'N/A';
+        const lineTotal = (parseFloat(item.amount) || 0) * (item.quantity || 1);
         return `
           <div class="flex justify-between items-center text-sm py-2 border-b border-theme">
             <div class="flex-1">
               <span class="text-theme-secondary">${item.name}</span>
               ${isGeneral ? '' : `<span class="text-xs text-theme-muted ml-2">(Qty: ${item.quantity})</span>`}
               ${isGeneral ? '' : `<div class="text-xs text-theme-muted mt-0.5">Date: ${sevaDate}</div>`}
+              ${isFlexible ? `<div class="mt-1"><input type="number" min="1" step="1" class="flexible-amount-input w-32 px-2 py-1 border border-theme-strong rounded text-xs theme-focus outline-none bg-white" data-seva-id="${item.sevaId}" placeholder="₹ Amount" value="${(parseFloat(item.amount) || 0) > 0 ? (parseFloat(item.amount) || 0) : ''}"></div>` : ''}
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-theme-primary font-medium">₹${(item.amount * item.quantity).toLocaleString()}</span>
+              <span class="text-theme-primary font-medium">₹${lineTotal.toLocaleString()}</span>
               <button type="button" class="text-red-600 hover:text-red-800 ml-2 remove-item-btn" data-seva-id="${item.sevaId}">×</button>
             </div>
           </div>
@@ -1535,7 +1580,19 @@
         });
       });
 
-      const total = cart.reduce((sum, item) => sum + (item.amount * item.quantity), 0);
+      container.querySelectorAll('.flexible-amount-input').forEach(input => {
+        input.addEventListener('input', () => {
+          const sevaId = input.dataset.sevaId;
+          const item = cart.find(c => c.sevaId === sevaId);
+          if (!item) return;
+          const v = parseFloat(input.value);
+          item.amount = (!isNaN(v) && v >= 0) ? v : 0;
+          renderCart();
+          renderSelectedSevasList();
+        });
+      });
+
+      const total = cart.reduce((sum, item) => sum + ((parseFloat(item.amount) || 0) * (item.quantity || 1)), 0);
       totalEl.textContent = `₹${total.toLocaleString()}`;
     }
 
@@ -1778,12 +1835,14 @@
       const centers = getCenters();
       const centerLabel = (cid) => (cid === 'all_centers' || !cid) ? 'All centers' : (centers.find(c => c.id === cid) || {}).name || cid;
       container.innerHTML = sevasList.map(s => {
+        const amt = parseFloat(s.amount) || 0;
+        const amtLabel = amt > 0 ? `₹${amt}` : 'Flexible';
         const hasShortcut = (window.sevaShortcuts && window.sevaShortcuts[s.id] === false) ? false : (s.shortcut !== false);
         return `
         <div class="border border-theme rounded-xl p-4 hover:shadow-md transition ${hasShortcut ? 'ring-2 ring-theme-strong' : ''}">
           <div class="flex justify-between items-start mb-2">
             <h4 class="font-semibold text-theme-primary">${s.name}</h4>
-            <span class="font-bold text-theme-secondary">₹${s.amount}</span>
+            <span class="font-bold text-theme-secondary">${amtLabel}</span>
           </div>
           <p class="text-sm text-theme-muted mb-1">${s.description}</p>
           <p class="text-xs text-theme-muted mb-3">Center: ${centerLabel(s.centerId)}</p>
@@ -2428,7 +2487,7 @@
               <h2 style="margin:0;color:#7a4b00;font-size:16px;">ISKCON Cultural Centre</h2>
               <p style="margin:2px 0;font-size:11px;">International Society for Krishna Consciousness<br>Registered Trust | 80G &amp; 12A Approved</p>
             </div>
-            <h3 style="text-align:center;margin:12px 0 8px 0;color:#5a3600;font-size:14px;flex-shrink:0;">Donation Receipt</h3>
+            <h3 style="text-align:center;margin:12px 0 8px 0;color:#5a3600;font-size:14px;flex-shrink:0;">Acknowledgement</h3>
             <table style="width:100%;font-size:11px;border-collapse:collapse;flex-shrink:0;margin-bottom:8px;">
               <tr><td><strong>Receipt No:</strong></td><td>${receiptNumber}</td><td><strong>Date:</strong></td><td>${transactionDate}</td></tr>
               <tr><td><strong>Seva:</strong></td><td colspan="3">${item.name}</td></tr>
@@ -4524,8 +4583,9 @@
             <input type="text" id="new-seva-desc" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           <div>
-            <label class="block text-sm font-medium text-theme-secondary mb-1">Amount (Rs.) *</label>
-            <input type="number" id="new-seva-amount" required min="1" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Amount (Rs.) <span class="text-theme-muted font-normal">(optional)</span></label>
+            <input type="number" id="new-seva-amount" min="0" step="1" placeholder="Leave blank for flexible amount" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
+            <p class="text-xs text-theme-muted mt-1">If left blank, donor will enter amount before payment.</p>
           </div>
           <div class="flex flex-col gap-2 pt-2">
             <label class="block text-sm font-medium text-theme-secondary mb-1">Receipt QR codes</label>
@@ -4550,11 +4610,13 @@
         const centerEl = document.getElementById('new-seva-center');
         const centerHidden = document.getElementById('new-seva-center-hidden');
         const centerId = centerHidden ? centerHidden.value : (centerEl && centerEl.value) || 'all_centers';
+        const amtRaw = (document.getElementById('new-seva-amount').value || '').trim();
+        const amtVal = amtRaw === '' ? 0 : parseFloat(amtRaw);
         const record = {
           type: 'seva',
           name: document.getElementById('new-seva-name').value.trim(),
           description: document.getElementById('new-seva-desc').value.trim(),
-          amount: parseInt(document.getElementById('new-seva-amount').value),
+          amount: (!isNaN(amtVal) && amtVal >= 0) ? amtVal : 0,
           centerId: centerId,
           darshanQR: document.getElementById('new-seva-darshan-qr').checked,
           prasadamQR: document.getElementById('new-seva-prasadam-qr').checked
@@ -4606,8 +4668,9 @@
             <input type="text" id="edit-seva-desc" value="${esc(seva.description)}" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
           <div>
-            <label class="block text-sm font-medium text-theme-secondary mb-1">Amount (Rs.) *</label>
-            <input type="number" id="edit-seva-amount" value="${seva.amount}" required min="1" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Amount (Rs.) <span class="text-theme-muted font-normal">(optional)</span></label>
+            <input type="number" id="edit-seva-amount" value="${(parseFloat(seva.amount) || 0) > 0 ? seva.amount : ''}" min="0" step="1" placeholder="Leave blank for flexible amount" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
+            <p class="text-xs text-theme-muted mt-1">If left blank, donor will enter amount before payment.</p>
           </div>
           <div class="flex flex-col gap-2 pt-2">
             <label class="block text-sm font-medium text-theme-secondary mb-1">Receipt QR codes</label>
@@ -4632,13 +4695,15 @@
         const centerEl = document.getElementById('edit-seva-center');
         const centerHidden = document.getElementById('edit-seva-center-hidden');
         const centerId = centerHidden ? centerHidden.value : (centerEl && centerEl.value) || seva.centerId || 'all_centers';
+        const amtRaw = (document.getElementById('edit-seva-amount').value || '').trim();
+        const amtVal = amtRaw === '' ? 0 : parseFloat(amtRaw);
         const record = {
           type: 'seva',
           __backendId: sevaId,
           id: sevaId,
           name: document.getElementById('edit-seva-name').value.trim(),
           description: document.getElementById('edit-seva-desc').value.trim(),
-          amount: parseInt(document.getElementById('edit-seva-amount').value),
+          amount: (!isNaN(amtVal) && amtVal >= 0) ? amtVal : 0,
           centerId: centerId,
           isActive: true,
           darshanQR: document.getElementById('edit-seva-darshan-qr').checked,
@@ -4683,6 +4748,7 @@
         showToast('Please add at least one seva or general donation', 'error');
         return;
       }
+      if (!validateFlexibleCartAmounts()) return;
 
       if (allData.length >= 999) {
         showToast('Maximum data limit reached. Please contact administrator.', 'error');
@@ -4775,16 +4841,17 @@
       const donorId = document.getElementById('donor-id').value;
       const name = document.getElementById('donor-name').value.trim();
       const mobile = document.getElementById('donor-mobile').value.trim();
-      const total = cart.reduce((sum, item) => sum + (item.amount * item.quantity), 0);
 
       if (!name || !mobile) {
         showToast('Please fill donor name and mobile', 'error');
         return;
       }
-      if (total === 0) {
+      if (cart.length === 0) {
         showToast('Please add at least one seva or general donation', 'error');
         return;
       }
+      if (!validateFlexibleCartAmounts()) return;
+      const total = cart.reduce((sum, item) => sum + ((parseFloat(item.amount) || 0) * (item.quantity || 1)), 0);
       if (typeof Razorpay === 'undefined') {
         showToast('Razorpay is loading. Please try again.', 'error');
         return;
