@@ -21,9 +21,6 @@
     // Session storage key
     const SESSION_KEY = 'myiskcon_session';
     
-    // Optional: background music URL (e.g. devotional/kirtan audio). Leave empty to disable.
-    const BACKGROUND_MUSIC_URL = 'https://drive.google.com/file/d/10ttczidt2Wh30hP_Xtgez_FyAlixXLKI/';
-    
     // ==================== SESSION MANAGEMENT ====================
     const sessionManager = {
       getSession: function() {
@@ -386,8 +383,7 @@
   <style>@view-transition { navigation: auto; }</style>
  </head>
  <body class="h-full bg-theme-page">
-  <div id="app" class="h-full overflow-auto"><!-- Background Music (hidden) -->
-   <audio id="bg-music" loop preload="metadata" playsinline></audio><!-- Toast Container -->
+  <div id="app" class="h-full overflow-auto"><!-- Toast Container -->
    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div><!-- Login Screen -->
    <div id="login-screen" class="min-h-full flex flex-col p-4">
     <div class="flex-1 flex items-center justify-center">
@@ -436,18 +432,9 @@
         <p id="user-role-display" class="text-xs text-theme-muted"></p>
        </div>
       </div>
-      <div class="flex items-center gap-2">
-       <div id="music-control" class="flex items-center gap-1 mr-2" title="Background music">
-        <button type="button" id="music-toggle" class="p-2 rounded-lg text-theme-secondary hover:text-theme-primary hover:bg-theme-muted transition" aria-label="Toggle music">
-         <svg id="music-icon-off" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
-         <svg id="music-icon-on" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
-        </button>
-        <input type="range" id="music-volume" min="0" max="1" step="0.1" value="0.5" class="w-16 h-1.5 accent-[var(--theme-pink)] cursor-pointer hidden sm:block" title="Volume">
-       </div>
-       <button id="logout-btn" class="flex items-center gap-2 text-theme-secondary hover:text-theme-primary transition">
+      <button id="logout-btn" class="flex items-center gap-2 text-theme-secondary hover:text-theme-primary transition">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
         </svg><span class="hidden sm:inline">Logout</span> </button>
-      </div>
      </div>
     </header><!-- Navigation Tabs -->
     <nav class="bg-white border-b border-theme">
@@ -629,6 +616,11 @@
           <div id="quick-seva-grid" class="grid grid-cols-2 gap-2 mb-4">
            <!-- Quick seva buttons will be populated here -->
           </div>
+          <div class="border border-theme rounded-lg p-3 mb-4 bg-theme-page/50">
+           <p class="text-xs font-semibold text-theme-secondary mb-2">General Donation</p>
+           <input type="number" id="general-donation-amount" min="0" step="1" placeholder="Amount (₹) – enter to add to cart" class="w-full px-3 py-2 border border-theme rounded-lg text-sm theme-focus outline-none">
+           <p class="text-xs text-theme-muted mt-1">Enter amount and it will be added to your booking automatically.</p>
+          </div>
           <p class="text-xs text-theme-muted mb-2">Click to add seva • Selected sevas shown below</p>
           <div id="seva-list" class="space-y-3 max-h-48 overflow-y-auto pr-2 flex-1"><!-- Selected sevas will be shown here -->
           </div>
@@ -639,13 +631,6 @@
           <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Booking Summary</h3>
           <div id="cart-items" class="space-y-2 mb-4 max-h-48 overflow-y-auto">
            <p class="text-theme-muted text-sm">No sevas selected</p>
-          </div>
-          <div class="border border-theme rounded-lg p-3 mb-4 bg-theme-page/50">
-           <p class="text-xs font-semibold text-theme-secondary mb-2">General Donation</p>
-           <div class="flex gap-2">
-            <input type="number" id="general-donation-amount" min="1" step="1" placeholder="Amount (₹)" class="flex-1 px-3 py-2 border border-theme rounded-lg text-sm theme-focus outline-none">
-            <button type="button" id="add-general-donation-btn" class="bg-theme-accent hover:opacity-90 text-white px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap">Add</button>
-           </div>
           </div>
           <div class="border-t border-theme pt-4 mb-4">
            <div class="flex justify-between items-center text-lg font-semibold"><span class="text-theme-secondary">Total Amount:</span> <span id="total-amount" class="text-theme-primary">0</span>
@@ -1499,7 +1484,12 @@
       container.querySelectorAll('.remove-selected-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const sevaId = btn.dataset.sevaId;
+          const wasGeneral = (cart.find(item => item.sevaId === sevaId) || {}).id === 'general_donation';
           cart = cart.filter(item => item.sevaId !== sevaId);
+          if (wasGeneral) {
+            const genInput = document.getElementById('general-donation-amount');
+            if (genInput) genInput.value = '';
+          }
           renderSelectedSevasList();
           renderQuickSevaGrid();
           renderSlidingSevaList();
@@ -5088,60 +5078,6 @@
 
       document.getElementById('logout-btn').addEventListener('click', handleLogout);
 
-      // Background music (only when logged in / dashboard visible)
-      const bgMusic = document.getElementById('bg-music');
-      const musicToggle = document.getElementById('music-toggle');
-      const musicVolume = document.getElementById('music-volume');
-      const musicIconOff = document.getElementById('music-icon-off');
-      const musicIconOn = document.getElementById('music-icon-on');
-      if (bgMusic && musicToggle && musicVolume) {
-        const MUSIC_STORAGE_KEY = 'myiskcon_music_enabled';
-        const MUSIC_VOLUME_KEY = 'myiskcon_music_volume';
-        let musicEnabled = localStorage.getItem(MUSIC_STORAGE_KEY) === 'true';
-        let savedVolume = parseFloat(localStorage.getItem(MUSIC_VOLUME_KEY));
-        if (isNaN(savedVolume) || savedVolume < 0 || savedVolume > 1) savedVolume = 0.5;
-        bgMusic.volume = savedVolume;
-        musicVolume.value = savedVolume;
-        if (typeof BACKGROUND_MUSIC_URL !== 'undefined' && BACKGROUND_MUSIC_URL) {
-          bgMusic.src = BACKGROUND_MUSIC_URL;
-        }
-        function updateMusicIcons() {
-          const playing = !bgMusic.paused && bgMusic.currentTime > 0;
-          if (musicIconOff) musicIconOff.classList.toggle('hidden', playing);
-          if (musicIconOn) musicIconOn.classList.toggle('hidden', !playing);
-        }
-        musicToggle.addEventListener('click', () => {
-          if (!BACKGROUND_MUSIC_URL || !BACKGROUND_MUSIC_URL.trim()) {
-            showToast('Add BACKGROUND_MUSIC_URL in the app config to enable music.', 'error');
-            return;
-          }
-          if (!bgMusic.src) bgMusic.src = BACKGROUND_MUSIC_URL;
-          if (bgMusic.paused) {
-            bgMusic.play().then(() => {
-              musicEnabled = true;
-              localStorage.setItem(MUSIC_STORAGE_KEY, 'true');
-              updateMusicIcons();
-            }).catch(() => showToast('Could not play music. Check the audio URL.', 'error'));
-          } else {
-            bgMusic.pause();
-            musicEnabled = false;
-            localStorage.setItem(MUSIC_STORAGE_KEY, 'false');
-            updateMusicIcons();
-          }
-        });
-        musicVolume.addEventListener('input', () => {
-          const v = parseFloat(musicVolume.value);
-          bgMusic.volume = v;
-          localStorage.setItem(MUSIC_VOLUME_KEY, String(v));
-        });
-        bgMusic.addEventListener('play', updateMusicIcons);
-        bgMusic.addEventListener('pause', updateMusicIcons);
-        updateMusicIcons();
-        if (musicEnabled && BACKGROUND_MUSIC_URL && bgMusic.src) {
-          bgMusic.play().catch(() => {});
-        }
-      }
-
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           switchTab(btn.dataset.tab);
@@ -5165,30 +5101,40 @@
 
       document.getElementById('save-booking-btn').addEventListener('click', saveBooking);
       document.getElementById('razorpay-btn').addEventListener('click', openRazorpay);
-      document.getElementById('add-general-donation-btn').addEventListener('click', () => {
+      (function() {
         const input = document.getElementById('general-donation-amount');
-        const amt = parseFloat(input.value);
-        if (isNaN(amt) || amt < 1) {
-          showToast('Please enter a valid amount (₹1 or more)', 'error');
-          return;
+        if (!input) return;
+        let generalDonationDebounce = null;
+        function syncGeneralDonationToCart() {
+          const raw = input.value.trim();
+          const amt = raw === '' ? NaN : parseFloat(raw);
+          cart = cart.filter(item => item.id !== 'general_donation');
+          if (!isNaN(amt) && amt >= 1) {
+            const today = new Date().toISOString().split('T')[0];
+            cart.push({
+              sevaId: 'general_donation_' + Date.now(),
+              id: 'general_donation',
+              name: 'General Donation',
+              description: 'Voluntary donation',
+              amount: amt,
+              quantity: 1,
+              bookingDate: today
+            });
+          }
+          renderCart();
+          renderSelectedSevasList();
+          renderSlidingSevaList();
+          renderQuickSevaGrid();
         }
-        const today = new Date().toISOString().split('T')[0];
-        cart.push({
-          sevaId: 'general_donation_' + Date.now(),
-          id: 'general_donation',
-          name: 'General Donation',
-          description: 'Voluntary donation',
-          amount: amt,
-          quantity: 1,
-          bookingDate: today
+        input.addEventListener('input', () => {
+          clearTimeout(generalDonationDebounce);
+          generalDonationDebounce = setTimeout(syncGeneralDonationToCart, 400);
         });
-        input.value = '';
-        renderCart();
-        renderSelectedSevasList();
-        renderSlidingSevaList();
-        renderQuickSevaGrid();
-        showToast('General donation added');
-      });
+        input.addEventListener('change', () => {
+          clearTimeout(generalDonationDebounce);
+          syncGeneralDonationToCart();
+        });
+      })();
 
       document.getElementById('add-user-btn').addEventListener('click', showAddUserModal);
       document.getElementById('add-donor-btn').addEventListener('click', showAddDonorModal);
