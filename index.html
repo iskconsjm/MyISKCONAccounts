@@ -448,24 +448,24 @@
        <div class="space-y-6"><!-- Statistics Cards -->
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
          <div class="bg-white rounded-xl card-shadow p-6">
-          <p class="text-theme-muted text-sm font-medium mb-1">Total Bookings</p>
+          <p id="label-stat-bookings" class="text-theme-muted text-sm font-medium mb-1">Total Bookings</p>
           <p id="stat-bookings" class="font-display text-3xl font-bold text-theme-primary">0</p>
          </div>
          <div class="bg-white rounded-xl card-shadow p-6">
-          <p class="text-theme-muted text-sm font-medium mb-1">Total Revenue</p>
+          <p id="label-stat-revenue" class="text-theme-muted text-sm font-medium mb-1">Total Revenue</p>
           <p id="stat-revenue" class="font-display text-3xl font-bold text-theme-primary">0</p>
          </div>
          <div class="bg-white rounded-xl card-shadow p-6">
-          <p class="text-theme-muted text-sm font-medium mb-1">Total Donors</p>
+          <p id="label-stat-donors" class="text-theme-muted text-sm font-medium mb-1">Total Donors</p>
           <p id="stat-donors" class="font-display text-3xl font-bold text-theme-primary">0</p>
          </div>
          <div class="bg-white rounded-xl card-shadow p-6">
-          <p class="text-theme-muted text-sm font-medium mb-1">Avg. Transaction</p>
+          <p id="label-stat-average" class="text-theme-muted text-sm font-medium mb-1">Avg. Transaction</p>
           <p id="stat-average" class="font-display text-3xl font-bold text-theme-primary">0</p>
          </div>
         </div><!-- Filters -->
-        <div class="bg-white rounded-xl card-shadow p-6">
-         <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Filters and Analytics</h3>
+        <div class="bg-white rounded-xl card-shadow p-6" id="dashboard-filters-section">
+         <h3 id="dashboard-filters-title" class="font-display text-lg font-semibold text-theme-primary mb-4">Filters and Analytics</h3>
          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div><label class="block text-sm font-medium text-theme-secondary mb-2">Filter by Seva</label> <select id="filter-seva" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none"> <option value="">All Sevas</option> </select>
           </div>
@@ -479,16 +479,16 @@
         </div><!-- Charts -->
         <div class="grid lg:grid-cols-2 gap-6"><!-- Revenue by Seva -->
          <div class="bg-white rounded-xl card-shadow p-6">
-          <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Revenue by Seva</h3>
+          <h3 id="dashboard-chart-seva-title" class="font-display text-lg font-semibold text-theme-primary mb-4">Revenue by Seva</h3>
           <canvas id="chart-seva" style="max-height: 300px;"></canvas>
          </div><!-- Revenue Trend -->
          <div class="bg-white rounded-xl card-shadow p-6">
-          <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Revenue Trend</h3>
+          <h3 id="dashboard-chart-trend-title" class="font-display text-lg font-semibold text-theme-primary mb-4">Revenue Trend</h3>
           <canvas id="chart-trend" style="max-height: 300px;"></canvas>
          </div>
         </div><!-- Top Sevas Table -->
         <div class="bg-white rounded-xl card-shadow p-6">
-         <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Top Performing Sevas</h3>
+         <h3 id="dashboard-top-sevas-title" class="font-display text-lg font-semibold text-theme-primary mb-4">Top Performing Sevas</h3>
          <div class="overflow-x-auto">
           <table class="w-full">
            <thead>
@@ -508,13 +508,13 @@
          </div>
         </div><!-- Transactions List -->
         <div class="bg-white rounded-xl card-shadow p-6">
-         <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Filtered Transactions</h3>
+         <h3 id="dashboard-transactions-title" class="font-display text-lg font-semibold text-theme-primary mb-4">Filtered Transactions</h3>
          <div class="overflow-x-auto">
           <table class="w-full">
            <thead>
             <tr class="border-b border-theme">
              <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Date</th>
-             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Donor Name</th>
+             <th id="th-donor-name" class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Donor Name</th>
              <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Sevas</th>
              <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Amount</th>
              <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Status</th>
@@ -1195,15 +1195,15 @@
       // Centers management - superadmin only
       document.getElementById('centers-tab').classList.toggle('hidden', currentUser.username !== 'admin');
       
-      // Hide dashboard for donors (they go straight to booking)
+      // Show dashboard for everyone (donors see their own donations)
       const dashboardTab = document.querySelector('[data-tab="dashboard"]');
       if (dashboardTab) {
-        dashboardTab.classList.toggle('hidden', isDonor);
+        dashboardTab.classList.remove('hidden');
       }
       
-      // For donors, switch to booking tab by default
+      // Donors land on dashboard to see their donations; admins land on dashboard or booking
       if (isDonor) {
-        switchTab('booking');
+        switchTab('dashboard');
       } else if (document.getElementById('permissions-tab').classList.contains('hidden')) {
         switchTab('dashboard');
       }
@@ -2996,22 +2996,61 @@
 
     function updateDashboard() {
       const filteredBookings = getFilteredBookings();
+      const isDonor = currentUser && currentUser.role === 'donor';
       const uniqueDonors = new Set(filteredBookings.map(b => b.donorId)).size;
-      
+
       let totalRevenue = 0;
+      const uniqueSevaIds = new Set();
       filteredBookings.forEach(b => {
         const items = b.items ? JSON.parse(b.items) : [];
         items.forEach(item => {
           totalRevenue += (item.amount * (item.quantity || 1));
+          if (item.id && item.id !== 'general_donation') uniqueSevaIds.add(item.id);
         });
       });
-      
+
       const avgTransaction = filteredBookings.length > 0 ? Math.round(totalRevenue / filteredBookings.length) : 0;
 
       document.getElementById('stat-bookings').textContent = filteredBookings.length;
       document.getElementById('stat-revenue').textContent = `₹${totalRevenue.toLocaleString()}`;
-      document.getElementById('stat-donors').textContent = uniqueDonors;
+      document.getElementById('stat-donors').textContent = isDonor ? uniqueSevaIds.size : uniqueDonors;
       document.getElementById('stat-average').textContent = `₹${avgTransaction.toLocaleString()}`;
+
+      if (isDonor) {
+        document.getElementById('label-stat-bookings').textContent = 'Your Bookings';
+        document.getElementById('label-stat-revenue').textContent = 'Your Revenue';
+        document.getElementById('label-stat-donors').textContent = 'Sevas Supported';
+        document.getElementById('label-stat-average').textContent = 'Avg. per Booking';
+        const filtersTitle = document.getElementById('dashboard-filters-title');
+        if (filtersTitle) filtersTitle.textContent = 'Filter Your Donations';
+        const chartSevaTitle = document.getElementById('dashboard-chart-seva-title');
+        if (chartSevaTitle) chartSevaTitle.textContent = 'Your Donations by Seva';
+        const chartTrendTitle = document.getElementById('dashboard-chart-trend-title');
+        if (chartTrendTitle) chartTrendTitle.textContent = 'Your Donation Trend';
+        const topSevasTitle = document.getElementById('dashboard-top-sevas-title');
+        if (topSevasTitle) topSevasTitle.textContent = 'Your Sevas';
+        const transactionsTitle = document.getElementById('dashboard-transactions-title');
+        if (transactionsTitle) transactionsTitle.textContent = 'Your Transactions';
+        const thDonor = document.getElementById('th-donor-name');
+        if (thDonor) thDonor.style.display = 'none';
+      } else {
+        document.getElementById('label-stat-bookings').textContent = 'Total Bookings';
+        document.getElementById('label-stat-revenue').textContent = 'Total Revenue';
+        document.getElementById('label-stat-donors').textContent = 'Total Donors';
+        document.getElementById('label-stat-average').textContent = 'Avg. Transaction';
+        const filtersTitle = document.getElementById('dashboard-filters-title');
+        if (filtersTitle) filtersTitle.textContent = 'Filters and Analytics';
+        const chartSevaTitle = document.getElementById('dashboard-chart-seva-title');
+        if (chartSevaTitle) chartSevaTitle.textContent = 'Revenue by Seva';
+        const chartTrendTitle = document.getElementById('dashboard-chart-trend-title');
+        if (chartTrendTitle) chartTrendTitle.textContent = 'Revenue Trend';
+        const topSevasTitle = document.getElementById('dashboard-top-sevas-title');
+        if (topSevasTitle) topSevasTitle.textContent = 'Top Performing Sevas';
+        const transactionsTitle = document.getElementById('dashboard-transactions-title');
+        if (transactionsTitle) transactionsTitle.textContent = 'Filtered Transactions';
+        const thDonor = document.getElementById('th-donor-name');
+        if (thDonor) thDonor.style.display = '';
+      }
 
       updateCharts(filteredBookings);
       updateTopSevasTable(filteredBookings);
@@ -3143,9 +3182,11 @@
 
     function updateTransactionsTable(filteredBookings) {
       const tbody = document.getElementById('filtered-transactions-body');
+      const isDonor = currentUser && currentUser.role === 'donor';
+      const colCount = isDonor ? 4 : 5;
 
       if (filteredBookings.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-theme-muted">No transactions available</td></tr>';
+        tbody.innerHTML = `<tr><td colspan="${colCount}" class="py-4 text-center text-theme-muted">No transactions available</td></tr>`;
         return;
       }
 
@@ -3154,13 +3195,13 @@
         const items = b.items ? JSON.parse(b.items) : [];
         const sevaNames = items.map(i => `${i.name} (Qty: ${i.quantity || 1})`).join(', ');
         const donorName = donor ? donor.name || 'Unknown' : 'Unknown';
-        
         const correctTotal = items.reduce((sum, item) => sum + (item.amount * (item.quantity || 1)), 0);
+        const donorCell = isDonor ? '' : `<td class="py-3 px-4 text-theme-primary font-medium">${donorName}</td>`;
 
         return `
           <tr class="border-b border-theme hover:bg-theme-page">
             <td class="py-3 px-4 text-theme-secondary text-sm">${new Date(b.bookingDate).toLocaleDateString('en-GB')}</td>
-            <td class="py-3 px-4 text-theme-primary font-medium">${donorName}</td>
+            ${donorCell}
             <td class="py-3 px-4 text-theme-secondary text-sm">${sevaNames || '-'}</td>
             <td class="py-3 px-4 text-theme-primary font-semibold">₹${correctTotal.toLocaleString()}</td>
             <td class="py-3 px-4">
