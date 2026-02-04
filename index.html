@@ -2203,6 +2203,7 @@
         const donorName = donor ? donor.name || 'Unknown' : 'Unknown';
         
         const correctTotal = items.reduce((sum, item) => sum + (item.amount * item.quantity), 0);
+        const isPending = (b.paymentStatus || 'pending') !== 'paid';
         
         // Get collected by info
         const collectedByUsername = b.collectedBy || 'Unknown';
@@ -2232,7 +2233,10 @@
               <span class="px-2 py-1 text-xs rounded-full ${b.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${b.paymentStatus || 'pending'}</span>
             </td>
             <td class="py-3 px-4">
-              ${hasPermission('receipts') ? `<button class="text-theme-muted hover:text-theme-secondary font-medium text-sm download-receipt-btn" data-booking-id="${b.__backendId}" data-donor-id="${b.donorId}">Download</button>` : '<span class="text-gray-400 text-sm">N/A</span>'}
+              <div class="flex items-center gap-3">
+                ${isPending ? `<button class="px-3 py-1 rounded-lg text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white pay-booking-btn" data-booking-id="${b.__backendId}">Pay Now</button>` : ''}
+                ${hasPermission('receipts') ? `<button class="text-theme-muted hover:text-theme-secondary font-medium text-sm download-receipt-btn" data-booking-id="${b.__backendId}" data-donor-id="${b.donorId}">Download</button>` : '<span class="text-gray-400 text-sm">N/A</span>'}
+              </div>
             </td>
           </tr>
         `;
@@ -2243,6 +2247,13 @@
           const bookingId = btn.dataset.bookingId;
           const donorId = btn.dataset.donorId;
           generateReceipts(bookingId, donorId);
+        });
+      });
+
+      tbody.querySelectorAll('.pay-booking-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const bookingId = btn.dataset.bookingId;
+          payPendingBooking(bookingId, btn);
         });
       });
     }
@@ -4849,6 +4860,110 @@
       } finally {
         btn.disabled = false;
         btn.textContent = originalText;
+      }
+    }
+
+    async function payPendingBooking(bookingId, btnEl) {
+      if (!bookingId) return;
+      if (typeof Razorpay === 'undefined') {
+        showToast('Razorpay is loading. Please try again.', 'error');
+        return;
+      }
+
+      const booking = getBookings().find(b => b.__backendId === bookingId);
+      if (!booking) {
+        showToast('Booking not found', 'error');
+        return;
+      }
+      const status = booking.paymentStatus || 'pending';
+      if (status === 'paid') {
+        showToast('This booking is already paid.');
+        return;
+      }
+
+      const items = booking.items ? JSON.parse(booking.items) : [];
+      const total = items.reduce((sum, item) => sum + (item.amount * (item.quantity || 1)), 0);
+      if (!total || total <= 0) {
+        showToast('Invalid booking amount', 'error');
+        return;
+      }
+
+      const donor = allData.find(d => d.type === 'donor' && d.__backendId === booking.donorId);
+      const donorName = donor ? (donor.name || 'Donor') : 'Donor';
+      const donorMobile = donor ? (donor.mobile || '') : '';
+      const donorEmail = donor ? (donor.email || '') : '';
+
+      const originalText = btnEl ? btnEl.textContent : '';
+      if (btnEl) {
+        btnEl.disabled = true;
+        btnEl.textContent = 'Preparing...';
+      }
+
+      try {
+        const amountPaise = Math.round(total * 100);
+        const orderResult = await apiClient.call('createRazorpayOrder', {
+          amount: amountPaise,
+          receipt: bookingId,
+          currency: 'INR'
+        });
+
+        if (!orderResult.isOk) {
+          showToast(orderResult.error || 'Failed to create payment order', 'error');
+          return;
+        }
+
+        const options = {
+          key: orderResult.keyId,
+          amount: orderResult.amount,
+          order_id: orderResult.orderId,
+          name: 'ISKCON Cultural Centre',
+          description: `Pay pending booking (${bookingId.substring(0, 8)})`,
+          prefill: {
+            name: donorName,
+            contact: donorMobile,
+            email: donorEmail
+          },
+          handler: async function(response) {
+            const verifyResult = await apiClient.call('verifyRazorpayPayment', {
+              orderId: response.razorpay_order_id,
+              paymentId: response.razorpay_payment_id,
+              signature: response.razorpay_signature,
+              bookingId: bookingId
+            });
+
+            if (!verifyResult.isOk) {
+              showToast(verifyResult.error || 'Payment verification failed', 'error');
+              return;
+            }
+
+            showToast('Payment successful!');
+            // Refresh so status becomes "paid" everywhere, then show receipts
+            window.dataSdk.refreshData().then(() => {
+              renderAll();
+              if (hasPermission('receipts')) {
+                generateReceipts(bookingId, booking.donorId);
+              }
+            });
+          },
+          modal: {
+            ondismiss: function() {
+              if (btnEl) {
+                btnEl.disabled = false;
+                btnEl.textContent = originalText || 'Pay Now';
+              }
+            }
+          }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      } catch (e) {
+        showToast(e.message || 'Something went wrong', 'error');
+      } finally {
+        if (btnEl) {
+          btnEl.disabled = false;
+          btnEl.textContent = originalText || 'Pay Now';
+        }
       }
     }
 
