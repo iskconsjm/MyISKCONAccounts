@@ -606,10 +606,7 @@
           </div>
           <div class="flex items-center justify-between mb-3">
            <h3 class="font-display text-lg font-semibold text-theme-primary">Select Sevas</h3>
-           <button id="browse-sevas-btn" class="text-theme-muted hover:text-theme-secondary text-sm font-medium flex items-center gap-1">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-            More Options
-           </button>
+           <!-- More Options disabled: all booking is done directly from this page -->
           </div>
           <!-- Quick Seva Selection Grid -->
           <div id="quick-seva-grid" class="grid grid-cols-2 gap-2 mb-4">
@@ -5580,12 +5577,6 @@
           donorLoginsDropdown.classList.add('hidden');
           renderDonorLoginsTable();
         }
-      });
-
-      document.getElementById('browse-sevas-btn').addEventListener('click', () => {
-        document.getElementById('seva-panel-backdrop').classList.remove('hidden');
-        document.getElementById('seva-slide-panel').classList.remove('hidden');
-        renderSlidingSevaList();
       });
 
       document.getElementById('close-seva-panel-btn').addEventListener('click', () => {
