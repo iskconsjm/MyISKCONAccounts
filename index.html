@@ -17,7 +17,6 @@
     // HOW TO GET THIS: In your Apps Script project: Deploy > Manage deployments >
     // click the pencil (Edit) on "Web app" > copy the "Web app URL" (ends with /exec)
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVAuEfk2a6Lepa6AyAZfItEyzs2VSnwFhI3qMFeGX9cwApXDEcoyxF1rTO2PN4CKwv/exec';
-    
     // Session storage key
     const SESSION_KEY = 'myiskcon_session';
     
@@ -622,14 +621,14 @@
            <p class="text-xs text-theme-muted mt-1">Enter amount and it will be added to your booking automatically.</p>
           </div>
           <p class="text-xs text-theme-muted mb-2">Click to add seva • Selected sevas shown below</p>
-          <div id="seva-list" class="space-y-3 max-h-48 overflow-y-auto pr-2 flex-1"><!-- Selected sevas will be shown here -->
+          <div id="seva-list" class="space-y-3 min-h-64 max-h-[26rem] overflow-y-auto pr-2 flex-1"><!-- Selected sevas will be shown here -->
           </div>
          </div>
         </div><!-- Cart & Checkout -->
         <div class="lg:col-span-1">
          <div class="bg-white rounded-xl card-shadow p-6 sticky top-4">
           <h3 class="font-display text-lg font-semibold text-theme-primary mb-4">Booking Summary</h3>
-          <div id="cart-items" class="space-y-2 mb-4 max-h-48 overflow-y-auto">
+          <div id="cart-items" class="space-y-2 mb-4 min-h-48 max-h-[26rem] overflow-y-auto">
            <p class="text-theme-muted text-sm">No sevas selected</p>
           </div>
           <div class="border-t border-theme pt-4 mb-4">
