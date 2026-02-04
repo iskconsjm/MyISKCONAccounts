@@ -632,6 +632,10 @@
            <div class="flex justify-between items-center text-lg font-semibold"><span class="text-theme-secondary">Total Amount:</span> <span id="total-amount" class="text-theme-primary">0</span>
            </div>
           </div>
+          <div class="mb-3">
+           <label class="block text-sm font-medium text-theme-secondary mb-1">Remarks (optional)</label>
+           <textarea id="booking-remarks" rows="2" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none resize-y" placeholder="E.g. In memory of..., for birthday, for anniversary, etc."></textarea>
+          </div>
           <div class="space-y-3"><button id="save-booking-btn" class="w-full btn-primary text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"> Save Booking </button> <button id="razorpay-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition">
             <svg class="w-5 h-5" viewbox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
             </svg> Pay with Razorpay </button>
@@ -888,6 +892,7 @@
              <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Collected By</th>
              <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Center</th>
              <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Status</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Remarks</th>
              <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm hidden lg:table-cell">Razorpay</th>
              <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Actions</th>
             </tr>
@@ -2326,6 +2331,7 @@
             <td class="py-3 px-4">
               <span class="px-2 py-1 text-xs rounded-full ${b.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${b.paymentStatus || 'pending'}</span>
             </td>
+            <td class="py-3 px-4 text-theme-secondary text-xs max-w-xs break-words">${b.remarks ? b.remarks : '-'}</td>
             <td class="py-3 px-4 hidden lg:table-cell">
               ${razorpayCell}
             </td>
@@ -2594,6 +2600,7 @@
           'Collected By': collectedByDisplay,
           'Center': centerName,
           'Status': b.paymentStatus || 'pending',
+          'Remarks': b.remarks || '',
           'Razorpay Order ID': b.razorpayOrderId || '',
           'Razorpay Payment ID': b.razorpayPaymentId || '',
           'Paid At': b.paidAt ? new Date(b.paidAt).toLocaleString('en-GB') : '',
@@ -2827,6 +2834,7 @@
           'Collected By': collectedByDisplay,
           'Center': centerName,
           'Status': b.paymentStatus || 'pending',
+          'Remarks': b.remarks || '',
           'Razorpay Order ID': b.razorpayOrderId || '',
           'Razorpay Payment ID': b.razorpayPaymentId || '',
           'Paid At': b.paidAt ? new Date(b.paidAt).toLocaleString('en-GB') : '',
@@ -4841,6 +4849,7 @@
           centerId: bookingCenterId,
           collectedBy: currentUser.username,
           collectedByCenter: collectorCenter,
+          remarks: document.getElementById('booking-remarks').value.trim(),
           createdAt: new Date().toISOString()
         });
 
@@ -4848,6 +4857,8 @@
           showToast('Booking saved successfully!');
           cart = [];
           clearDonorForm();
+          const remarksEl = document.getElementById('booking-remarks');
+          if (remarksEl) remarksEl.value = '';
           renderCart();
           renderSlidingSevaList();
         } else {
@@ -4934,6 +4945,7 @@
           centerId: bookingCenterId,
           collectedBy: currentUser.username,
           collectedByCenter: collectorCenter,
+          remarks: document.getElementById('booking-remarks').value.trim(),
           createdAt: new Date().toISOString()
         });
 
@@ -4975,6 +4987,8 @@
               clearDonorForm();
               renderCart();
               renderSlidingSevaList();
+              const remarksEl = document.getElementById('booking-remarks');
+              if (remarksEl) remarksEl.value = '';
               window.dataSdk.refreshData().then(() => renderAll());
             } else {
               showToast(verifyResult.error || 'Payment verification failed', 'error');
