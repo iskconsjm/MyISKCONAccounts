@@ -1470,7 +1470,7 @@
               ${isGeneral ? '' : `<button type="button" class="decrease-item-btn text-xs bg-theme-muted hover:bg-theme-border text-theme-primary px-2 py-1 rounded font-bold" data-seva-id="${item.sevaId}">&minus;</button>`}
               ${isFlexible ? `
                 <div class="flex-1 flex items-center gap-2">
-                  <input type="number" min="1" step="1" class="flexible-amount-input w-28 px-2 py-1 border border-theme-strong rounded text-xs theme-focus outline-none bg-white" data-seva-id="${item.sevaId}" placeholder="₹ Amount" value="${(parseFloat(item.amount) || 0) > 0 ? (parseFloat(item.amount) || 0) : ''}">
+                  <input type="text" class="flexible-amount-input w-28 px-2 py-1 border border-theme-strong rounded text-xs theme-focus outline-none bg-white" data-seva-id="${item.sevaId}" placeholder="₹ Amount" value="${(parseFloat(item.amount) || 0) > 0 ? (parseFloat(item.amount) || 0) : ''}">
                   <span class="text-xs text-theme-secondary">Total: ₹${lineTotal.toLocaleString()}</span>
                 </div>
               ` : `
@@ -1530,7 +1530,8 @@
           const sevaId = input.dataset.sevaId;
           const item = cart.find(c => c.sevaId === sevaId);
           if (!item) return;
-          const v = parseFloat(input.value);
+          const cleaned = input.value.replace(/[^0-9.]/g, '');
+          const v = cleaned === '' ? NaN : parseFloat(cleaned);
           item.amount = (!isNaN(v) && v >= 0) ? v : 0;
           renderSelectedSevasList();
           renderCart();
@@ -1559,7 +1560,7 @@
               <span class="text-theme-secondary">${item.name}</span>
               ${isGeneral ? '' : `<span class="text-xs text-theme-muted ml-2">(Qty: ${item.quantity})</span>`}
               ${isGeneral ? '' : `<div class="text-xs text-theme-muted mt-0.5">Date: ${sevaDate}</div>`}
-              ${isFlexible ? `<div class="mt-1"><input type="number" min="1" step="1" class="flexible-amount-input w-32 px-2 py-1 border border-theme-strong rounded text-xs theme-focus outline-none bg-white" data-seva-id="${item.sevaId}" placeholder="₹ Amount" value="${(parseFloat(item.amount) || 0) > 0 ? (parseFloat(item.amount) || 0) : ''}"></div>` : ''}
+              ${isFlexible ? `<div class="mt-1"><input type="text" class="flexible-amount-input w-32 px-2 py-1 border border-theme-strong rounded text-xs theme-focus outline-none bg-white" data-seva-id="${item.sevaId}" placeholder="₹ Amount" value="${(parseFloat(item.amount) || 0) > 0 ? (parseFloat(item.amount) || 0) : ''}"></div>` : ''}
             </div>
             <div class="flex items-center gap-2">
               <span class="text-theme-primary font-medium">₹${lineTotal.toLocaleString()}</span>
@@ -1585,7 +1586,8 @@
           const sevaId = input.dataset.sevaId;
           const item = cart.find(c => c.sevaId === sevaId);
           if (!item) return;
-          const v = parseFloat(input.value);
+          const cleaned = input.value.replace(/[^0-9.]/g, '');
+          const v = cleaned === '' ? NaN : parseFloat(cleaned);
           item.amount = (!isNaN(v) && v >= 0) ? v : 0;
           renderCart();
           renderSelectedSevasList();
@@ -2487,7 +2489,7 @@
               <h2 style="margin:0;color:#7a4b00;font-size:16px;">ISKCON Cultural Centre</h2>
               <p style="margin:2px 0;font-size:11px;">International Society for Krishna Consciousness<br>Registered Trust | 80G &amp; 12A Approved</p>
             </div>
-            <h3 style="text-align:center;margin:12px 0 8px 0;color:#5a3600;font-size:14px;flex-shrink:0;">Acknowledgement</h3>
+            <h3 style="text-align:center;margin:12px 0 8px 0;color:#5a3600;font-size:14px;flex-shrink:0;">Donation Receipt</h3>
             <table style="width:100%;font-size:11px;border-collapse:collapse;flex-shrink:0;margin-bottom:8px;">
               <tr><td><strong>Receipt No:</strong></td><td>${receiptNumber}</td><td><strong>Date:</strong></td><td>${transactionDate}</td></tr>
               <tr><td><strong>Seva:</strong></td><td colspan="3">${item.name}</td></tr>
