@@ -1542,7 +1542,7 @@
       });
 
       container.querySelectorAll('.flexible-amount-input').forEach(input => {
-        input.addEventListener('input', () => {
+        const applyChange = () => {
           const sevaId = input.dataset.sevaId;
           const item = cart.find(c => c.sevaId === sevaId);
           if (!item) return;
@@ -1551,7 +1551,9 @@
           item.amount = (!isNaN(v) && v >= 0) ? v : 0;
           renderSelectedSevasList();
           renderCart();
-        });
+        };
+        input.addEventListener('change', applyChange);
+        input.addEventListener('blur', applyChange);
       });
     }
 
@@ -1598,7 +1600,7 @@
       });
 
       container.querySelectorAll('.flexible-amount-input').forEach(input => {
-        input.addEventListener('input', () => {
+        const applyChange = () => {
           const sevaId = input.dataset.sevaId;
           const item = cart.find(c => c.sevaId === sevaId);
           if (!item) return;
@@ -1607,7 +1609,9 @@
           item.amount = (!isNaN(v) && v >= 0) ? v : 0;
           renderCart();
           renderSelectedSevasList();
-        });
+        };
+        input.addEventListener('change', applyChange);
+        input.addEventListener('blur', applyChange);
       });
 
       const total = cart.reduce((sum, item) => sum + ((parseFloat(item.amount) || 0) * (item.quantity || 1)), 0);
