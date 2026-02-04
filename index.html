@@ -1027,7 +1027,7 @@
       
       // Donor role has limited permissions
       if (currentUser.role === 'donor') {
-        const donorPermissions = ['booking', 'reports'];
+        const donorPermissions = ['booking', 'reports', 'receipts', 'view_dashboard'];
         return donorPermissions.includes(permissionId);
       }
       
@@ -2433,6 +2433,12 @@
               <tr><td><strong>Receipt No:</strong></td><td>${receiptNumber}</td><td><strong>Date:</strong></td><td>${transactionDate}</td></tr>
               <tr><td><strong>Seva:</strong></td><td colspan="3">${item.name}</td></tr>
               <tr><td><strong>Donor:</strong></td><td colspan="3">${donor.name}</td></tr>
+              <tr><td><strong>Status:</strong></td><td colspan="3">${(booking.paymentStatus || 'pending')}</td></tr>
+              ${isPaid ? `
+                <tr><td><strong>Razorpay Payment:</strong></td><td colspan="3" style="font-family:monospace;font-size:10px;word-break:break-all;">${booking.razorpayPaymentId || '-'}</td></tr>
+                <tr><td><strong>Razorpay Order:</strong></td><td colspan="3" style="font-family:monospace;font-size:10px;word-break:break-all;">${booking.razorpayOrderId || '-'}</td></tr>
+                <tr><td><strong>Paid At:</strong></td><td colspan="3">${booking.paidAt ? new Date(booking.paidAt).toLocaleString('en-GB') : '-'}</td></tr>
+              ` : ``}
             </table>
             ${isPaid ? '' : `<div style="margin:8px 0;padding:6px 10px;border:1px dashed #f59e0b;background:#fffbeb;color:#92400e;border-radius:6px;font-size:10px;text-align:center;flex-shrink:0;"><strong>Payment pending:</strong> QR codes will appear after payment is marked as <strong>Paid</strong>.</div>`}
             ${qrSectionHTML}
