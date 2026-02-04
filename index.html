@@ -891,6 +891,7 @@
              <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Collected By</th>
              <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Center</th>
              <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Status</th>
+             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm hidden lg:table-cell">Razorpay</th>
              <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Actions</th>
             </tr>
            </thead>
@@ -2204,6 +2205,16 @@
         
         const correctTotal = items.reduce((sum, item) => sum + (item.amount * item.quantity), 0);
         const isPending = (b.paymentStatus || 'pending') !== 'paid';
+        const rpOrderId = b.razorpayOrderId || '';
+        const rpPaymentId = b.razorpayPaymentId || '';
+        const rpPaidAt = b.paidAt || '';
+        const razorpayCell = (!isPending && (rpOrderId || rpPaymentId)) ? `
+          <div class="text-xs font-mono text-theme-secondary leading-4 break-all max-w-[220px]">
+            ${rpOrderId ? `<div><span class="text-theme-muted">O:</span> ${rpOrderId}</div>` : ''}
+            ${rpPaymentId ? `<div><span class="text-theme-muted">P:</span> ${rpPaymentId}</div>` : ''}
+            ${rpPaidAt ? `<div class="font-sans text-[11px] text-theme-muted mt-1">Paid: ${new Date(rpPaidAt).toLocaleString('en-GB')}</div>` : ''}
+          </div>
+        ` : '<span class="text-theme-muted text-sm">-</span>';
         
         // Get collected by info
         const collectedByUsername = b.collectedBy || 'Unknown';
@@ -2231,6 +2242,9 @@
             <td class="py-3 px-4 text-theme-secondary text-sm">${centerName}</td>
             <td class="py-3 px-4">
               <span class="px-2 py-1 text-xs rounded-full ${b.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${b.paymentStatus || 'pending'}</span>
+            </td>
+            <td class="py-3 px-4 hidden lg:table-cell">
+              ${razorpayCell}
             </td>
             <td class="py-3 px-4">
               <div class="flex items-center gap-3">
@@ -2372,6 +2386,7 @@
       }
 
       const sevas = (allData && allData.length) ? allData.filter(d => d.type === 'seva') : (window.dataSdk && window.dataSdk.getCachedData ? (window.dataSdk.getCachedData() || []).filter(d => d.type === 'seva') : []);
+      const isPaid = (booking.paymentStatus || 'pending') === 'paid';
 
       let allReceiptsHTML = '<div style="margin:0;padding:0;">';
 
@@ -2386,8 +2401,8 @@
 
         const isGeneralDonation = (item.id && item.id === 'general_donation') || (item.sevaId && String(item.sevaId).indexOf('general_donation') === 0);
         const seva = isGeneralDonation ? null : sevas.find(s => s.id === item.sevaId);
-        const showDarshanQR = seva && (seva.darshanQR === true || seva.darshanQR === 'true');
-        const showPrasadamQR = seva && (seva.prasadamQR === true || seva.prasadamQR === 'true');
+        const showDarshanQR = isPaid && seva && (seva.darshanQR === true || seva.darshanQR === 'true');
+        const showPrasadamQR = isPaid && seva && (seva.prasadamQR === true || seva.prasadamQR === 'true');
 
         let qrSectionHTML = '';
         if (showDarshanQR || showPrasadamQR) {
@@ -2417,6 +2432,7 @@
               <tr><td><strong>Seva:</strong></td><td colspan="3">${item.name}</td></tr>
               <tr><td><strong>Donor:</strong></td><td colspan="3">${donor.name}</td></tr>
             </table>
+            ${isPaid ? '' : `<div style="margin:8px 0;padding:6px 10px;border:1px dashed #f59e0b;background:#fffbeb;color:#92400e;border-radius:6px;font-size:10px;text-align:center;flex-shrink:0;"><strong>Payment pending:</strong> QR codes will appear after payment is marked as <strong>Paid</strong>.</div>`}
             ${qrSectionHTML}
             <div style="margin-top:auto;text-align:center;font-size:9px;">
               <p style="margin:3px 0;"><strong>Amount: ₹${totalForSeva.toLocaleString()}</strong></p>
@@ -2489,6 +2505,9 @@
           'Collected By': collectedByDisplay,
           'Center': centerName,
           'Status': b.paymentStatus || 'pending',
+          'Razorpay Order ID': b.razorpayOrderId || '',
+          'Razorpay Payment ID': b.razorpayPaymentId || '',
+          'Paid At': b.paidAt ? new Date(b.paidAt).toLocaleString('en-GB') : '',
           'Booking ID': b.__backendId
         };
       });
@@ -2508,6 +2527,9 @@
         { wch: 15 },  // Collected By
         { wch: 15 },  // Center
         { wch: 10 },  // Status
+        { wch: 22 },  // Razorpay Order ID
+        { wch: 22 },  // Razorpay Payment ID
+        { wch: 20 },  // Paid At
         { wch: 25 }   // Booking ID
       ];
 
@@ -2716,6 +2738,9 @@
           'Collected By': collectedByDisplay,
           'Center': centerName,
           'Status': b.paymentStatus || 'pending',
+          'Razorpay Order ID': b.razorpayOrderId || '',
+          'Razorpay Payment ID': b.razorpayPaymentId || '',
+          'Paid At': b.paidAt ? new Date(b.paidAt).toLocaleString('en-GB') : '',
           'Booking ID': b.__backendId
         };
       });
@@ -2915,6 +2940,7 @@
               <th style="border: 1px solid #fcd34d; padding: 8px; text-align: left;">Seva</th>
               <th style="border: 1px solid #fcd34d; padding: 8px; text-align: right;">Amount</th>
               <th style="border: 1px solid #fcd34d; padding: 8px; text-align: center;">Status</th>
+              <th style="border: 1px solid #fcd34d; padding: 8px; text-align: left;">Razorpay</th>
             </tr>
           </thead>
           <tbody>
@@ -2922,6 +2948,9 @@
               const items = b.items ? JSON.parse(b.items) : [];
               const sevas = items.map(i => `${i.name} (x${i.quantity})`).join(', ');
               const amount = items.reduce((s, item) => s + (item.amount * item.quantity), 0);
+              const rp = (b.paymentStatus === 'paid' && (b.razorpayPaymentId || b.razorpayOrderId))
+                ? `P: ${b.razorpayPaymentId || '-'}\nO: ${b.razorpayOrderId || '-'}`
+                : '-';
               return `
                 <tr>
                   <td style="border: 1px solid #fcd34d; padding: 8px;">${new Date(b.bookingDate).toLocaleDateString('en-GB')}</td>
@@ -2930,6 +2959,7 @@
                   <td style="border: 1px solid #fcd34d; padding: 8px; text-align: center;">
                     <span style="background: ${b.paymentStatus === 'paid' ? '#dcfce7' : '#fef9c3'}; color: ${b.paymentStatus === 'paid' ? '#166534' : '#854d0e'}; padding: 2px 8px; border-radius: 4px; font-size: 11px;">${b.paymentStatus || 'pending'}</span>
                   </td>
+                  <td style="border: 1px solid #fcd34d; padding: 8px; white-space: pre-wrap; font-family: monospace; font-size: 10px;">${rp}</td>
                 </tr>
               `;
             }).join('')}
