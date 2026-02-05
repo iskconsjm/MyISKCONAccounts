@@ -737,11 +737,16 @@
       </div><!-- Manage Sevas Tab -->
       <div id="tab-sevas" class="tab-content hidden">
        <div class="bg-white rounded-xl card-shadow p-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-         <h3 class="font-display text-xl font-semibold text-theme-primary">Manage Sevas / Donations</h3><button id="add-seva-btn" class="btn-primary text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg> Add Seva </button>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+         <h3 class="font-display text-xl font-semibold text-theme-primary">Manage Sevas / Donations</h3>
+         <div class="flex items-center gap-2">
+          <button id="flush-sevas-btn" class="hidden px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 font-medium text-sm">Clear all sevas</button>
+          <button id="add-seva-btn" class="btn-primary text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2">
+           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+           </svg> Add Seva </button>
+         </div>
         </div>
+        <p class="text-sm text-theme-muted mb-4">Sevas are stored in your database (the <strong>Sevas</strong> sheet in your Google Sheet). New sevas you add here are saved there and persist across sessions.</p>
         <div id="sevas-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"><!-- Sevas will be populated here -->
         </div>
         <div id="no-sevas" class="text-center py-8 text-theme-muted hidden">
@@ -1326,6 +1331,8 @@
       // Centers management - superadmin only
       document.getElementById('centers-tab').classList.toggle('hidden', currentUser.username !== 'admin');
       document.getElementById('validate-qr-tab').classList.toggle('hidden', currentUser.username !== 'admin');
+      const flushSevasBtn = document.getElementById('flush-sevas-btn');
+      if (flushSevasBtn) flushSevasBtn.classList.toggle('hidden', currentUser.username !== 'admin');
       document.getElementById('bank-accounts-tab').classList.toggle('hidden', !hasPermission('manage_bank_accounts') || isDonor);
       const sendWaBtn = document.getElementById('send-whatsapp-btn');
       if (sendWaBtn) sendWaBtn.classList.toggle('hidden', isDonor);
@@ -5235,16 +5242,16 @@
         };
         const result = await window.dataSdk.create(record);
         if (result && result.isOk && result.data) {
-          // `dataSdk.create()` already updates the local cache and notifies `onDataChanged`,
-          // which refreshes `allData` + `sevasList`. Avoid pushing again here (causes duplicates).
+          hideModal();
+          showToast('Seva added successfully');
+          // Refresh from database so the new seva is always visible (avoids race with stale getAllData)
+          if (window.dataSdk && window.dataSdk.refreshData) await window.dataSdk.refreshData();
           renderSevasGrid();
           renderSlidingSevaList();
           renderQuickSevaGrid();
           renderBookingCenterTabs();
           populateSevaFilter();
           updateDashboard();
-          hideModal();
-          showToast('Seva added successfully');
         } else {
           showToast((result && result.error) || 'Failed to add seva', 'error');
         }
@@ -6186,6 +6193,25 @@
       document.getElementById('add-user-btn').addEventListener('click', showAddUserModal);
       document.getElementById('add-donor-btn').addEventListener('click', showAddDonorModal);
       document.getElementById('add-seva-btn').addEventListener('click', showAddSevaModal);
+      const flushSevasBtnEl = document.getElementById('flush-sevas-btn');
+      if (flushSevasBtnEl) {
+        flushSevasBtnEl.addEventListener('click', async function() {
+          if (!confirm('Clear all sevas from the database? This cannot be undone.')) return;
+          flushSevasBtnEl.disabled = true;
+          try {
+            const result = await apiClient.call('flushSevas', {});
+            if (result && result.isOk) {
+              showToast('All sevas cleared');
+              if (window.dataSdk && window.dataSdk.refreshData) await window.dataSdk.refreshData();
+              renderAll();
+            } else {
+              showToast((result && result.error) || 'Failed to clear sevas', 'error');
+            }
+          } finally {
+            flushSevasBtnEl.disabled = false;
+          }
+        });
+      }
       const addBankAccountBtn = document.getElementById('add-bank-account-btn');
       if (addBankAccountBtn) addBankAccountBtn.addEventListener('click', showAddBankAccountModal);
 
