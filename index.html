@@ -4902,6 +4902,12 @@
                 <p class="text-xs text-theme-muted font-medium">✉️ Email</p>
                 <p class="text-sm font-semibold text-theme-primary">${donor.email || '-'}</p>
               </div>
+              ${donor.pan ? `
+              <div>
+                <p class="text-xs text-theme-muted font-medium">PAN Number</p>
+                <p class="text-sm font-semibold text-theme-primary font-mono">${donor.pan}</p>
+              </div>
+              ` : ''}
             </div>
           </div>
 
