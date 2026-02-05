@@ -9,6 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <!-- MyISKCON Accounts - Production SDK -->
   <script>
@@ -444,7 +445,7 @@
     </header><!-- Navigation Tabs -->
     <nav class="bg-white border-b border-theme">
      <div class="max-w-7xl mx-auto">
-      <div id="nav-tabs" class="flex overflow-x-auto"><button data-tab="dashboard" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition tab-active"> Dashboard </button> <button data-tab="booking" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="booking-tab"> Booking </button> <button data-tab="reports" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="reports-tab"> Reports </button> <button data-tab="donors" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donors-tab"> Donors </button> <button data-tab="sevas" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="sevas-tab"> Manage Sevas </button> <button data-tab="users" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="users-tab"> Users </button> <button data-tab="permissions" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="permissions-tab"> 🔐 Manage Access </button> <button data-tab="donor-logins" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donor-logins-tab"> 🔑 Donor Logins </button> <button data-tab="bank-accounts" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="bank-accounts-tab"> 🏦 Bank Accounts </button> <button data-tab="centers" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="centers-tab"> 🏛️ Centers </button>
+      <div id="nav-tabs" class="flex overflow-x-auto"><button data-tab="dashboard" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition tab-active"> Dashboard </button> <button data-tab="booking" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="booking-tab"> Booking </button> <button data-tab="reports" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="reports-tab"> Reports </button> <button data-tab="donors" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donors-tab"> Donors </button> <button data-tab="sevas" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="sevas-tab"> Manage Sevas </button> <button data-tab="users" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="users-tab"> Users </button> <button data-tab="permissions" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="permissions-tab"> 🔐 Manage Access </button> <button data-tab="donor-logins" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donor-logins-tab"> 🔑 Donor Logins </button> <button data-tab="bank-accounts" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="bank-accounts-tab"> 🏦 Bank Accounts </button> <button data-tab="centers" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="centers-tab"> 🏛️ Centers </button> <button data-tab="validate-qr" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="validate-qr-tab"> 📱 Validate QR </button>
       </div>
      </div>
     </nav><!-- Tab Content -->
@@ -897,6 +898,29 @@
          <p id="no-bank-accounts" class="text-theme-muted text-center py-8 hidden">No bank accounts yet. Add one to use in the Cheque tab.</p>
         </div>
        </div>
+      </div><!-- Validate QR Tab (Superadmin Only) -->
+      <div id="tab-validate-qr" class="tab-content hidden">
+       <div class="space-y-6">
+        <div class="bg-white rounded-xl card-shadow p-6">
+         <h3 class="font-display text-2xl font-semibold text-theme-primary mb-2">📱 Validate Receipt QR Codes</h3>
+         <p class="text-theme-muted mb-4">Scan Darshan or Prasadam QR codes from donor receipts. Each QR can be used only once.</p>
+         <div class="flex flex-col items-center gap-4">
+          <div class="relative rounded-lg overflow-hidden border-2 border-theme bg-black" style="max-width: 320px;">
+           <video id="qr-video" class="w-full aspect-square object-cover" autoplay playsinline muted></video>
+           <canvas id="qr-canvas" class="hidden"></canvas>
+           <div id="qr-scan-overlay" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div class="w-48 h-48 border-4 border-green-400 rounded-lg opacity-80"></div>
+           </div>
+          </div>
+          <div class="flex gap-2">
+           <button type="button" id="qr-start-camera-btn" class="btn-primary text-white px-4 py-2 rounded-lg">Start Camera</button>
+           <button type="button" id="qr-stop-camera-btn" class="px-4 py-2 border border-theme rounded-lg text-theme-secondary hover:bg-theme-page hidden">Stop Camera</button>
+          </div>
+          <div id="qr-result" class="w-full max-w-md min-h-[80px] p-4 rounded-lg border border-theme bg-theme-page text-center text-theme-secondary hidden"></div>
+          <p id="qr-camera-hint" class="text-sm text-theme-muted">Allow camera access when prompted. Point at a receipt QR code to validate.</p>
+         </div>
+        </div>
+       </div>
       </div><!-- Reports Tab -->
       <div id="tab-reports" class="tab-content hidden">
        <div class="space-y-6"><!-- Filters -->
@@ -1264,7 +1288,12 @@
       } else if (tabName === 'reports' && !hasPermission('reports')) {
         showToast('You do not have access to reports', 'error');
         return;
+      } else if (tabName === 'validate-qr' && currentUser.username !== 'admin') {
+        showToast('Only superadmin can validate QR codes', 'error');
+        return;
       }
+
+      if (tabName !== 'validate-qr' && typeof stopQRScanner === 'function') stopQRScanner();
 
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('tab-active');
@@ -1291,6 +1320,7 @@
       document.getElementById('donor-logins-tab').classList.toggle('hidden', !hasPermission('donor_logins') || isDonor);
       // Centers management - superadmin only
       document.getElementById('centers-tab').classList.toggle('hidden', currentUser.username !== 'admin');
+      document.getElementById('validate-qr-tab').classList.toggle('hidden', currentUser.username !== 'admin');
       document.getElementById('bank-accounts-tab').classList.toggle('hidden', !hasPermission('manage_bank_accounts') || isDonor);
       const sendWaBtn = document.getElementById('send-whatsapp-btn');
       if (sendWaBtn) sendWaBtn.classList.toggle('hidden', isDonor);
@@ -2659,6 +2689,103 @@
       } catch (e) {
         return '';
       }
+    }
+
+    // QR Scanner state (Validate QR tab)
+    let qrStream = null;
+    let qrScanning = false;
+    let qrLastPayload = '';
+    let qrLastTime = 0;
+    const QR_DEBOUNCE_MS = 3000;
+
+    function stopQRScanner() {
+      qrScanning = false;
+      if (qrStream) {
+        qrStream.getTracks().forEach(function(t) { t.stop(); });
+        qrStream = null;
+      }
+      const video = document.getElementById('qr-video');
+      const startBtn = document.getElementById('qr-start-camera-btn');
+      const stopBtn = document.getElementById('qr-stop-camera-btn');
+      if (video) video.srcObject = null;
+      if (startBtn) startBtn.classList.remove('hidden');
+      if (stopBtn) stopBtn.classList.add('hidden');
+    }
+
+    function qrTick() {
+      const video = document.getElementById('qr-video');
+      const canvas = document.getElementById('qr-canvas');
+      const resultEl = document.getElementById('qr-result');
+      if (!qrScanning || !video || !canvas || video.readyState !== video.HAVE_ENOUGH_DATA) {
+        if (qrScanning) requestAnimationFrame(qrTick);
+        return;
+      }
+      const w = video.videoWidth;
+      const h = video.videoHeight;
+      if (w <= 0 || h <= 0) {
+        requestAnimationFrame(qrTick);
+        return;
+      }
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+      const imageData = ctx.getImageData(0, 0, w, h);
+      if (typeof jsQR !== 'undefined') {
+        const code = jsQR(imageData.data, w, h);
+        if (code && code.data) {
+          const now = Date.now();
+          if (code.data === qrLastPayload && (now - qrLastTime) < QR_DEBOUNCE_MS) {
+            requestAnimationFrame(qrTick);
+            return;
+          }
+          qrLastPayload = code.data;
+          qrLastTime = now;
+          resultEl.classList.remove('hidden');
+          resultEl.innerHTML = '<span class="text-theme-muted">Validating…</span>';
+          apiClient.call('validateQR', { payload: code.data }).then(function(res) {
+            if (res && res.isOk) {
+              resultEl.innerHTML = '<p class="text-green-700 font-semibold">✓ Valid – ' + (res.type || '') + '</p><p class="text-sm text-theme-secondary">Booking: ' + (res.bookingId || '').substring(0, 12) + '…</p>';
+              resultEl.className = 'w-full max-w-md min-h-[80px] p-4 rounded-lg border border-green-300 bg-green-50 text-center';
+              showToast('QR validated successfully');
+            } else {
+              const err = (res && res.error) || 'Invalid';
+              const scannedAt = (res && res.scannedAt) ? new Date(res.scannedAt).toLocaleString() : '';
+              resultEl.innerHTML = '<p class="text-red-700 font-semibold">✗ ' + err + '</p>' + (scannedAt ? '<p class="text-sm text-theme-muted">Used at: ' + scannedAt + '</p>' : '');
+              resultEl.className = 'w-full max-w-md min-h-[80px] p-4 rounded-lg border border-red-300 bg-red-50 text-center text-theme-secondary';
+            }
+          }).catch(function() {
+            resultEl.innerHTML = '<p class="text-red-700">Validation failed</p>';
+            resultEl.className = 'w-full max-w-md min-h-[80px] p-4 rounded-lg border border-red-300 bg-red-50 text-center';
+          });
+        }
+      }
+      requestAnimationFrame(qrTick);
+    }
+
+    function startQRScanner() {
+      const video = document.getElementById('qr-video');
+      const startBtn = document.getElementById('qr-start-camera-btn');
+      const stopBtn = document.getElementById('qr-stop-camera-btn');
+      const resultEl = document.getElementById('qr-result');
+      if (!video) return;
+      resultEl.classList.add('hidden');
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showToast('Camera not supported', 'error');
+        return;
+      }
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function(stream) {
+        qrStream = stream;
+        video.srcObject = stream;
+        video.play();
+        qrScanning = true;
+        startBtn.classList.add('hidden');
+        stopBtn.classList.remove('hidden');
+        qrTick();
+      }).catch(function(err) {
+        showToast('Camera access denied or failed', 'error');
+        console.error(err);
+      });
     }
 
     function generateReceipts(bookingId, donorId) {
@@ -5904,6 +6031,11 @@
           switchTab(btn.dataset.tab);
         });
       });
+
+      const qrStartBtn = document.getElementById('qr-start-camera-btn');
+      const qrStopBtn = document.getElementById('qr-stop-camera-btn');
+      if (qrStartBtn) qrStartBtn.addEventListener('click', startQRScanner);
+      if (qrStopBtn) qrStopBtn.addEventListener('click', stopQRScanner);
 
       document.getElementById('search-donor-btn').addEventListener('click', searchDonor);
       document.getElementById('search-mobile').addEventListener('keypress', (e) => {
