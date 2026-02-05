@@ -104,10 +104,15 @@
         this._loadingPromise = (async () => {
           const dataResult = await apiClient.call('getAllData');
           if (dataResult.isOk) {
-            this._cachedData = dataResult.data;
+            const serverData = dataResult.data || [];
+            const serverIds = new Set(serverData.map(function(d) { return d.__backendId; }));
+            // Preserve any records created/updated locally while this request was in flight (race fix)
+            const existing = this._cachedData || [];
+            const toKeep = existing.filter(function(d) { return d && d.__backendId && !serverIds.has(d.__backendId); });
+            this._cachedData = serverData.concat(toKeep);
             this._dataLoaded = true;
             if (this._handler && this._handler.onDataChanged) {
-              this._handler.onDataChanged(dataResult.data);
+              this._handler.onDataChanged(this._cachedData);
             }
           }
           this._loadingPromise = null;
