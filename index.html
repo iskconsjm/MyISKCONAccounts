@@ -913,7 +913,7 @@
        <div class="space-y-6">
         <div class="bg-white rounded-xl card-shadow p-6">
          <h3 class="font-display text-2xl font-semibold text-theme-primary mb-2">📱 Validate Receipt QR Codes</h3>
-         <p class="text-theme-muted mb-4">Scan Darshan or Prasadam QR codes from donor receipts. Each QR can be used only once.</p>
+         <p class="text-theme-muted mb-4">Scan Entry, Seva or Prasadam QR codes from donor receipts. Each QR can be used only once.</p>
          <div class="flex flex-col items-center gap-4">
           <div class="relative rounded-lg overflow-hidden border-2 border-theme bg-black" style="max-width: 320px;">
            <video id="qr-video" class="w-full aspect-square object-cover" autoplay playsinline muted></video>
@@ -2838,23 +2838,29 @@
 
         const isGeneralDonation = (item.id && item.id === 'general_donation') || (item.sevaId && String(item.sevaId).indexOf('general_donation') === 0);
         const seva = isGeneralDonation ? null : sevas.find(s => s.id === item.sevaId);
-        const showDarshanQR = isPaid && seva && (seva.darshanQR === true || seva.darshanQR === 'true');
+        const showEntryQR = isPaid && seva && (seva.darshanQR === true || seva.darshanQR === 'true');
+        const showSevaQR = isPaid && seva && (seva.sevaQR === true || seva.sevaQR === 'true');
         const showPrasadamQR = isPaid && seva && (seva.prasadamQR === true || seva.prasadamQR === 'true');
 
         let qrSectionHTML = '';
-        if (showDarshanQR || showPrasadamQR) {
+        if (showEntryQR || showSevaQR || showPrasadamQR) {
           const parts = [];
-          if (showDarshanQR) {
-            const payloadDarshan = `${booking.__backendId}|${index}|darshan`;
-            const qrDarshan = getQRCodeDataURL(payloadDarshan, 90);
-            parts.push(`<div style="text-align:center;"><p style="margin:0 0 4px 0;font-size:10px;font-weight:bold;color:#5a3600;">Darshan</p><img src="${qrDarshan}" alt="Darshan QR" style="width:90px;height:90px;display:block;border:1px solid #c9a24d;border-radius:4px;"></div>`);
+          if (showEntryQR) {
+            const payloadEntry = `${booking.__backendId}|${index}|darshan`;
+            const qrEntry = getQRCodeDataURL(payloadEntry, 90);
+            parts.push(`<div style="text-align:center;"><p style="margin:0 0 4px 0;font-size:10px;font-weight:bold;color:#5a3600;">Entry</p><img src="${qrEntry}" alt="Entry QR" style="width:90px;height:90px;display:block;border:1px solid #c9a24d;border-radius:4px;"></div>`);
+          }
+          if (showSevaQR) {
+            const payloadSeva = `${booking.__backendId}|${index}|seva`;
+            const qrSeva = getQRCodeDataURL(payloadSeva, 90);
+            parts.push(`<div style="text-align:center;"><p style="margin:0 0 4px 0;font-size:10px;font-weight:bold;color:#5a3600;">Seva</p><img src="${qrSeva}" alt="Seva QR" style="width:90px;height:90px;display:block;border:1px solid #c9a24d;border-radius:4px;"></div>`);
           }
           if (showPrasadamQR) {
             const payloadPrasadam = `${booking.__backendId}|${index}|prasadam`;
             const qrPrasadam = getQRCodeDataURL(payloadPrasadam, 90);
             parts.push(`<div style="text-align:center;"><p style="margin:0 0 4px 0;font-size:10px;font-weight:bold;color:#5a3600;">Prasadam</p><img src="${qrPrasadam}" alt="Prasadam QR" style="width:90px;height:90px;display:block;border:1px solid #c9a24d;border-radius:4px;"></div>`);
           }
-          qrSectionHTML = `<div style="display:flex;justify-content:center;gap:24px;margin:12px 0;flex-shrink:0;">${parts.join('')}</div>`;
+          qrSectionHTML = `<div style="display:flex;justify-content:center;gap:16px;margin:12px 0;flex-shrink:0;flex-wrap:wrap;">${parts.join('')}</div>`;
         }
 
         const receiptHTML = `
@@ -5215,8 +5221,12 @@
           <div class="flex flex-col gap-2 pt-2">
             <label class="block text-sm font-medium text-theme-secondary mb-1">Receipt QR codes</label>
             <div class="flex items-center gap-2">
-              <input type="checkbox" id="new-seva-darshan-qr" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus">
-              <label for="new-seva-darshan-qr" class="text-sm text-theme-secondary">Include Darshan QR on receipt</label>
+              <input type="checkbox" id="new-seva-entry-qr" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus">
+              <label for="new-seva-entry-qr" class="text-sm text-theme-secondary">Include Entry QR on receipt</label>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="new-seva-seva-qr" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus">
+              <label for="new-seva-seva-qr" class="text-sm text-theme-secondary">Include Seva QR on receipt</label>
             </div>
             <div class="flex items-center gap-2">
               <input type="checkbox" id="new-seva-prasadam-qr" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus">
@@ -5248,7 +5258,8 @@
           description: document.getElementById('new-seva-desc').value.trim(),
           amount: (!isNaN(amtVal) && amtVal >= 0) ? amtVal : 0,
           centerId: centerId,
-          darshanQR: document.getElementById('new-seva-darshan-qr').checked,
+          darshanQR: document.getElementById('new-seva-entry-qr').checked,
+          sevaQR: document.getElementById('new-seva-seva-qr').checked,
           prasadamQR: document.getElementById('new-seva-prasadam-qr').checked,
           notifyWhatsapp: (document.getElementById('new-seva-notify-whatsapp').value || '').trim()
         };
@@ -5306,8 +5317,12 @@
           <div class="flex flex-col gap-2 pt-2">
             <label class="block text-sm font-medium text-theme-secondary mb-1">Receipt QR codes</label>
             <div class="flex items-center gap-2">
-              <input type="checkbox" id="edit-seva-darshan-qr" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus" ${(seva.darshanQR === true || seva.darshanQR === 'true') ? 'checked' : ''}>
-              <label for="edit-seva-darshan-qr" class="text-sm text-theme-secondary">Include Darshan QR on receipt</label>
+              <input type="checkbox" id="edit-seva-entry-qr" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus" ${(seva.darshanQR === true || seva.darshanQR === 'true') ? 'checked' : ''}>
+              <label for="edit-seva-entry-qr" class="text-sm text-theme-secondary">Include Entry QR on receipt</label>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="edit-seva-seva-qr" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus" ${(seva.sevaQR === true || seva.sevaQR === 'true') ? 'checked' : ''}>
+              <label for="edit-seva-seva-qr" class="text-sm text-theme-secondary">Include Seva QR on receipt</label>
             </div>
             <div class="flex items-center gap-2">
               <input type="checkbox" id="edit-seva-prasadam-qr" class="w-4 h-4 text-theme-muted border-theme-strong rounded theme-focus" ${(seva.prasadamQR === true || seva.prasadamQR === 'true') ? 'checked' : ''}>
@@ -5342,14 +5357,15 @@
           amount: (!isNaN(amtVal) && amtVal >= 0) ? amtVal : 0,
           centerId: centerId,
           isActive: true,
-          darshanQR: document.getElementById('edit-seva-darshan-qr').checked,
+          darshanQR: document.getElementById('edit-seva-entry-qr').checked,
+          sevaQR: document.getElementById('edit-seva-seva-qr').checked,
           prasadamQR: document.getElementById('edit-seva-prasadam-qr').checked,
           notifyWhatsapp: (document.getElementById('edit-seva-notify-whatsapp').value || '').trim()
         };
         const result = await window.dataSdk.update(record);
         if (result && result.isOk) {
           const idx = sevasList.findIndex(s => s.id === sevaId);
-          if (idx >= 0) sevasList[idx] = Object.assign({}, sevasList[idx], { name: record.name, description: record.description, amount: record.amount, centerId: record.centerId, darshanQR: record.darshanQR, prasadamQR: record.prasadamQR, notifyWhatsapp: record.notifyWhatsapp });
+          if (idx >= 0) sevasList[idx] = Object.assign({}, sevasList[idx], { name: record.name, description: record.description, amount: record.amount, centerId: record.centerId, darshanQR: record.darshanQR, sevaQR: record.sevaQR, prasadamQR: record.prasadamQR, notifyWhatsapp: record.notifyWhatsapp });
           if (window.dataSdk && window.dataSdk.getCachedData) {
             const cached = window.dataSdk.getCachedData() || [];
             const out = cached.map(d => d.type === 'seva' && d.id === sevaId ? Object.assign({}, d, record) : d);
