@@ -5223,6 +5223,11 @@
               <label for="new-seva-prasadam-qr" class="text-sm text-theme-secondary">Include Prasadam QR on receipt</label>
             </div>
           </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">WhatsApp for reminder (pujari/cook)</label>
+            <input type="text" id="new-seva-notify-whatsapp" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="e.g. 91XXXXXXXXXX or comma-separated numbers">
+            <p class="text-xs text-theme-muted mt-1">Number(s) to notify about quantity for the selected date. You can edit this later if the number changes.</p>
+          </div>
           <div class="flex gap-3 pt-2">
             <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
             <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Add Seva</button>
@@ -5244,7 +5249,8 @@
           amount: (!isNaN(amtVal) && amtVal >= 0) ? amtVal : 0,
           centerId: centerId,
           darshanQR: document.getElementById('new-seva-darshan-qr').checked,
-          prasadamQR: document.getElementById('new-seva-prasadam-qr').checked
+          prasadamQR: document.getElementById('new-seva-prasadam-qr').checked,
+          notifyWhatsapp: (document.getElementById('new-seva-notify-whatsapp').value || '').trim()
         };
         const result = await window.dataSdk.create(record);
         if (result && result.isOk && result.data) {
@@ -5308,6 +5314,11 @@
               <label for="edit-seva-prasadam-qr" class="text-sm text-theme-secondary">Include Prasadam QR on receipt</label>
             </div>
           </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">WhatsApp for reminder (pujari/cook)</label>
+            <input type="text" id="edit-seva-notify-whatsapp" value="${esc(seva.notifyWhatsapp || '')}" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="e.g. 91XXXXXXXXXX or comma-separated numbers">
+            <p class="text-xs text-theme-muted mt-1">Number(s) to notify about quantity for the selected date. Edit here when the number changes.</p>
+          </div>
           <div class="flex gap-3 pt-2">
             <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
             <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Update</button>
@@ -5332,12 +5343,13 @@
           centerId: centerId,
           isActive: true,
           darshanQR: document.getElementById('edit-seva-darshan-qr').checked,
-          prasadamQR: document.getElementById('edit-seva-prasadam-qr').checked
+          prasadamQR: document.getElementById('edit-seva-prasadam-qr').checked,
+          notifyWhatsapp: (document.getElementById('edit-seva-notify-whatsapp').value || '').trim()
         };
         const result = await window.dataSdk.update(record);
         if (result && result.isOk) {
           const idx = sevasList.findIndex(s => s.id === sevaId);
-          if (idx >= 0) sevasList[idx] = Object.assign({}, sevasList[idx], { name: record.name, description: record.description, amount: record.amount, centerId: record.centerId, darshanQR: record.darshanQR, prasadamQR: record.prasadamQR });
+          if (idx >= 0) sevasList[idx] = Object.assign({}, sevasList[idx], { name: record.name, description: record.description, amount: record.amount, centerId: record.centerId, darshanQR: record.darshanQR, prasadamQR: record.prasadamQR, notifyWhatsapp: record.notifyWhatsapp });
           if (window.dataSdk && window.dataSdk.getCachedData) {
             const cached = window.dataSdk.getCachedData() || [];
             const out = cached.map(d => d.type === 'seva' && d.id === sevaId ? Object.assign({}, d, record) : d);
