@@ -908,9 +908,10 @@
          <p id="no-bank-accounts" class="text-theme-muted text-center py-8 hidden">No bank accounts yet. Add one to use in the Cheque tab.</p>
         </div>
        </div>
-      </div><!-- Validate QR Tab (Superadmin Only) -->
+      </div><!-- Validate QR Tab (Superadmin / Scanner) -->
       <div id="tab-validate-qr" class="tab-content hidden">
        <div class="space-y-6">
+        <div id="qr-scanner-role-banner" class="hidden rounded-lg border-2 p-4 text-center text-sm font-medium"></div>
         <div class="bg-white rounded-xl card-shadow p-6">
          <h3 class="font-display text-2xl font-semibold text-theme-primary mb-2">📱 Validate Receipt QR Codes</h3>
          <p class="text-theme-muted mb-4">Scan Entry, Seva or Prasadam QR codes from donor receipts. Each QR can be used only once.</p>
@@ -1298,9 +1299,12 @@
       } else if (tabName === 'reports' && !hasPermission('reports')) {
         showToast('You do not have access to reports', 'error');
         return;
-      } else if (tabName === 'validate-qr' && currentUser.username !== 'admin') {
-        showToast('Only superadmin can validate QR codes', 'error');
-        return;
+      } else if (tabName === 'validate-qr') {
+        const canValidateQR = currentUser.username === 'admin' || ['EntryScanner', 'SevaScanner', 'PrasadamScanner'].includes(currentUser.role);
+        if (!canValidateQR) {
+          showToast('Only superadmin or a scanner user can validate QR codes', 'error');
+          return;
+        }
       }
 
       if (tabName !== 'validate-qr' && typeof stopQRScanner === 'function') stopQRScanner();
@@ -1330,7 +1334,34 @@
       document.getElementById('donor-logins-tab').classList.toggle('hidden', !hasPermission('donor_logins') || isDonor);
       // Centers management - superadmin only
       document.getElementById('centers-tab').classList.toggle('hidden', currentUser.username !== 'admin');
-      document.getElementById('validate-qr-tab').classList.toggle('hidden', currentUser.username !== 'admin');
+      const isScanner = ['EntryScanner', 'SevaScanner', 'PrasadamScanner'].includes(currentUser.role);
+      const canValidateQR = currentUser.username === 'admin' || isScanner;
+      document.getElementById('validate-qr-tab').classList.toggle('hidden', !canValidateQR);
+      // Scanner role banner: show which QR type this scanner accepts
+      const qrBanner = document.getElementById('qr-scanner-role-banner');
+      if (qrBanner) {
+        if (isScanner) {
+          const label = currentUser.role === 'EntryScanner' ? 'Entry' : currentUser.role === 'SevaScanner' ? 'Seva' : 'Prasadam';
+          qrBanner.textContent = 'You are logged in as ' + label + ' Scanner. Only ' + label + ' QR codes will be accepted.';
+          qrBanner.classList.remove('hidden');
+          qrBanner.className = 'rounded-lg border-2 p-4 text-center text-sm font-medium border-theme-strong bg-theme-muted text-theme-primary';
+        } else {
+          qrBanner.classList.add('hidden');
+          qrBanner.textContent = '';
+        }
+      }
+      // Scanner users see only Dashboard and Validate QR
+      if (isScanner) {
+        document.getElementById('booking-tab').classList.add('hidden');
+        document.getElementById('reports-tab').classList.add('hidden');
+        document.getElementById('donors-tab').classList.add('hidden');
+        document.getElementById('sevas-tab').classList.add('hidden');
+        document.getElementById('users-tab').classList.add('hidden');
+        document.getElementById('permissions-tab').classList.add('hidden');
+        document.getElementById('donor-logins-tab').classList.add('hidden');
+        document.getElementById('centers-tab').classList.add('hidden');
+        document.getElementById('bank-accounts-tab').classList.add('hidden');
+      }
       const flushSevasBtn = document.getElementById('flush-sevas-btn');
       if (flushSevasBtn) flushSevasBtn.classList.toggle('hidden', currentUser.username !== 'admin');
       document.getElementById('bank-accounts-tab').classList.toggle('hidden', !hasPermission('manage_bank_accounts') || isDonor);
@@ -1804,7 +1835,7 @@
       managedUsers.forEach((user, idx) => {
         const perms = getUserPermissions(user);
         const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-theme-page';
-        const roleColor = user.role === 'admin' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700';
+        const roleColor = user.role === 'admin' ? 'bg-orange-100 text-orange-700' : user.role === 'EntryScanner' ? 'bg-pink-100 text-pink-700' : user.role === 'SevaScanner' ? 'bg-amber-100 text-amber-700' : user.role === 'PrasadamScanner' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700';
         
         html += `
               <tr class="${rowBg} border-b border-theme hover:bg-theme-muted transition">
@@ -1973,7 +2004,7 @@
             <div class="text-xs text-theme-muted mt-1">ID: ${u.__backendId.substring(0, 8)}...</div>
           </td>
           <td class="py-3 px-4">
-            <span class="px-2 py-1 text-xs rounded-full font-medium ${u.username === 'admin' ? 'bg-red-100 text-red-700' : u.role === 'admin' ? 'bg-orange-100 text-orange-700' : u.role === 'volunteer' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}">${u.username === 'admin' ? 'Superadmin' : u.role.charAt(0).toUpperCase() + u.role.slice(1)}</span>
+            <span class="px-2 py-1 text-xs rounded-full font-medium ${u.username === 'admin' ? 'bg-red-100 text-red-700' : u.role === 'admin' ? 'bg-orange-100 text-orange-700' : u.role === 'EntryScanner' ? 'bg-pink-100 text-pink-700' : u.role === 'SevaScanner' ? 'bg-amber-100 text-amber-700' : u.role === 'PrasadamScanner' ? 'bg-purple-100 text-purple-700' : u.role === 'volunteer' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}">${u.username === 'admin' ? 'Superadmin' : u.role === 'EntryScanner' ? 'Entry Scanner' : u.role === 'SevaScanner' ? 'Seva Scanner' : u.role === 'PrasadamScanner' ? 'Prasadam Scanner' : u.role.charAt(0).toUpperCase() + u.role.slice(1)}</span>
           </td>
           <td class="py-3 px-4">
             <div class="text-theme-secondary text-sm font-medium">${getCenterName(u.centerId)}</div>
@@ -4366,6 +4397,9 @@
             <select id="new-role" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
               <option value="volunteer">Volunteer</option>
               <option value="admin">Admin</option>
+              <option value="EntryScanner">Entry Scanner (QR only)</option>
+              <option value="SevaScanner">Seva Scanner (QR only)</option>
+              <option value="PrasadamScanner">Prasadam Scanner (QR only)</option>
             </select>
           </div>
           <div>
