@@ -17,7 +17,7 @@
     // API base URL: use your production Node backend (e.g. Railway, Render, Fly.io).
     // For GitHub Pages: set this to your backend URL, e.g. 'https://your-app.railway.app' or 'https://api.yourdomain.com'
     // Leave empty to use legacy Google Apps Script (GET with ?data=).
-    const API_BASE_URL = 'https://backend-myiskconaccounts.vercel.app'; // e.g. 'https://myiskcon-backend.railway.app'
+    const API_BASE_URL = 'https://backend-myiskconaccounts-cxkpseovt-myiskconaccounts-projects.vercel.app/'; // e.g. 'https://myiskcon-backend.railway.app'
     const LEGACY_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVAuEfk2a6Lepa6AyAZfItEyzs2VSnwFhI3qMFeGX9cwApXDEcoyxF1rTO2PN4CKwv/exec';
     const SESSION_KEY = 'myiskcon_session';
     
@@ -601,13 +601,8 @@
              <div><label class="block text-xs font-medium text-theme-secondary mb-1">State</label> <input type="text" id="donor-state" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none bg-theme-page" readonly>
              </div>
             </div>
-            <div class="grid grid-cols-2 gap-2 mt-2">
+            <div class="mt-2">
              <div><label class="block text-xs font-medium text-theme-secondary mb-1">Country</label> <input type="text" id="donor-country" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none bg-theme-page" readonly value="India">
-             </div>
-             <div><label class="block text-xs font-medium text-theme-secondary mb-1">Center *</label>
-              <select id="donor-center" required class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none">
-               <!-- Centers populated dynamically -->
-              </select>
              </div>
             </div>
            </div>
@@ -1434,7 +1429,6 @@
       document.getElementById('donor-district').value = donor.district || '';
       document.getElementById('donor-state').value = donor.state || '';
       document.getElementById('donor-country').value = donor.country || 'India';
-      document.getElementById('donor-center').value = donor.centerId || 'center_bangalore';
       
       // Make donor fields read-only for donors
       const donorFields = ['donor-name', 'donor-mobile', 'donor-email'];
@@ -2503,7 +2497,6 @@
     function populateAllCenterDropdowns() {
       // Get all center dropdown selects
       const dropdowns = [
-        'donor-center',
         'modal-donor-center', 
         'edit-modal-donor-center',
         'donor-logins-center-filter'
@@ -4275,7 +4268,6 @@
         document.getElementById('donor-district').value = donor.district || '';
         document.getElementById('donor-state').value = donor.state || '';
         document.getElementById('donor-country').value = donor.country || 'India';
-        document.getElementById('donor-center').value = donor.centerId || currentUser.centerId || 'center_bangalore';
         switchTab('booking');
         showToast('Donor selected');
       }
@@ -4298,7 +4290,6 @@
       document.getElementById('donor-district').value = '';
       document.getElementById('donor-state').value = '';
       document.getElementById('donor-country').value = 'India';
-      document.getElementById('donor-center').value = currentUser?.centerId || 'center_bangalore';
       document.getElementById('pincode-status').textContent = '';
     }
 
@@ -5504,7 +5495,7 @@
             district: document.getElementById('donor-district').value.trim(),
             state: document.getElementById('donor-state').value.trim(),
             country: document.getElementById('donor-country').value.trim(),
-            centerId: document.getElementById('donor-center').value,
+            centerId: currentUser?.centerId || centersList[0]?.id || 'center_bangalore',
             createdBy: currentUser.username,
             createdAt: new Date().toISOString()
           });
@@ -5623,7 +5614,7 @@
             district: document.getElementById('donor-district').value.trim(),
             state: document.getElementById('donor-state').value.trim(),
             country: document.getElementById('donor-country').value.trim(),
-            centerId: document.getElementById('donor-center').value,
+            centerId: currentUser?.centerId || centersList[0]?.id || 'center_bangalore',
             createdBy: currentUser.username,
             createdAt: new Date().toISOString()
           });
