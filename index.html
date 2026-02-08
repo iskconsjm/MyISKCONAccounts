@@ -456,7 +456,7 @@
     </header><!-- Navigation Tabs -->
     <nav class="bg-white border-b border-theme">
      <div class="max-w-7xl mx-auto">
-      <div id="nav-tabs" class="flex overflow-x-auto"><button data-tab="dashboard" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition tab-active"> Dashboard </button> <button data-tab="booking" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="booking-tab"> Booking </button> <button data-tab="reports" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="reports-tab"> Reports </button> <button data-tab="donors" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donors-tab"> Donors </button> <button data-tab="sevas" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="sevas-tab"> Manage Sevas </button> <button data-tab="users" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="users-tab"> Users </button> <button data-tab="permissions" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="permissions-tab"> 🔐 Manage Access </button> <button data-tab="donor-logins" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donor-logins-tab"> 🔑 Donor Logins </button> <button data-tab="bank-accounts" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="bank-accounts-tab"> 🏦 Bank Accounts </button> <button data-tab="centers" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="centers-tab"> 🏛️ Centers </button> <button data-tab="validate-qr" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="validate-qr-tab"> 📱 Validate QR </button>
+      <div id="nav-tabs" class="flex overflow-x-auto"><button data-tab="dashboard" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition tab-active"> Dashboard </button> <button data-tab="booking" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="booking-tab"> Booking </button> <button data-tab="reports" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="reports-tab"> Reports </button> <button data-tab="donors" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donors-tab"> Donors </button> <button data-tab="sevas" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="sevas-tab"> Manage Sevas </button> <button data-tab="users" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="users-tab"> Users </button> <button data-tab="permissions" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="permissions-tab"> 🔐 Manage Access </button> <button data-tab="donor-logins" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donor-logins-tab"> 🔑 Donor Logins </button> <button data-tab="bank-accounts" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="bank-accounts-tab"> 🏦 Bank Accounts </button> <button data-tab="centers" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="centers-tab"> 🏛️ Centers </button> <button data-tab="temples" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="temples-tab"> 🛕 Temples </button> <button data-tab="validate-qr" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="validate-qr-tab"> 📱 Validate QR </button>
       </div>
      </div>
     </nav><!-- Tab Content -->
@@ -861,6 +861,7 @@
              <th class="text-left py-3 px-4 text-theme-primary font-semibold">#</th>
              <th class="text-left py-3 px-4 text-theme-primary font-semibold">Center ID</th>
              <th class="text-left py-3 px-4 text-theme-primary font-semibold">Center Name</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Temple</th>
              <th class="text-left py-3 px-4 text-theme-primary font-semibold">City</th>
              <th class="text-left py-3 px-4 text-theme-primary font-semibold">State</th>
              <th class="text-left py-3 px-4 text-theme-primary font-semibold">Donors</th>
@@ -873,6 +874,26 @@
           </table>
          </div>
          <p id="no-centers" class="text-theme-muted text-center py-8 hidden">No centers found. Add your first center!</p>
+        </div>
+       </div>
+      </div><!-- Temples Tab -->
+      <div id="tab-temples" class="tab-content hidden">
+       <div class="space-y-6">
+        <div class="bg-white rounded-xl card-shadow p-6">
+         <div class="flex items-center justify-between mb-6">
+          <div>
+           <h3 class="font-display text-2xl font-semibold text-theme-primary mb-2">🛕 Temple Management</h3>
+           <p class="text-theme-muted">Temples contain centers. Under each center: volunteers, counters, kiosks, and donors.</p>
+          </div>
+          <button id="add-temple-btn" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center gap-2">
+           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+           Add Temple
+          </button>
+         </div>
+         <div id="temples-hierarchy-container" class="space-y-4">
+          <!-- Temples with nested centers and account counts will be rendered here -->
+         </div>
+         <p id="no-temples" class="text-theme-muted text-center py-8 hidden">No temples found. Add your first temple!</p>
         </div>
        </div>
       </div><!-- Bank Accounts Tab -->
@@ -1066,6 +1087,7 @@
 
     // Load centers from localStorage or use demo
     let centersList = JSON.parse(localStorage.getItem('myiskcon_centers') || 'null') || [...demoCenters];
+    let templesList = [];
 
     function saveCenters() {
       localStorage.setItem('myiskcon_centers', JSON.stringify(centersList));
@@ -1335,6 +1357,7 @@
       document.getElementById('donor-logins-tab').classList.toggle('hidden', !hasPermission('donor_logins') || isDonor);
       // Centers management - superadmin only
       document.getElementById('centers-tab').classList.toggle('hidden', currentUser.username !== 'admin');
+      document.getElementById('temples-tab').classList.toggle('hidden', currentUser.username !== 'admin');
       const isScanner = ['EntryScanner', 'SevaScanner', 'PrasadamScanner'].includes(currentUser.role);
       const canValidateQR = currentUser.username === 'admin' || isScanner;
       document.getElementById('validate-qr-tab').classList.toggle('hidden', !canValidateQR);
@@ -1361,6 +1384,7 @@
         document.getElementById('permissions-tab').classList.add('hidden');
         document.getElementById('donor-logins-tab').classList.add('hidden');
         document.getElementById('centers-tab').classList.add('hidden');
+        document.getElementById('temples-tab').classList.add('hidden');
         document.getElementById('bank-accounts-tab').classList.add('hidden');
       }
       const flushSevasBtn = document.getElementById('flush-sevas-btn');
@@ -2004,7 +2028,7 @@
             <div class="text-xs text-theme-muted mt-1">ID: ${u.__backendId.substring(0, 8)}...</div>
           </td>
           <td class="py-3 px-4">
-            <span class="px-2 py-1 text-xs rounded-full font-medium ${u.username === 'admin' ? 'bg-red-100 text-red-700' : u.role === 'admin' ? 'bg-orange-100 text-orange-700' : u.role === 'EntryScanner' ? 'bg-pink-100 text-pink-700' : u.role === 'SevaScanner' ? 'bg-amber-100 text-amber-700' : u.role === 'PrasadamScanner' ? 'bg-purple-100 text-purple-700' : u.role === 'volunteer' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}">${u.username === 'admin' ? 'Superadmin' : u.role === 'EntryScanner' ? 'Entry Scanner' : u.role === 'SevaScanner' ? 'Seva Scanner' : u.role === 'PrasadamScanner' ? 'Prasadam Scanner' : u.role.charAt(0).toUpperCase() + u.role.slice(1)}</span>
+            <span class="px-2 py-1 text-xs rounded-full font-medium ${u.username === 'admin' ? 'bg-red-100 text-red-700' : u.role === 'admin' ? 'bg-orange-100 text-orange-700' : u.role === 'EntryScanner' ? 'bg-pink-100 text-pink-700' : u.role === 'SevaScanner' ? 'bg-amber-100 text-amber-700' : u.role === 'PrasadamScanner' ? 'bg-purple-100 text-purple-700' : u.role === 'volunteer' ? 'bg-blue-100 text-blue-700' : u.role === 'counter' ? 'bg-amber-100 text-amber-700' : u.role === 'kiosk' ? 'bg-indigo-100 text-indigo-700' : 'bg-green-100 text-green-700'}">${u.username === 'admin' ? 'Superadmin' : u.role === 'EntryScanner' ? 'Entry Scanner' : u.role === 'SevaScanner' ? 'Seva Scanner' : u.role === 'PrasadamScanner' ? 'Prasadam Scanner' : u.role === 'counter' ? 'Counter' : u.role === 'kiosk' ? 'Kiosk' : u.role.charAt(0).toUpperCase() + u.role.slice(1)}</span>
           </td>
           <td class="py-3 px-4">
             <div class="text-theme-secondary text-sm font-medium">${getCenterName(u.centerId)}</div>
@@ -2253,7 +2277,7 @@
         // Count donors and users for this center
         const donorCount = allData.filter(d => d.type === 'donor' && d.centerId === center.id).length;
         const userCount = allData.filter(d => d.type === 'user' && d.centerId === center.id).length;
-        
+        const templeName = (center.templeId && templesList.length) ? (templesList.find(t => t.id === center.templeId) || {}).name || center.templeId : '—';
         return `
           <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-theme-page'} hover:bg-theme-muted transition">
             <td class="py-3 px-4 text-theme-muted text-sm">${index + 1}</td>
@@ -2263,6 +2287,7 @@
             <td class="py-3 px-4">
               <div class="text-theme-primary font-medium">${center.name}</div>
             </td>
+            <td class="py-3 px-4 text-theme-secondary text-sm">${templeName}</td>
             <td class="py-3 px-4 text-theme-secondary">${center.city || '-'}</td>
             <td class="py-3 px-4 text-theme-secondary">${center.state || '-'}</td>
             <td class="py-3 px-4">
@@ -2289,6 +2314,156 @@
       });
     }
 
+    function getTemples() {
+      const data = (allData && allData.length > 0) ? allData : (window.dataSdk && typeof window.dataSdk.getCachedData === 'function' ? window.dataSdk.getCachedData() : []);
+      return data.filter(d => d.type === 'temple') || [];
+    }
+
+    function renderTemplesHierarchy() {
+      const container = document.getElementById('temples-hierarchy-container');
+      const noData = document.getElementById('no-temples');
+      if (!container) return;
+      const temples = getTemples();
+      if (temples.length === 0) {
+        container.innerHTML = '';
+        if (noData) noData.classList.remove('hidden');
+        return;
+      }
+      if (noData) noData.classList.add('hidden');
+      const centers = getCenters();
+      const users = (allData || []).filter(d => d.type === 'user');
+      const donors = (allData || []).filter(d => d.type === 'donor');
+      container.innerHTML = temples.map(temple => {
+        const templeCenters = centers.filter(c => (c.templeId || '') === temple.id);
+        const centerRows = templeCenters.map(center => {
+          const centerUsers = users.filter(u => u.centerId === center.id);
+          const volunteerCount = centerUsers.filter(u => u.role === 'volunteer').length;
+          const counterCount = centerUsers.filter(u => u.role === 'counter').length;
+          const kioskCount = centerUsers.filter(u => u.role === 'kiosk').length;
+          const donorCount = donors.filter(d => d.centerId === center.id).length;
+          return `
+            <div class="flex items-center justify-between py-2 px-4 bg-theme-page rounded-lg border border-theme">
+              <div class="flex flex-wrap items-center gap-4">
+                <span class="font-medium text-theme-primary">${center.name}</span>
+                <span class="text-sm text-theme-muted">${center.city || ''} ${center.state ? ', ' + center.state : ''}</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-800">${volunteerCount} Volunteers</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800">${counterCount} Counters</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-800">${kioskCount} Kiosks</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-green-100 text-green-800">${donorCount} Donors</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+        return `
+          <div class="border border-theme rounded-xl overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-3 bg-theme-muted">
+              <div>
+                <h4 class="font-display font-semibold text-theme-primary">${temple.name}</h4>
+                <p class="text-xs text-theme-muted">${temple.city || ''} ${temple.state ? temple.state : ''}</p>
+              </div>
+              <div class="flex gap-2">
+                <button type="button" class="edit-temple-btn px-3 py-1 text-sm text-blue-600 hover:text-blue-800" data-temple-id="${temple.id}">Edit</button>
+                <button type="button" class="delete-temple-btn px-3 py-1 text-sm text-red-600 hover:text-red-800" data-temple-id="${temple.id}">Delete</button>
+              </div>
+            </div>
+            <div class="p-4 space-y-2">
+              <p class="text-xs font-medium text-theme-secondary mb-2">Centers (${templeCenters.length})</p>
+              ${centerRows || '<p class="text-theme-muted text-sm py-2">No centers under this temple.</p>'}
+            </div>
+          </div>
+        `;
+      }).join('');
+      container.querySelectorAll('.edit-temple-btn').forEach(btn => {
+        btn.addEventListener('click', () => openEditTempleModal(btn.dataset.templeId));
+      });
+      container.querySelectorAll('.delete-temple-btn').forEach(btn => {
+        btn.addEventListener('click', () => deleteTemple(btn.dataset.templeId));
+      });
+    }
+
+    function openAddTempleModal() {
+      showModal(`
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Add New Temple</h3>
+        <form id="add-temple-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Temple Name *</label>
+            <input type="text" id="new-temple-name" required class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="e.g. ISKCON South Bengaluru">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-theme-secondary mb-1">City</label>
+              <input type="text" id="new-temple-city" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="Bengaluru">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-theme-secondary mb-1">State</label>
+              <input type="text" id="new-temple-state" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="Karnataka">
+            </div>
+          </div>
+          <div class="flex gap-3 pt-4 border-t border-theme">
+            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
+            <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Add Temple</button>
+          </div>
+        </form>
+      `);
+      document.getElementById('add-temple-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('new-temple-name').value.trim();
+        const city = document.getElementById('new-temple-city').value.trim();
+        const state = document.getElementById('new-temple-state').value.trim();
+        if (!window.dataSdk) { showToast('Data service not available', 'error'); return; }
+        const result = await window.dataSdk.create({ type: 'temple', name, city, state });
+        if (result && result.isOk) { hideModal(); showToast('Temple added successfully'); } else { showToast((result && result.error) || 'Failed to add temple', 'error'); }
+      });
+    }
+
+    function openEditTempleModal(templeId) {
+      const temple = templesList.find(t => t.id === templeId) || getTemples().find(t => t.id === templeId);
+      if (!temple) return;
+      const fullTemple = (allData || []).find(d => d.type === 'temple' && d.id === templeId) || temple;
+      showModal(`
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Edit Temple</h3>
+        <form id="edit-temple-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Temple Name *</label>
+            <input type="text" id="edit-temple-name" required value="${(fullTemple.name || '').replace(/"/g, '&quot;')}" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-theme-secondary mb-1">City</label>
+              <input type="text" id="edit-temple-city" value="${(fullTemple.city || '').replace(/"/g, '&quot;')}" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-theme-secondary mb-1">State</label>
+              <input type="text" id="edit-temple-state" value="${(fullTemple.state || '').replace(/"/g, '&quot;')}" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none">
+            </div>
+          </div>
+          <div class="flex gap-3 pt-4 border-t border-theme">
+            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
+            <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Save Changes</button>
+          </div>
+        </form>
+      `);
+      document.getElementById('edit-temple-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('edit-temple-name').value.trim();
+        const city = document.getElementById('edit-temple-city').value.trim();
+        const state = document.getElementById('edit-temple-state').value.trim();
+        if (!window.dataSdk) { showToast('Data service not available', 'error'); return; }
+        const record = { type: 'temple', __backendId: templeId, id: templeId, name, city, state };
+        const result = await window.dataSdk.update(record);
+        if (result && result.isOk) { hideModal(); showToast('Temple updated'); } else { showToast((result && result.error) || 'Failed to update temple', 'error'); }
+      });
+    }
+
+    async function deleteTemple(templeId) {
+      if (!confirm('Delete this temple? Centers under it will be unlinked (not deleted).')) return;
+      if (!window.dataSdk) { showToast('Data service not available', 'error'); return; }
+      const temple = (allData || []).find(d => d.type === 'temple' && d.id === templeId);
+      if (!temple) { showToast('Temple not found', 'error'); return; }
+      const result = await window.dataSdk.delete(temple);
+      if (result && result.isOk) { showToast('Temple deleted'); window.dataSdk.refreshData().then(() => renderAll()); } else { showToast((result && result.error) || 'Failed to delete temple', 'error'); }
+    }
+
     function openAddCenterModal() {
       showModal(`
         <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Add New Center</h3>
@@ -2301,6 +2476,13 @@
             <label class="block text-sm font-medium text-theme-secondary mb-1">Center ID</label>
             <input type="text" id="new-center-id" required class="w-full px-3 py-2 border border-theme rounded-lg bg-theme-page outline-none" readonly placeholder="Auto-generated from name">
             <p class="text-xs text-theme-muted mt-1">Auto-generated from center name</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Temple</label>
+            <select id="new-center-temple" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none">
+              <option value="">— No temple —</option>
+              ${(templesList || []).map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
+            </select>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
@@ -2349,12 +2531,14 @@
           return;
         }
 
+        const templeId = document.getElementById('new-center-temple') && document.getElementById('new-center-temple').value;
         const result = await window.dataSdk.create({
           type: 'center',
           id,
           name,
           city,
-          state
+          state,
+          templeId: templeId || ''
         });
 
         if (result && result.isOk) {
@@ -2383,6 +2567,13 @@
             <label class="block text-sm font-medium text-theme-secondary mb-1">Center Name *</label>
             <input type="text" id="edit-center-name" required value="${center.name}" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none">
           </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Temple</label>
+            <select id="edit-center-temple" class="w-full px-3 py-2 border border-theme rounded-lg theme-focus outline-none">
+              <option value="">— No temple —</option>
+              ${(templesList || []).map(t => `<option value="${t.id}" ${(center.templeId || '') === t.id ? 'selected' : ''}>${t.name}</option>`).join('')}
+            </select>
+          </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-theme-secondary mb-1">City</label>
@@ -2405,6 +2596,8 @@
         
         const name = document.getElementById('edit-center-name').value.trim();
         const city = document.getElementById('edit-center-city').value.trim();
+        const templeIdEl = document.getElementById('edit-center-temple');
+        const templeId = templeIdEl ? templeIdEl.value : '';
         const state = document.getElementById('edit-center-state').value.trim();
 
         if (!window.dataSdk) {
@@ -2419,6 +2612,7 @@
           name,
           city,
           state,
+          templeId: templeId || '',
           isActive: true
         });
 
@@ -4393,6 +4587,8 @@
             <label class="block text-sm font-medium text-theme-secondary mb-1">Role *</label>
             <select id="new-role" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
               <option value="volunteer">Volunteer</option>
+              <option value="counter">Counter</option>
+              <option value="kiosk">Kiosk</option>
               <option value="admin">Admin</option>
               <option value="EntryScanner">Entry Scanner (QR only)</option>
               <option value="SevaScanner">Seva Scanner (QR only)</option>
@@ -5992,6 +6188,7 @@
       renderPermissionsPage();
       renderDonorLoginsTable();
       renderCentersTable();
+      if (typeof renderTemplesHierarchy === 'function') renderTemplesHierarchy();
       populateSevaFilter();
       populateCollectorFilter();
       populateAllCenterDropdowns();
@@ -6003,13 +6200,16 @@
       onDataChanged(data) {
         allData = data;
         sevasList = (data || []).filter(d => d.type === 'seva');
+        const temples = (data || []).filter(d => d.type === 'temple');
+        templesList = (temples || []).map(t => ({ id: t.id, name: t.name, city: t.city || '', state: t.state || '' }));
         const centers = (data || []).filter(d => d.type === 'center');
         if (centers && centers.length) {
           centersList = centers.map(c => ({
             id: c.id,
             name: c.name,
             city: c.city || '',
-            state: c.state || ''
+            state: c.state || '',
+            templeId: c.templeId || ''
           }));
           saveCenters();
         }
@@ -6369,6 +6569,8 @@
       
       // Center management
       document.getElementById('add-center-btn').addEventListener('click', openAddCenterModal);
+      const addTempleBtn = document.getElementById('add-temple-btn');
+      if (addTempleBtn) addTempleBtn.addEventListener('click', openAddTempleModal);
       
       // Donor logins search with dropdown
       const donorLoginsSearch = document.getElementById('donor-logins-search');
