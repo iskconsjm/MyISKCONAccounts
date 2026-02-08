@@ -14,11 +14,11 @@
   <!-- MyISKCON Accounts - Production SDK -->
   <script>
     // ==================== CONFIGURATION ====================
-    // Google Apps Script Web App URL (BASE URL for API)
-    // HOW TO GET THIS: In your Apps Script project: Deploy > Manage deployments >
-    // click the pencil (Edit) on "Web app" > copy the "Web app URL" (ends with /exec)
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVAuEfk2a6Lepa6AyAZfItEyzs2VSnwFhI3qMFeGX9cwApXDEcoyxF1rTO2PN4CKwv/exec';
-    // Session storage key
+    // API base URL: use your production Node backend (e.g. Railway, Render, Fly.io).
+    // For GitHub Pages: set this to your backend URL, e.g. 'https://your-app.railway.app' or 'https://api.yourdomain.com'
+    // Leave empty to use legacy Google Apps Script (GET with ?data=).
+    const API_BASE_URL = 'http://localhost:3000'; // e.g. 'https://myiskcon-backend.railway.app'
+    const LEGACY_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVAuEfk2a6Lepa6AyAZfItEyzs2VSnwFhI3qMFeGX9cwApXDEcoyxF1rTO2PN4CKwv/exec';
     const SESSION_KEY = 'myiskcon_session';
     
     // ==================== SESSION MANAGEMENT ====================
@@ -48,20 +48,26 @@
         try {
           const sessionId = sessionManager.getSessionId();
           const payload = { action, sessionId, ...params };
-          
-          // Use GET with URL parameter to avoid CORS preflight issues
-          const encodedData = encodeURIComponent(JSON.stringify(payload));
-          const url = `${APPS_SCRIPT_URL}?data=${encodedData}`;
-          
-          const response = await fetch(url, { method: 'GET', redirect: 'follow' });
+          const useNewBackend = API_BASE_URL && API_BASE_URL.length > 0;
+          const url = useNewBackend ? (API_BASE_URL.replace(/\/$/, '') + '/exec') : LEGACY_APPS_SCRIPT_URL;
+
+          let response;
+          if (useNewBackend) {
+            response = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+          } else {
+            const encodedData = encodeURIComponent(JSON.stringify(payload));
+            response = await fetch(`${url}?data=${encodedData}`, { method: 'GET', redirect: 'follow' });
+          }
           const result = await response.json();
-          
-          // Handle session expiration
+
           if (!result.isOk && result.error && result.error.includes('session')) {
             sessionManager.clearSession();
             window.location.reload();
           }
-          
           return result;
         } catch (error) {
           console.error('API call failed:', error);
