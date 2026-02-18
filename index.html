@@ -6082,9 +6082,16 @@
             </div>
           </div>
           <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Assign from Department Heads</label>
+            <p class="text-xs text-theme-muted mb-2">Select one or more; their phone numbers will be set as reminder recipients.</p>
+            <div id="new-seva-dept-heads-list" class="space-y-2 max-h-48 overflow-y-auto border border-theme rounded-lg p-3 bg-theme-page">
+              <!-- populated by JS when center is selected -->
+            </div>
+          </div>
+          <div>
             <label class="block text-sm font-medium text-theme-secondary mb-1">Department WhatsApp Reminder</label>
-            <input type="text" id="new-seva-notify-whatsapp" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="e.g. 91XXXXXXXXXX or comma-separated numbers">
-            <p class="text-xs text-theme-muted mt-1">Number(s) to notify about quantity for the selected date. You can edit this later if the number changes.</p>
+            <input type="text" id="new-seva-notify-whatsapp" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="e.g. 9876543210 or comma-separated numbers">
+            <p class="text-xs text-theme-muted mt-1">Filled from Department Heads above, or type numbers manually. These receive booking alerts.</p>
           </div>
           <div class="flex gap-3 pt-2">
             <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
@@ -6092,6 +6099,48 @@
           </div>
         </form>
       `);
+
+      function populateNewSevaDeptHeads() {
+        const centerEl = document.getElementById('new-seva-center');
+        const centerHidden = document.getElementById('new-seva-center-hidden');
+        const centerId = centerHidden ? centerHidden.value : (centerEl && centerEl.value) || 'all_centers';
+        const container = document.getElementById('new-seva-dept-heads-list');
+        const notifyInput = document.getElementById('new-seva-notify-whatsapp');
+        if (!container || !notifyInput) return;
+        const allHeads = getDepartmentHeads();
+        const headsForCenter = centerId === 'all_centers'
+          ? allHeads
+          : allHeads.filter(h => (h.centerId || '').toString().trim() === centerId);
+        const currentPhones = (notifyInput.value || '').split(/[,;\s]+/).map(s => s.trim().replace(/\D/g, '')).filter(s => s.length >= 10);
+        const norm = (p) => (p || '').replace(/\D/g, '').slice(-10);
+        container.innerHTML = headsForCenter.length === 0
+          ? '<p class="text-sm text-theme-muted">No department heads for this center. Add contacts in Dept Heads tab or type numbers below.</p>'
+          : headsForCenter.map(h => {
+              const phone = (h.phone || '').toString().trim();
+              const phoneNorm = norm(phone);
+              const checked = currentPhones.some(cp => norm(cp) === phoneNorm);
+              return `<label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="new-seva-dept-cb w-4 h-4 rounded theme-focus" data-phone="${(phone || '').replace(/"/g, '&quot;')}" ${checked ? 'checked' : ''}> <span class="text-sm text-theme-secondary">${(h.name || '').replace(/</g, '&lt;')} (${(h.role || '').replace(/</g, '&lt;')}) — ${(h.phone || '').replace(/</g, '&lt;')}</span></label>`;
+            }).join('');
+        container.querySelectorAll('.new-seva-dept-cb').forEach(cb => {
+          cb.addEventListener('change', syncNewSevaNotifyFromDeptHeads);
+        });
+        syncNewSevaNotifyFromDeptHeads();
+      }
+      function syncNewSevaNotifyFromDeptHeads() {
+        const container = document.getElementById('new-seva-dept-heads-list');
+        const notifyInput = document.getElementById('new-seva-notify-whatsapp');
+        if (!container || !notifyInput) return;
+        const phones = [];
+        container.querySelectorAll('.new-seva-dept-cb:checked').forEach(cb => {
+          const p = (cb.dataset.phone || '').trim();
+          if (p) phones.push(p);
+        });
+        notifyInput.value = phones.join(', ');
+      }
+
+      const newSevaCenterEl = document.getElementById('new-seva-center');
+      if (newSevaCenterEl) newSevaCenterEl.addEventListener('change', populateNewSevaDeptHeads);
+      populateNewSevaDeptHeads();
 
       document.getElementById('add-seva-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -6178,9 +6227,16 @@
             </div>
           </div>
           <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Assign from Department Heads</label>
+            <p class="text-xs text-theme-muted mb-2">Select one or more; their phone numbers will be set as reminder recipients.</p>
+            <div id="edit-seva-dept-heads-list" class="space-y-2 max-h-48 overflow-y-auto border border-theme rounded-lg p-3 bg-theme-page">
+              <!-- populated by JS when center is selected -->
+            </div>
+          </div>
+          <div>
             <label class="block text-sm font-medium text-theme-secondary mb-1">WhatsApp for reminder (pujari/cook)</label>
-            <input type="text" id="edit-seva-notify-whatsapp" value="${esc(seva.notifyWhatsapp || '')}" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="e.g. 91XXXXXXXXXX or comma-separated numbers">
-            <p class="text-xs text-theme-muted mt-1">Number(s) to notify about quantity for the selected date. Edit here when the number changes.</p>
+            <input type="text" id="edit-seva-notify-whatsapp" value="${esc(seva.notifyWhatsapp || '')}" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="e.g. 9876543210 or comma-separated numbers">
+            <p class="text-xs text-theme-muted mt-1">Filled from Department Heads above, or type numbers manually. These receive booking alerts.</p>
           </div>
           <div class="flex gap-3 pt-2">
             <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
@@ -6188,6 +6244,48 @@
           </div>
         </form>
       `);
+
+      function populateEditSevaDeptHeads() {
+        const centerEl = document.getElementById('edit-seva-center');
+        const centerHidden = document.getElementById('edit-seva-center-hidden');
+        const centerId = centerHidden ? centerHidden.value : (centerEl && centerEl.value) || (seva.centerId || 'all_centers');
+        const container = document.getElementById('edit-seva-dept-heads-list');
+        const notifyInput = document.getElementById('edit-seva-notify-whatsapp');
+        if (!container || !notifyInput) return;
+        const allHeads = getDepartmentHeads();
+        const headsForCenter = centerId === 'all_centers'
+          ? allHeads
+          : allHeads.filter(h => (h.centerId || '').toString().trim() === centerId);
+        const currentPhones = (notifyInput.value || '').split(/[,;\s]+/).map(s => s.trim().replace(/\D/g, '')).filter(s => s.length >= 10);
+        const norm = (p) => (p || '').replace(/\D/g, '').slice(-10);
+        container.innerHTML = headsForCenter.length === 0
+          ? '<p class="text-sm text-theme-muted">No department heads for this center. Add contacts in Dept Heads tab or type numbers below.</p>'
+          : headsForCenter.map(h => {
+              const phone = (h.phone || '').toString().trim();
+              const phoneNorm = norm(phone);
+              const checked = currentPhones.some(cp => norm(cp) === phoneNorm);
+              return `<label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="edit-seva-dept-cb w-4 h-4 rounded theme-focus" data-phone="${(phone || '').replace(/"/g, '&quot;')}" ${checked ? 'checked' : ''}> <span class="text-sm text-theme-secondary">${(h.name || '').replace(/</g, '&lt;')} (${(h.role || '').replace(/</g, '&lt;')}) — ${(h.phone || '').replace(/</g, '&lt;')}</span></label>`;
+            }).join('');
+        container.querySelectorAll('.edit-seva-dept-cb').forEach(cb => {
+          cb.addEventListener('change', syncEditSevaNotifyFromDeptHeads);
+        });
+        syncEditSevaNotifyFromDeptHeads();
+      }
+      function syncEditSevaNotifyFromDeptHeads() {
+        const container = document.getElementById('edit-seva-dept-heads-list');
+        const notifyInput = document.getElementById('edit-seva-notify-whatsapp');
+        if (!container || !notifyInput) return;
+        const phones = [];
+        container.querySelectorAll('.edit-seva-dept-cb:checked').forEach(cb => {
+          const p = (cb.dataset.phone || '').trim();
+          if (p) phones.push(p);
+        });
+        notifyInput.value = phones.join(', ');
+      }
+
+      const editSevaCenterEl = document.getElementById('edit-seva-center');
+      if (editSevaCenterEl) editSevaCenterEl.addEventListener('change', populateEditSevaDeptHeads);
+      populateEditSevaDeptHeads();
 
       document.getElementById('edit-seva-form').addEventListener('submit', async (e) => {
         e.preventDefault();
