@@ -320,8 +320,18 @@
       color: var(--theme-white) !important;
     }
     .tab-active {
-      border-bottom: 3px solid var(--theme-pink);
+      border-left: 4px solid var(--theme-pink);
+      background-color: var(--theme-page-bg);
       color: var(--theme-text-primary) !important;
+    }
+    .sidebar-nav .tab-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-radius: 0;
+      border-left: 4px solid transparent;
+      white-space: nowrap;
     }
     .seva-card:hover {
       transform: translateY(-2px);
@@ -427,7 +437,7 @@
     </footer>
    </div><!-- Main Dashboard -->
    <div id="dashboard" class="hidden min-h-full flex flex-col"><!-- Header -->
-    <header class="bg-white border-b border-theme px-4 py-3">
+    <header class="bg-white border-b border-theme px-4 py-3 flex-shrink-0">
      <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
        <div class="w-12 h-12 flex items-center justify-center flex-shrink-0"><img src="https://iskconsouthbengaluru.com/wp-content/uploads/sites/7/2022/03/cropped-ISB-vertical-logo-Red-2.png" alt="ISKCON South Bengaluru Logo" style="max-width:100%; height:auto; object-fit:contain;" onerror="this.style.display='none'">
@@ -447,15 +457,24 @@
         </svg><span class="hidden sm:inline">Logout</span> </button>
       </div>
      </div>
-    </header><!-- Navigation Tabs -->
-    <nav class="bg-white border-b border-theme">
-     <div class="max-w-7xl mx-auto">
-      <div id="nav-tabs" class="flex overflow-x-auto"><button data-tab="dashboard" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition tab-active"> Dashboard </button> <button data-tab="booking" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="booking-tab"> Booking </button> <button data-tab="reports" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition" id="reports-tab"> Reports </button> <button data-tab="donors" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donors-tab"> Donors </button> <button data-tab="sevas" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="sevas-tab"> Manage Sevas </button> <button data-tab="users" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="users-tab"> Users </button> <button data-tab="permissions" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="permissions-tab"> 🔐 Manage Access </button> <button data-tab="donor-logins" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="donor-logins-tab"> 🔑 Donor Logins </button> <button data-tab="bank-accounts" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition admin-only hidden" id="bank-accounts-tab"> 🏦 Bank Accounts </button> <button data-tab="centers" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="centers-tab"> 🏛️ Centers </button> <button data-tab="temples" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="temples-tab"> 🏯 Temples </button> <button data-tab="validate-qr" class="tab-btn px-6 py-4 text-theme-secondary font-medium whitespace-nowrap hover:bg-theme-page transition superadmin-only hidden" id="validate-qr-tab"> 📱 Validate QR </button>
-      </div>
-     </div>
-    </nav><!-- Tab Content -->
-    <main class="flex-1 p-4 overflow-auto">
-     <div class="max-w-7xl mx-auto"><!-- Dashboard Tab -->
+    </header><!-- Sidebar + Content -->
+    <div class="flex flex-1 min-h-0">
+     <nav id="nav-tabs" class="sidebar-nav flex-shrink-0 w-52 bg-white border-r border-theme overflow-y-auto py-2 flex flex-col">
+      <button data-tab="dashboard" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition tab-active"> Dashboard </button>
+      <button data-tab="booking" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition" id="booking-tab"> Booking </button>
+      <button data-tab="reports" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition" id="reports-tab"> Reports </button>
+      <button data-tab="donors" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition admin-only hidden" id="donors-tab"> Donors </button>
+      <button data-tab="sevas" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition admin-only hidden" id="sevas-tab"> Manage Sevas </button>
+      <button data-tab="users" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition admin-only hidden" id="users-tab"> Users </button>
+      <button data-tab="permissions" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="permissions-tab"> 🔐 Manage Access </button>
+      <button data-tab="donor-logins" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition admin-only hidden" id="donor-logins-tab"> 🔑 Donor Logins </button>
+      <button data-tab="bank-accounts" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition admin-only hidden" id="bank-accounts-tab"> 🏦 Bank Accounts </button>
+      <button data-tab="centers" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="centers-tab"> 🏛️ Centers </button>
+      <button data-tab="temples" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="temples-tab"> 🏯 Temples </button>
+      <button data-tab="validate-qr" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="validate-qr-tab"> 📱 Validate QR </button>
+     </nav><!-- Tab Content -->
+     <main class="flex-1 min-w-0 p-4 overflow-auto">
+      <div class="max-w-7xl mx-auto"><!-- Dashboard Tab -->
       <div id="tab-dashboard" class="tab-content">
        <div class="space-y-6"><!-- Statistics Cards -->
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1037,6 +1056,7 @@
       </div>
      </div>
     </main>
+    </div>
    </div><!-- Seva Slide-Out Panel -->
    <div id="seva-panel-backdrop" class="fixed inset-0 z-30 hidden modal-backdrop"></div>
    <div id="seva-slide-panel" class="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl z-40 hidden flex flex-col overflow-hidden">
