@@ -5187,13 +5187,23 @@
 
     function showSendWhatsAppModal() {
       showModal(`
-        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Send donor login via WhatsApp</h3>
-        <p class="text-sm text-theme-muted mb-4">Sends the donor login template to the given number. The template text is defined in your WhatsApp/BhashSMS account.</p>
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Send WhatsApp Message</h3>
         <form id="send-whatsapp-form" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-theme-secondary mb-1">Phone number *</label>
-            <input type="text" id="wa-phone" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="e.g. 9876543210 or 919876543210">
-            <p class="text-xs text-theme-muted mt-1">Include country code for international numbers (e.g. 91 for India).</p>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Phone number(s) *</label>
+            <input type="text" id="wa-phone" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="e.g. 919876543210, 918888777766">
+            <p class="text-xs text-theme-muted mt-1">You can enter multiple numbers separated by commas. Include country code for international numbers (e.g. 91 for India).</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Message type</label>
+            <select id="wa-message-type" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
+              <option value="custom">Custom message (type below)</option>
+              <option value="donor_login">Donor login template (donor_login_10be_a)</option>
+            </select>
+          </div>
+          <div id="wa-custom-text-wrap">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Message *</label>
+            <textarea id="wa-text" rows="4" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none resize-y" placeholder="Type your message here..."></textarea>
           </div>
           <div class="flex gap-3 pt-2">
             <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
@@ -5201,14 +5211,30 @@
           </div>
         </form>
       `);
+      const messageTypeSelect = document.getElementById('wa-message-type');
+      const customTextWrap = document.getElementById('wa-custom-text-wrap');
+      const waText = document.getElementById('wa-text');
+      function toggleWaMessageField() {
+        const useTemplate = messageTypeSelect && messageTypeSelect.value === 'donor_login';
+        if (customTextWrap) customTextWrap.classList.toggle('hidden', useTemplate);
+        if (waText) { waText.required = !useTemplate; if (useTemplate) waText.value = ''; }
+      }
+      if (messageTypeSelect) messageTypeSelect.addEventListener('change', toggleWaMessageField);
+      toggleWaMessageField();
+
       document.getElementById('send-whatsapp-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const phone = document.getElementById('wa-phone').value.trim();
+        const useTemplate = (document.getElementById('wa-message-type') && document.getElementById('wa-message-type').value === 'donor_login');
+        const text = useTemplate ? DONOR_LOGIN_TEMPLATE : (document.getElementById('wa-text').value || '').trim();
         if (!phone) {
           showToast('Please enter phone number', 'error');
           return;
         }
-        const text = DONOR_LOGIN_TEMPLATE;
+        if (!useTemplate && !text) {
+          showToast('Please enter message or select donor login template', 'error');
+          return;
+        }
         const btn = document.getElementById('send-wa-submit');
         btn.disabled = true;
         btn.textContent = 'Sending...';
@@ -5217,9 +5243,14 @@
           const apiResponse = (result.response != null && result.response !== undefined) ? String(result.response).trim() : '';
           if (result.isOk) {
             showToast('Message sent successfully');
+            const sent = (result.sent != null ? Number(result.sent) : null);
+            const failed = (result.failed != null ? Number(result.failed) : null);
+            const summary = (sent != null && failed != null)
+              ? `${sent} sent, ${failed} failed.`
+              : `Sent to ${phone.replace(/\d(?=\d{4})/g, '*')}.`;
             document.getElementById('modal-content').innerHTML = `
               <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">WhatsApp sent</h3>
-              <p class="text-theme-secondary mb-3">Message sent to ${phone.replace(/\d(?=\d{4})/g, '*')}.</p>
+              <p class="text-theme-secondary mb-3">${summary}</p>
               ${apiResponse ? `<div class="mb-4"><p class="text-sm font-medium text-theme-secondary mb-1">API response:</p><pre class="text-xs bg-theme-muted p-3 rounded-lg overflow-x-auto text-left whitespace-pre-wrap break-words">${apiResponse.replace(/</g, '&lt;')}</pre></div>` : ''}
               <button type="button" onclick="hideModal()" class="w-full px-4 py-2 btn-primary text-white rounded-lg">Close</button>
             `;
