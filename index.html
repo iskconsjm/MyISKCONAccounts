@@ -762,7 +762,17 @@
           </svg> Add User </button>
         </div>
         <div class="flex flex-col sm:flex-row gap-4 pb-4 border-b border-theme">
-         <div class="flex-1"><label class="block text-sm font-medium text-theme-secondary mb-2">Filter by Center</label> <select id="users-center-filter" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none"> <option value="">All Centers</option> <option value="center_bangalore">Bangalore Center</option> <option value="center_delhi">Delhi Center</option> <option value="center_mumbai">Mumbai Center</option> <option value="center_chennai">Chennai Center</option> <option value="center_kolkata">Kolkata Center</option> </select>
+         <div class="flex-1">
+          <label class="block text-sm font-medium text-theme-secondary mb-2">Filter by Temple</label>
+          <select id="users-temple-filter" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
+            <option value="">All Temples</option>
+          </select>
+         </div>
+         <div class="flex-1">
+          <label class="block text-sm font-medium text-theme-secondary mb-2">Filter by Center</label>
+          <select id="users-center-filter" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
+            <option value="">All Centers</option>
+          </select>
          </div>
         </div>
         <div class="overflow-x-auto">
@@ -2005,20 +2015,32 @@
 
     function renderUsersTable() {
       const users = getUsers();
+      const templeFilterEl = document.getElementById('users-temple-filter');
       const centerFilterEl = document.getElementById('users-center-filter');
+      const templeFilter = templeFilterEl ? templeFilterEl.value : '';
       const centerFilter = centerFilterEl ? centerFilterEl.value : '';
       const tbody = document.getElementById('users-table-body');
 
-      const filteredUsers = centerFilter
-        ? users.filter(u => {
-            if (u.centerId === centerFilter) return true;
-            if ((u.role || '').toLowerCase() === 'admin' && (u.templeId || '').toString().trim()) {
-              const c = centersList.find(c => c.id === centerFilter);
-              return c && (c.templeId || '').toString().trim() === (u.templeId || '').toString().trim();
-            }
-            return false;
-          })
-        : users;
+      let filteredUsers = users;
+      if (templeFilter) {
+        filteredUsers = filteredUsers.filter(u => {
+          if ((u.role || '').toLowerCase() === 'admin') {
+            return (u.templeId || '').toString().trim() === templeFilter;
+          }
+          const c = centersList.find(c => c.id === (u.centerId || '').toString().trim());
+          return c && (c.templeId || '').toString().trim() === templeFilter;
+        });
+      }
+      if (centerFilter) {
+        filteredUsers = filteredUsers.filter(u => {
+          if (u.centerId === centerFilter) return true;
+          if ((u.role || '').toLowerCase() === 'admin' && (u.templeId || '').toString().trim()) {
+            const c = centersList.find(c => c.id === centerFilter);
+            return c && (c.templeId || '').toString().trim() === (u.templeId || '').toString().trim();
+          }
+          return false;
+        });
+      }
 
       tbody.innerHTML = filteredUsers.map(u => `
         <tr class="border-b border-theme hover:bg-theme-page">
@@ -2843,6 +2865,20 @@
           }
         }
       });
+
+      // Populate Users tab Temple filter
+      const usersTempleFilter = document.getElementById('users-temple-filter');
+      if (usersTempleFilter) {
+        const currentTemple = usersTempleFilter.value;
+        usersTempleFilter.innerHTML = '<option value="">All Temples</option>';
+        getTemples().forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t.id;
+          opt.textContent = t.name || t.id;
+          if (t.id === currentTemple) opt.selected = true;
+          usersTempleFilter.appendChild(opt);
+        });
+      }
     }
 
     // Safe parse of booking items (string or already array); returns array.
@@ -4716,8 +4752,8 @@
           <div>
             <label class="block text-sm font-medium text-theme-secondary mb-1">Role *</label>
             <select id="new-role" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
+              <option value="admin">Admin (assign to Temple)</option>
               <option value="volunteer">Volunteer</option>
-              <option value="admin">Admin</option>
               <option value="counter">Counter / Kiosk</option>
               <option value="kiosk">Kiosk</option>
               <option value="EntryScanner">Entry Scanner (QR only)</option>
@@ -4730,7 +4766,7 @@
             <select id="new-temple-id" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
               <option value="">Select a temple...</option>
             </select>
-            <p class="text-xs text-theme-muted mt-1">Admins are assigned to a temple. Volunteers are assigned to a temple and a center.</p>
+            <p class="text-xs text-theme-muted mt-1" id="add-user-temple-hint">For Admin: select the temple this user will manage. For Volunteer/Counter: select temple then center below.</p>
           </div>
           <div id="add-user-center-wrap">
             <label class="block text-sm font-medium text-theme-secondary mb-1">Center *</label>
@@ -4786,8 +4822,14 @@
           templeSelect.value = isCurrentUserAdmin ? (currentUser.templeId || '') : '';
           if (isCurrentUserAdmin) templeSelect.disabled = true;
           else templeSelect.disabled = false;
+          if (document.getElementById('add-user-temple-hint')) {
+            document.getElementById('add-user-temple-hint').textContent = 'Select the temple this admin will manage.';
+          }
         } else {
           centerSelect.setAttribute('required', 'required');
+          if (document.getElementById('add-user-temple-hint')) {
+            document.getElementById('add-user-temple-hint').textContent = 'For Volunteer/Counter: select temple then center below.';
+          }
           if (isCurrentUserAdmin) {
             templeWrap.classList.add('hidden');
             templeSelect.removeAttribute('required');
@@ -6754,7 +6796,10 @@
         document.getElementById('download-donors-dropdown').classList.add('hidden');
       });
 
-      document.getElementById('users-center-filter').addEventListener('change', renderUsersTable);
+      const usersCenterFilter = document.getElementById('users-center-filter');
+      if (usersCenterFilter) usersCenterFilter.addEventListener('change', renderUsersTable);
+      const usersTempleFilter = document.getElementById('users-temple-filter');
+      if (usersTempleFilter) usersTempleFilter.addEventListener('change', renderUsersTable);
 
       document.getElementById('modal-backdrop').addEventListener('click', hideModal);
 
