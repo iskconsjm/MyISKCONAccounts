@@ -6107,34 +6107,105 @@
         const container = document.getElementById('new-seva-dept-heads-list');
         const notifyInput = document.getElementById('new-seva-notify-whatsapp');
         if (!container || !notifyInput) return;
+
         const allHeads = getDepartmentHeads();
         const headsForCenter = centerId === 'all_centers'
           ? allHeads
           : allHeads.filter(h => (h.centerId || '').toString().trim() === centerId);
-        const currentPhones = (notifyInput.value || '').split(/[,;\s]+/).map(s => s.trim().replace(/\D/g, '')).filter(s => s.length >= 10);
-        const norm = (p) => (p || '').replace(/\D/g, '').slice(-10);
-        container.innerHTML = headsForCenter.length === 0
-          ? '<p class="text-sm text-theme-muted">No department heads for this center. Add contacts in Dept Heads tab or type numbers below.</p>'
-          : headsForCenter.map(h => {
-              const phone = (h.phone || '').toString().trim();
-              const phoneNorm = norm(phone);
-              const checked = currentPhones.some(cp => norm(cp) === phoneNorm);
-              return `<label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="new-seva-dept-cb w-4 h-4 rounded theme-focus" data-phone="${(phone || '').replace(/"/g, '&quot;')}" ${checked ? 'checked' : ''}> <span class="text-sm text-theme-secondary">${(h.name || '').replace(/</g, '&lt;')} (${(h.role || '').replace(/</g, '&lt;')}) — ${(h.phone || '').replace(/</g, '&lt;')}</span></label>`;
-            }).join('');
-        container.querySelectorAll('.new-seva-dept-cb').forEach(cb => {
-          cb.addEventListener('change', syncNewSevaNotifyFromDeptHeads);
-        });
+
+        if (!headsForCenter || headsForCenter.length === 0) {
+          container.innerHTML = '<p class="text-sm text-theme-muted">No department heads for this center. Add contacts in Dept Heads tab or type numbers below.</p>';
+          return;
+        }
+
+        const centers = (typeof getCenters === 'function') ? getCenters() : [];
+        const temples = (typeof getTemples === 'function') ? getTemples() : [];
+        const centersById = {};
+        centers.forEach(c => { centersById[(c.id || '').toString().trim()] = c; });
+        const templesById = {};
+        temples.forEach(t => { templesById[(t.id || '').toString().trim()] = t; });
+
+        const norm = (p) => String(p || '').replace(/\D/g, '').slice(-10);
+        const selectedNorms = (notifyInput.value || '')
+          .split(/[,;\s]+/)
+          .map(s => norm(s))
+          .filter(s => s.length >= 4);
+
+        container.innerHTML = `
+          <div class="space-y-2">
+            <input type="text" id="new-seva-dept-heads-search" class="w-full px-3 py-1.5 border border-theme rounded-lg theme-focus outline-none text-sm" placeholder="Search by name, role, center, temple or phone">
+            <select id="new-seva-dept-heads-select" multiple class="w-full border border-theme rounded-lg theme-focus outline-none text-sm bg-white" size="6"></select>
+            <p class="text-xs text-theme-muted">Use Ctrl/Cmd-click (or tap) to select multiple contacts.</p>
+          </div>
+        `;
+
+        const selectEl = document.getElementById('new-seva-dept-heads-select');
+        const searchEl = document.getElementById('new-seva-dept-heads-search');
+
+        const escapeHtml = function(s) {
+          return String(s || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        };
+
+        const renderOptions = function(filterTerm) {
+          const term = String(filterTerm || '').toLowerCase();
+          const options = headsForCenter
+            .filter(function(h) {
+              const center = centersById[(h.centerId || '').toString().trim()];
+              const temple = templesById[(h.templeId || '').toString().trim()];
+              const phone = String(h.phone || '').trim();
+              const labelPlain =
+                (h.name || '') + ' ' +
+                (h.role || '') + ' ' +
+                phone + ' ' +
+                (center && center.name ? center.name : '') + ' ' +
+                (temple && temple.name ? temple.name : '');
+              return !term || labelPlain.toLowerCase().indexOf(term) !== -1;
+            })
+            .map(function(h) {
+              const center = centersById[(h.centerId || '').toString().trim()];
+              const temple = templesById[(h.templeId || '').toString().trim()];
+              const phone = String(h.phone || '').trim();
+              const label =
+                (h.name || '') + ' (' + (h.role || 'Dept') + ') — ' + phone +
+                (center && center.name ? ' | Center: ' + center.name : '') +
+                (temple && temple.name ? ' | Temple: ' + temple.name : '');
+              const isSelected = selectedNorms.indexOf(norm(phone)) !== -1;
+              return '<option value="' + escapeHtml(phone) + '"' + (isSelected ? ' selected' : '') + '>' + escapeHtml(label) + '</option>';
+            })
+            .join('');
+          selectEl.innerHTML = options || '<option disabled>No matches</option>';
+        };
+
+        renderOptions('');
+
+        if (searchEl) {
+          searchEl.addEventListener('input', function() {
+            renderOptions(searchEl.value || '');
+          });
+        }
+
+        if (selectEl) {
+          selectEl.addEventListener('change', syncNewSevaNotifyFromDeptHeads);
+        }
+
         syncNewSevaNotifyFromDeptHeads();
       }
+
       function syncNewSevaNotifyFromDeptHeads() {
-        const container = document.getElementById('new-seva-dept-heads-list');
+        const selectEl = document.getElementById('new-seva-dept-heads-select');
         const notifyInput = document.getElementById('new-seva-notify-whatsapp');
-        if (!container || !notifyInput) return;
+        if (!selectEl || !notifyInput) return;
         const phones = [];
-        container.querySelectorAll('.new-seva-dept-cb:checked').forEach(cb => {
-          const p = (cb.dataset.phone || '').trim();
-          if (p) phones.push(p);
-        });
+        for (let i = 0; i < selectEl.options.length; i++) {
+          const opt = selectEl.options[i];
+          if (opt.selected) {
+            const p = String(opt.value || '').trim();
+            if (p) phones.push(p);
+          }
+        }
         notifyInput.value = phones.join(', ');
       }
 
@@ -6252,34 +6323,105 @@
         const container = document.getElementById('edit-seva-dept-heads-list');
         const notifyInput = document.getElementById('edit-seva-notify-whatsapp');
         if (!container || !notifyInput) return;
+
         const allHeads = getDepartmentHeads();
         const headsForCenter = centerId === 'all_centers'
           ? allHeads
           : allHeads.filter(h => (h.centerId || '').toString().trim() === centerId);
-        const currentPhones = (notifyInput.value || '').split(/[,;\s]+/).map(s => s.trim().replace(/\D/g, '')).filter(s => s.length >= 10);
-        const norm = (p) => (p || '').replace(/\D/g, '').slice(-10);
-        container.innerHTML = headsForCenter.length === 0
-          ? '<p class="text-sm text-theme-muted">No department heads for this center. Add contacts in Dept Heads tab or type numbers below.</p>'
-          : headsForCenter.map(h => {
-              const phone = (h.phone || '').toString().trim();
-              const phoneNorm = norm(phone);
-              const checked = currentPhones.some(cp => norm(cp) === phoneNorm);
-              return `<label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="edit-seva-dept-cb w-4 h-4 rounded theme-focus" data-phone="${(phone || '').replace(/"/g, '&quot;')}" ${checked ? 'checked' : ''}> <span class="text-sm text-theme-secondary">${(h.name || '').replace(/</g, '&lt;')} (${(h.role || '').replace(/</g, '&lt;')}) — ${(h.phone || '').replace(/</g, '&lt;')}</span></label>`;
-            }).join('');
-        container.querySelectorAll('.edit-seva-dept-cb').forEach(cb => {
-          cb.addEventListener('change', syncEditSevaNotifyFromDeptHeads);
-        });
+
+        if (!headsForCenter || headsForCenter.length === 0) {
+          container.innerHTML = '<p class="text-sm text-theme-muted">No department heads for this center. Add contacts in Dept Heads tab or type numbers below.</p>';
+          return;
+        }
+
+        const centers = (typeof getCenters === 'function') ? getCenters() : [];
+        const temples = (typeof getTemples === 'function') ? getTemples() : [];
+        const centersById = {};
+        centers.forEach(c => { centersById[(c.id || '').toString().trim()] = c; });
+        const templesById = {};
+        temples.forEach(t => { templesById[(t.id || '').toString().trim()] = t; });
+
+        const norm = (p) => String(p || '').replace(/\D/g, '').slice(-10);
+        const selectedNorms = (notifyInput.value || '')
+          .split(/[,;\s]+/)
+          .map(s => norm(s))
+          .filter(s => s.length >= 4);
+
+        container.innerHTML = `
+          <div class="space-y-2">
+            <input type="text" id="edit-seva-dept-heads-search" class="w-full px-3 py-1.5 border border-theme rounded-lg theme-focus outline-none text-sm" placeholder="Search by name, role, center, temple or phone">
+            <select id="edit-seva-dept-heads-select" multiple class="w-full border border-theme rounded-lg theme-focus outline-none text-sm bg-white" size="6"></select>
+            <p class="text-xs text-theme-muted">Use Ctrl/Cmd-click (or tap) to select multiple contacts.</p>
+          </div>
+        `;
+
+        const selectEl = document.getElementById('edit-seva-dept-heads-select');
+        const searchEl = document.getElementById('edit-seva-dept-heads-search');
+
+        const escapeHtml = function(s) {
+          return String(s || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        };
+
+        const renderOptions = function(filterTerm) {
+          const term = String(filterTerm || '').toLowerCase();
+          const options = headsForCenter
+            .filter(function(h) {
+              const center = centersById[(h.centerId || '').toString().trim()];
+              const temple = templesById[(h.templeId || '').toString().trim()];
+              const phone = String(h.phone || '').trim();
+              const labelPlain =
+                (h.name || '') + ' ' +
+                (h.role || '') + ' ' +
+                phone + ' ' +
+                (center && center.name ? center.name : '') + ' ' +
+                (temple && temple.name ? temple.name : '');
+              return !term || labelPlain.toLowerCase().indexOf(term) !== -1;
+            })
+            .map(function(h) {
+              const center = centersById[(h.centerId || '').toString().trim()];
+              const temple = templesById[(h.templeId || '').toString().trim()];
+              const phone = String(h.phone || '').trim();
+              const label =
+                (h.name || '') + ' (' + (h.role || 'Dept') + ') — ' + phone +
+                (center && center.name ? ' | Center: ' + center.name : '') +
+                (temple && temple.name ? ' | Temple: ' + temple.name : '');
+              const isSelected = selectedNorms.indexOf(norm(phone)) !== -1;
+              return '<option value="' + escapeHtml(phone) + '"' + (isSelected ? ' selected' : '') + '>' + escapeHtml(label) + '</option>';
+            })
+            .join('');
+          selectEl.innerHTML = options || '<option disabled>No matches</option>';
+        };
+
+        renderOptions('');
+
+        if (searchEl) {
+          searchEl.addEventListener('input', function() {
+            renderOptions(searchEl.value || '');
+          });
+        }
+
+        if (selectEl) {
+          selectEl.addEventListener('change', syncEditSevaNotifyFromDeptHeads);
+        }
+
         syncEditSevaNotifyFromDeptHeads();
       }
+
       function syncEditSevaNotifyFromDeptHeads() {
-        const container = document.getElementById('edit-seva-dept-heads-list');
+        const selectEl = document.getElementById('edit-seva-dept-heads-select');
         const notifyInput = document.getElementById('edit-seva-notify-whatsapp');
-        if (!container || !notifyInput) return;
+        if (!selectEl || !notifyInput) return;
         const phones = [];
-        container.querySelectorAll('.edit-seva-dept-cb:checked').forEach(cb => {
-          const p = (cb.dataset.phone || '').trim();
-          if (p) phones.push(p);
-        });
+        for (let i = 0; i < selectEl.options.length; i++) {
+          const opt = selectEl.options[i];
+          if (opt.selected) {
+            const p = String(opt.value || '').trim();
+            if (p) phones.push(p);
+          }
+        }
         notifyInput.value = phones.join(', ');
       }
 
