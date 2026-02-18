@@ -771,7 +771,7 @@
            <tr class="border-b border-theme">
             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Username</th>
             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Role</th>
-            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Center</th>
+            <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Temple / Center</th>
             <th class="text-left py-3 px-4 text-theme-secondary font-medium text-sm">Actions</th>
            </tr>
           </thead>
@@ -1100,6 +1100,13 @@
       return fromData ? fromData.name : centerId;
     }
 
+    function getTempleName(templeId) {
+      if (!templeId) return '—';
+      const temples = getTemples();
+      const t = temples.find(t => t.id === templeId);
+      return t ? (t.name || t.id) : templeId;
+    }
+
     // Demo Sevas (reference data)
     const demoSevas = [
       { id: 'seva1', name: 'Abhishekam', description: 'Sacred bathing ritual', amount: 501 },
@@ -1188,15 +1195,8 @@
 
     function getCenterData(dataType) {
       if (!currentUser) return [];
-      
-      // Superadmin sees all data across all centers
-      if (currentUser.username === 'admin') {
-        return allData.filter(d => d.type === dataType);
-      }
-      
-      // Other users only see data from their center
-      const userCenterId = currentUser.centerId;
-      return allData.filter(d => d.type === dataType && d.centerId === userCenterId);
+      // Backend getAllData already filters by temple (admin) or center (volunteer)
+      return allData.filter(d => d.type === dataType);
     }
 
     function getDonors() {
@@ -1262,18 +1262,8 @@
 
     function getCenterUsers() {
       if (!currentUser) return [];
-      
-      // Superadmin sees all users across all centers
-      if (currentUser.username === 'admin') {
-        return allData.filter(d => d.type === 'user' && d.username !== 'admin');
-      }
-      
-      // Admins see only users they created
-      return allData.filter(d => 
-        d.type === 'user' && 
-        d.username !== 'admin' && 
-        d.createdBy === currentUser.username
-      );
+      // Backend getAllData already filters users by temple (admin) or center (volunteer)
+      return allData.filter(d => d.type === 'user' && d.username !== 'admin');
     }
 
     function getBankAccounts() {
@@ -2015,11 +2005,19 @@
 
     function renderUsersTable() {
       const users = getUsers();
-      const centerFilter = document.getElementById('users-center-filter').value;
+      const centerFilterEl = document.getElementById('users-center-filter');
+      const centerFilter = centerFilterEl ? centerFilterEl.value : '';
       const tbody = document.getElementById('users-table-body');
 
-      const filteredUsers = centerFilter 
-        ? users.filter(u => u.centerId === centerFilter)
+      const filteredUsers = centerFilter
+        ? users.filter(u => {
+            if (u.centerId === centerFilter) return true;
+            if ((u.role || '').toLowerCase() === 'admin' && (u.templeId || '').toString().trim()) {
+              const c = centersList.find(c => c.id === centerFilter);
+              return c && (c.templeId || '').toString().trim() === (u.templeId || '').toString().trim();
+            }
+            return false;
+          })
         : users;
 
       tbody.innerHTML = filteredUsers.map(u => `
@@ -2032,8 +2030,9 @@
             <span class="px-2 py-1 text-xs rounded-full font-medium ${u.username === 'admin' ? 'bg-red-100 text-red-700' : u.role === 'admin' ? 'bg-orange-100 text-orange-700' : u.role === 'EntryScanner' ? 'bg-pink-100 text-pink-700' : u.role === 'SevaScanner' ? 'bg-amber-100 text-amber-700' : u.role === 'PrasadamScanner' ? 'bg-purple-100 text-purple-700' : u.role === 'volunteer' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}">${u.username === 'admin' ? 'Superadmin' : u.role === 'EntryScanner' ? 'Entry Scanner' : u.role === 'SevaScanner' ? 'Seva Scanner' : u.role === 'PrasadamScanner' ? 'Prasadam Scanner' : u.role.charAt(0).toUpperCase() + u.role.slice(1)}</span>
           </td>
           <td class="py-3 px-4">
-            <div class="text-theme-secondary text-sm font-medium">${getCenterName(u.centerId)}</div>
-            <div class="text-xs text-theme-muted mt-1">${u.centerId || 'All Centers'}</div>
+            ${(u.role || '').toLowerCase() === 'admin'
+              ? `<div class="text-theme-secondary text-sm font-medium">${getTempleName((u.templeId || '').toString().trim())}</div><div class="text-xs text-theme-muted mt-1">Temple Admin</div>`
+              : `<div class="text-theme-secondary text-sm font-medium">${getCenterName(u.centerId)}</div><div class="text-xs text-theme-muted mt-1">${u.centerId || '—'}</div>`}
           </td>
           <td class="py-3 px-4">
             ${u.username !== 'admin' ? `
@@ -2818,7 +2817,8 @@
         'donor-center',
         'modal-donor-center', 
         'edit-modal-donor-center',
-        'donor-logins-center-filter'
+        'donor-logins-center-filter',
+        'users-center-filter'
       ];
       
       dropdowns.forEach(id => {
@@ -4699,6 +4699,9 @@
 
     // Modal Forms
     function showAddUserModal() {
+      const isCurrentUserAdmin = currentUser && (currentUser.role || '').toLowerCase() === 'admin';
+      const temples = getTemples();
+      const centers = centersList || [];
       showModal(`
         <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Add New User</h3>
         <form id="add-user-form" class="space-y-4">
@@ -4722,16 +4725,19 @@
               <option value="PrasadamScanner">Prasadam Scanner (QR only)</option>
             </select>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-theme-secondary mb-1">Center/Location *</label>
-            <select id="new-center-id" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
-              <option value="">Select a center...</option>
-              <option value="center_bangalore">Bangalore Center</option>
-              <option value="center_delhi">Delhi Center</option>
-              <option value="center_mumbai">Mumbai Center</option>
-              <option value="center_chennai">Chennai Center</option>
-              <option value="center_kolkata">Kolkata Center</option>
+          <div id="add-user-temple-wrap">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Temple *</label>
+            <select id="new-temple-id" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
+              <option value="">Select a temple...</option>
             </select>
+            <p class="text-xs text-theme-muted mt-1">Admins are assigned to a temple. Volunteers are assigned to a temple and a center.</p>
+          </div>
+          <div id="add-user-center-wrap">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Center *</label>
+            <select id="new-center-id" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
+              <option value="">Select a center...</option>
+            </select>
+            <p class="text-xs text-theme-muted mt-1" id="add-user-center-hint">Select temple first to see centers. Temple admins see only their temple's centers.</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-theme-secondary mb-1">Cashbooks (optional)</label>
@@ -4745,30 +4751,99 @@
         </form>
       `);
 
+      const templeSelect = document.getElementById('new-temple-id');
+      const centerSelect = document.getElementById('new-center-id');
+      const templeWrap = document.getElementById('add-user-temple-wrap');
+      const centerWrap = document.getElementById('add-user-center-wrap');
+      const centerHint = document.getElementById('add-user-center-hint');
+
+      temples.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.name || t.id;
+        templeSelect.appendChild(opt);
+      });
+
+      function fillCentersByTemple(templeId) {
+        centerSelect.innerHTML = '<option value="">Select a center...</option>';
+        const list = templeId ? centers.filter(c => (c.templeId || '').toString().trim() === templeId) : centers;
+        list.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name || c.id;
+          centerSelect.appendChild(opt);
+        });
+      }
+
+      function toggleAddUserRoleFields() {
+        const role = (document.getElementById('new-role').value || '').toLowerCase();
+        const isAdmin = role === 'admin';
+        if (isAdmin) {
+          templeWrap.classList.remove('hidden');
+          centerWrap.classList.add('hidden');
+          centerSelect.removeAttribute('required');
+          templeSelect.setAttribute('required', 'required');
+          templeSelect.value = isCurrentUserAdmin ? (currentUser.templeId || '') : '';
+          if (isCurrentUserAdmin) templeSelect.disabled = true;
+          else templeSelect.disabled = false;
+        } else {
+          centerSelect.setAttribute('required', 'required');
+          if (isCurrentUserAdmin) {
+            templeWrap.classList.add('hidden');
+            templeSelect.removeAttribute('required');
+            centerWrap.classList.remove('hidden');
+            fillCentersByTemple((currentUser.templeId || '').toString().trim());
+            if (centerHint) centerHint.textContent = 'Select the center under your temple.';
+          } else {
+            templeWrap.classList.remove('hidden');
+            centerWrap.classList.remove('hidden');
+            templeSelect.removeAttribute('required');
+            const tid = (templeSelect.value || '').trim();
+            fillCentersByTemple(tid);
+            if (centerHint) centerHint.textContent = 'Select temple first, then center.';
+          }
+        }
+      }
+
+      document.getElementById('new-role').addEventListener('change', toggleAddUserRoleFields);
+      document.getElementById('new-temple-id').addEventListener('change', function() {
+        if ((document.getElementById('new-role').value || '').toLowerCase() !== 'admin') {
+          fillCentersByTemple((this.value || '').trim());
+        }
+      });
+
+      toggleAddUserRoleFields();
+
       document.getElementById('add-user-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('new-username').value.trim();
         const password = document.getElementById('new-password').value;
-        const role = document.getElementById('new-role').value;
-        const centerId = document.getElementById('new-center-id').value;
+        const role = (document.getElementById('new-role').value || '').toLowerCase();
+        const templeId = (document.getElementById('new-temple-id').value || '').trim();
+        const centerId = (document.getElementById('new-center-id').value || '').trim();
         const cashbooksEl = document.getElementById('new-cashbooks');
         const cashbooks = cashbooksEl ? cashbooksEl.value.trim() : '';
 
-        if (!centerId) {
-          showToast('Please select a center', 'error');
-          return;
+        const isAdmin = role === 'admin';
+        if (isAdmin) {
+          if (!templeId) {
+            showToast('Please select a temple', 'error');
+            return;
+          }
+        } else {
+          if (!centerId) {
+            showToast('Please select a center', 'error');
+            return;
+          }
         }
 
-        // Check if username already exists in this specific center
-        const existingUser = allData.find(d => 
-          d.type === 'user' && 
-          d.username === username && 
-          d.centerId === centerId &&
-          d.username !== 'admin'
-        );
-
+        const existingUser = allData.find(d => {
+          if (d.type !== 'user' || d.username !== username || d.username === 'admin') return false;
+          if (isAdmin) return (d.templeId || '').toString().trim() === templeId;
+          return (d.centerId || '') === centerId;
+        });
         if (existingUser) {
-          showToast('Username already exists in this center', 'error');
+          showToast(isAdmin ? 'Username already exists in this temple' : 'Username already exists in this center', 'error');
           return;
         }
 
@@ -4777,23 +4852,32 @@
           defaultPermissions[perm.id] = perm.default;
         });
 
-        const result = await window.dataSdk.create({
+        const payload = {
           type: 'user',
           username,
           password,
-          role,
-          centerId,
+          role: document.getElementById('new-role').value,
           permissions: JSON.stringify(defaultPermissions),
           cashbooks: cashbooks,
           createdBy: currentUser.username,
           createdAt: new Date().toISOString()
-        });
+        };
+        if (isAdmin) {
+          payload.templeId = templeId;
+          payload.centerId = '';
+        } else {
+          payload.centerId = centerId;
+          const chosenCenter = centers.find(c => c.id === centerId);
+          payload.templeId = (chosenCenter && chosenCenter.templeId) ? chosenCenter.templeId : '';
+        }
+
+        const result = await window.dataSdk.create(payload);
 
         if (result.isOk) {
           hideModal();
           showToast('User added successfully');
         } else {
-          showToast('Failed to add user', 'error');
+          showToast(result.error || 'Failed to add user', 'error');
         }
       });
     }
