@@ -1359,7 +1359,8 @@
     // Tab Navigation & Permission Control
     function switchTab(tabName) {
       // Donors may only open Dashboard, Booking, Reports
-      const isDonor = currentUser && currentUser.role === 'donor';
+      const role = (currentUser && currentUser.role) ? String(currentUser.role) : '';
+      const isDonor = currentUser && (role === 'donor' || role.toLowerCase() === 'donor');
       const donorAllowedTabs = ['dashboard', 'booking', 'reports'];
       if (isDonor && donorAllowedTabs.indexOf(tabName) === -1) {
         showToast('You do not have access to this section', 'error');
@@ -1413,25 +1414,28 @@
     }
 
     function updateUIBasedOnPermissions() {
-      const isDonor = currentUser && currentUser.role === 'donor';
+      const role = (currentUser && currentUser.role) ? String(currentUser.role) : '';
+      const isDonor = currentUser && (role === 'donor' || role.toLowerCase() === 'donor');
       const isSuperadmin = currentUser && currentUser.username === 'admin';
       const isScanner = ['EntryScanner', 'SevaScanner', 'PrasadamScanner'].includes(currentUser && currentUser.role);
 
       // Donor: only Dashboard, Bookings, Reports visible in sidebar (nothing else)
       if (isDonor) {
         const donorVisibleIds = ['dashboard-tab', 'booking-tab', 'reports-tab'];
-        document.querySelectorAll('#nav-tabs .tab-btn').forEach(function(btn) {
-          const id = btn.id;
-          if (id && donorVisibleIds.indexOf(id) !== -1) {
-            btn.classList.remove('hidden');
-          } else {
-            btn.classList.add('hidden');
-          }
-        });
+        const nav = document.getElementById('nav-tabs');
+        if (nav) {
+          nav.querySelectorAll('.tab-btn').forEach(function(btn) {
+            const id = btn.id;
+            const show = id && donorVisibleIds.indexOf(id) !== -1;
+            btn.classList.toggle('hidden', !show);
+            btn.style.display = show ? '' : 'none';
+          });
+        }
         switchTab('dashboard');
         // Payment mode / send WA handled below
       } else if (isScanner) {
         // Scanner users see only Dashboard and Validate QR
+        document.querySelectorAll('#nav-tabs .tab-btn').forEach(function(btn) { btn.style.display = ''; });
         document.getElementById('dashboard-tab').classList.remove('hidden');
         document.getElementById('validate-qr-tab').classList.remove('hidden');
         document.getElementById('booking-tab').classList.add('hidden');
@@ -1446,6 +1450,7 @@
         document.getElementById('bank-accounts-tab').classList.add('hidden');
         document.getElementById('department-heads-tab').classList.add('hidden');
       } else {
+        document.querySelectorAll('#nav-tabs .tab-btn').forEach(function(btn) { btn.style.display = ''; });
         // Non-donor, non-scanner: show tabs by role and permissions
         document.getElementById('dashboard-tab').classList.remove('hidden');
         document.getElementById('booking-tab').classList.toggle('hidden', !hasPermission('booking'));
@@ -6922,8 +6927,9 @@
           // Wait for data to fully load, then re-render
           window.dataSdk.ensureDataLoaded().then(() => {
             renderAll();
-            if (currentUser.role === 'donor') {
+            if (currentUser && (currentUser.role === 'donor' || String(currentUser.role).toLowerCase() === 'donor')) {
               prefillDonorDetails();
+              updateUIBasedOnPermissions();
             }
           });
         } else {
@@ -7151,6 +7157,9 @@
           // Load data in background and render when ready
           window.dataSdk.ensureDataLoaded().then(() => {
             renderAll();
+            if (currentUser && (currentUser.role === 'donor' || String(currentUser.role).toLowerCase() === 'donor')) {
+              updateUIBasedOnPermissions();
+            }
           });
           
           setupEventListeners();
