@@ -460,16 +460,16 @@
     </header><!-- Sidebar + Content -->
     <div class="flex flex-1 min-h-0">
      <nav id="nav-tabs" class="sidebar-nav flex-shrink-0 w-52 bg-white border-r border-theme overflow-y-auto py-2 flex flex-col">
-      <button data-tab="dashboard" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition tab-active"> Dashboard </button>
+      <button data-tab="dashboard" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition tab-active" id="dashboard-tab"> Dashboard </button>
       <button data-tab="booking" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition" id="booking-tab"> Booking </button>
       <button data-tab="reports" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition" id="reports-tab"> Reports </button>
       <button data-tab="donors" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition admin-only hidden" id="donors-tab"> Donors </button>
       <button data-tab="sevas" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition admin-only hidden" id="sevas-tab"> Manage Sevas </button>
-      <button data-tab="department-heads" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition admin-only hidden" id="department-heads-tab"> 👥 Dept Heads </button>
+      <button data-tab="department-heads" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="department-heads-tab"> 👥 Dept Heads </button>
       <button data-tab="users" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition admin-only hidden" id="users-tab"> Users </button>
       <button data-tab="permissions" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="permissions-tab"> 🔐 Manage Access </button>
-      <button data-tab="donor-logins" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition admin-only hidden" id="donor-logins-tab"> 🔑 Donor Logins </button>
-      <button data-tab="bank-accounts" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition admin-only hidden" id="bank-accounts-tab"> 🏦 Bank Accounts </button>
+      <button data-tab="donor-logins" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="donor-logins-tab"> 🔑 Donor Logins </button>
+      <button data-tab="bank-accounts" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="bank-accounts-tab"> 🏦 Bank Accounts </button>
       <button data-tab="centers" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="centers-tab"> 🏛️ Centers </button>
       <button data-tab="temples" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="temples-tab"> 🏯 Temples </button>
       <button data-tab="validate-qr" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="validate-qr-tab"> 📱 Validate QR </button>
@@ -1358,6 +1358,14 @@
 
     // Tab Navigation & Permission Control
     function switchTab(tabName) {
+      // Donors may only open Dashboard, Booking, Reports
+      const isDonor = currentUser && currentUser.role === 'donor';
+      const donorAllowedTabs = ['dashboard', 'booking', 'reports'];
+      if (isDonor && donorAllowedTabs.indexOf(tabName) === -1) {
+        showToast('You do not have access to this section', 'error');
+        tabName = 'dashboard';
+      }
+
       // Check if user has permission for this tab
       let hasAccess = true;
       if (tabName === 'donors' || tabName === 'sevas' || tabName === 'users') {
@@ -1406,26 +1414,57 @@
 
     function updateUIBasedOnPermissions() {
       const isDonor = currentUser && currentUser.role === 'donor';
-      
-      // Hide/show tabs based on permissions
-      document.getElementById('booking-tab').classList.toggle('hidden', !hasPermission('booking'));
-      document.getElementById('reports-tab').classList.toggle('hidden', !hasPermission('reports'));
-      document.getElementById('donors-tab').classList.toggle('hidden', !hasPermission('manage_donors') || isDonor);
-      document.getElementById('sevas-tab').classList.toggle('hidden', !hasPermission('manage_sevas') || isDonor);
-      document.getElementById('users-tab').classList.toggle('hidden', !hasPermission('manage_users') || isDonor);
-      document.getElementById('permissions-tab').classList.toggle('hidden', currentUser.username !== 'admin');
-      // Donor logins visible to superadmin always, or admins with permission
-      document.getElementById('donor-logins-tab').classList.toggle('hidden', !hasPermission('donor_logins') || isDonor);
-      // Department heads visible to admins/superadmin (not donors)
-      document.getElementById('department-heads-tab').classList.toggle('hidden', isDonor || ['EntryScanner', 'SevaScanner', 'PrasadamScanner'].includes(currentUser.role));
-      // Centers management - superadmin only
-      document.getElementById('centers-tab').classList.toggle('hidden', currentUser.username !== 'admin');
-      // Temples hierarchy - superadmin only
-      document.getElementById('temples-tab').classList.toggle('hidden', currentUser.username !== 'admin');
-      const isScanner = ['EntryScanner', 'SevaScanner', 'PrasadamScanner'].includes(currentUser.role);
-      const canValidateQR = currentUser.username === 'admin' || isScanner;
-      document.getElementById('validate-qr-tab').classList.toggle('hidden', !canValidateQR);
-      // Scanner role banner: show which QR type this scanner accepts
+      const isSuperadmin = currentUser && currentUser.username === 'admin';
+      const isScanner = ['EntryScanner', 'SevaScanner', 'PrasadamScanner'].includes(currentUser && currentUser.role);
+
+      // Donor: only Dashboard, Bookings, Reports visible in sidebar (nothing else)
+      if (isDonor) {
+        const donorVisibleIds = ['dashboard-tab', 'booking-tab', 'reports-tab'];
+        document.querySelectorAll('#nav-tabs .tab-btn').forEach(function(btn) {
+          const id = btn.id;
+          if (id && donorVisibleIds.indexOf(id) !== -1) {
+            btn.classList.remove('hidden');
+          } else {
+            btn.classList.add('hidden');
+          }
+        });
+        switchTab('dashboard');
+        // Payment mode / send WA handled below
+      } else if (isScanner) {
+        // Scanner users see only Dashboard and Validate QR
+        document.getElementById('dashboard-tab').classList.remove('hidden');
+        document.getElementById('validate-qr-tab').classList.remove('hidden');
+        document.getElementById('booking-tab').classList.add('hidden');
+        document.getElementById('reports-tab').classList.add('hidden');
+        document.getElementById('donors-tab').classList.add('hidden');
+        document.getElementById('sevas-tab').classList.add('hidden');
+        document.getElementById('users-tab').classList.add('hidden');
+        document.getElementById('permissions-tab').classList.add('hidden');
+        document.getElementById('donor-logins-tab').classList.add('hidden');
+        document.getElementById('centers-tab').classList.add('hidden');
+        document.getElementById('temples-tab').classList.add('hidden');
+        document.getElementById('bank-accounts-tab').classList.add('hidden');
+        document.getElementById('department-heads-tab').classList.add('hidden');
+      } else {
+        // Non-donor, non-scanner: show tabs by role and permissions
+        document.getElementById('dashboard-tab').classList.remove('hidden');
+        document.getElementById('booking-tab').classList.toggle('hidden', !hasPermission('booking'));
+        document.getElementById('reports-tab').classList.toggle('hidden', !hasPermission('reports'));
+        // Permission-based for admins (Donors, Sevas, Users)
+        document.getElementById('donors-tab').classList.toggle('hidden', !hasPermission('manage_donors'));
+        document.getElementById('sevas-tab').classList.toggle('hidden', !hasPermission('manage_sevas'));
+        document.getElementById('users-tab').classList.toggle('hidden', !hasPermission('manage_users'));
+        // Superadmin-only tabs (new tabs; can migrate to Manage Access later)
+        document.getElementById('permissions-tab').classList.toggle('hidden', !isSuperadmin);
+        document.getElementById('donor-logins-tab').classList.toggle('hidden', !isSuperadmin);
+        document.getElementById('bank-accounts-tab').classList.toggle('hidden', !isSuperadmin);
+        document.getElementById('department-heads-tab').classList.toggle('hidden', !isSuperadmin);
+        document.getElementById('centers-tab').classList.toggle('hidden', !isSuperadmin);
+        document.getElementById('temples-tab').classList.toggle('hidden', !isSuperadmin);
+        document.getElementById('validate-qr-tab').classList.toggle('hidden', !isSuperadmin);
+      }
+
+      // Scanner role banner
       const qrBanner = document.getElementById('qr-scanner-role-banner');
       if (qrBanner) {
         if (isScanner) {
@@ -1438,37 +1477,17 @@
           qrBanner.textContent = '';
         }
       }
-      // Scanner users see only Dashboard and Validate QR
-      if (isScanner) {
-        document.getElementById('booking-tab').classList.add('hidden');
-        document.getElementById('reports-tab').classList.add('hidden');
-        document.getElementById('donors-tab').classList.add('hidden');
-        document.getElementById('sevas-tab').classList.add('hidden');
-        document.getElementById('users-tab').classList.add('hidden');
-        document.getElementById('permissions-tab').classList.add('hidden');
-        document.getElementById('donor-logins-tab').classList.add('hidden');
-        document.getElementById('centers-tab').classList.add('hidden');
-        document.getElementById('temples-tab').classList.add('hidden');
-        document.getElementById('bank-accounts-tab').classList.add('hidden');
-        document.getElementById('department-heads-tab').classList.add('hidden');
-      }
+
       const flushSevasBtn = document.getElementById('flush-sevas-btn');
-      if (flushSevasBtn) flushSevasBtn.classList.toggle('hidden', currentUser.username !== 'admin');
-      document.getElementById('bank-accounts-tab').classList.toggle('hidden', !hasPermission('manage_bank_accounts') || isDonor);
+      if (flushSevasBtn) flushSevasBtn.classList.toggle('hidden', !isSuperadmin);
       const sendWaBtn = document.getElementById('send-whatsapp-btn');
       if (sendWaBtn) sendWaBtn.classList.toggle('hidden', isDonor);
-      
-      // Show dashboard for everyone (donors see their own donations)
-      const dashboardTab = document.querySelector('[data-tab="dashboard"]');
-      if (dashboardTab) {
-        dashboardTab.classList.remove('hidden');
-      }
-      
-      // Donors land on dashboard to see their donations; admins land on dashboard or booking
-      if (isDonor) {
-        switchTab('dashboard');
-      } else if (document.getElementById('permissions-tab').classList.contains('hidden')) {
-        switchTab('dashboard');
+
+      // Land on dashboard for donors; for others land on dashboard if permissions tab not visible
+      if (!isDonor && !isScanner) {
+        if (document.getElementById('permissions-tab').classList.contains('hidden')) {
+          switchTab('dashboard');
+        }
       }
 
       // Payment mode tabs & buttons visibility
