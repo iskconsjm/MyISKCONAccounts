@@ -2224,14 +2224,15 @@
       if (noData) noData.classList.add('hidden');
       const gateways = getPaymentGateways();
       const gatewayName = (gid) => (gateways.find(g => (g.id || g.__backendId) === gid) || {}).name || (gid || '-');
+      const esc = (v) => String(v != null && v !== '' ? v : '-').replace(/</g, '&lt;').replace(/&/g, '&amp;');
       tbody.innerHTML = accounts.map((ba, idx) => `
         <tr class="border-b border-theme hover:bg-theme-page">
           <td class="py-3 px-4 text-theme-muted">${idx + 1}</td>
-          <td class="py-3 px-4 font-medium text-theme-primary">${(ba.name || '').replace(/</g, '&lt;')}</td>
-          <td class="py-3 px-4 text-theme-secondary">${(ba.accountNumber || '-').replace(/</g, '&lt;')}</td>
-          <td class="py-3 px-4 text-theme-secondary">${(ba.bankName || '-').replace(/</g, '&lt;')}</td>
+          <td class="py-3 px-4 font-medium text-theme-primary">${esc(ba.name || '')}</td>
+          <td class="py-3 px-4 text-theme-secondary">${esc(ba.accountNumber)}</td>
+          <td class="py-3 px-4 text-theme-secondary">${esc(ba.bankName)}</td>
           <td class="py-3 px-4 text-theme-secondary">${getCenterName(ba.centerId || '')}</td>
-          <td class="py-3 px-4 text-theme-secondary">${gatewayName(ba.paymentGatewayId || '').replace(/</g, '&lt;')}</td>
+          <td class="py-3 px-4 text-theme-secondary">${esc(gatewayName(ba.paymentGatewayId || ''))}</td>
           <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full ${(ba.isActive !== false && ba.isActive !== 'false') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${(ba.isActive !== false && ba.isActive !== 'false') ? 'Active' : 'Inactive'}</span></td>
           <td class="py-3 px-4">
             <button class="text-blue-600 hover:text-blue-800 font-medium text-sm edit-bank-account-btn" data-id="${ba.id}">Edit</button>
