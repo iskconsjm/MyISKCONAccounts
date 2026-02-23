@@ -470,6 +470,7 @@
       <button data-tab="permissions" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="permissions-tab"> 🔐 Manage Access </button>
       <button data-tab="donor-logins" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="donor-logins-tab"> 🔑 Donor Logins </button>
       <button data-tab="bank-accounts" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="bank-accounts-tab"> 🏦 Bank Accounts </button>
+      <button data-tab="payment-gateways" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="payment-gateways-tab"> 💳 Payment Gateways </button>
       <button data-tab="centers" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="centers-tab"> 🏛️ Centers </button>
       <button data-tab="temples" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="temples-tab"> 🏯 Temples </button>
       <button data-tab="validate-qr" class="tab-btn text-theme-secondary font-medium hover:bg-theme-page transition superadmin-only hidden" id="validate-qr-tab"> 📱 Validate QR </button>
@@ -983,6 +984,7 @@
              <th class="text-left py-3 px-4 text-theme-primary font-semibold">Account Number</th>
              <th class="text-left py-3 px-4 text-theme-primary font-semibold">Bank Name</th>
              <th class="text-left py-3 px-4 text-theme-primary font-semibold">Center</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Payment Gateway</th>
              <th class="text-left py-3 px-4 text-theme-primary font-semibold">Status</th>
              <th class="text-left py-3 px-4 text-theme-primary font-semibold">Actions</th>
             </tr>
@@ -992,6 +994,38 @@
           </table>
          </div>
          <p id="no-bank-accounts" class="text-theme-muted text-center py-8 hidden">No bank accounts yet. Add one to use in the Cheque tab.</p>
+        </div>
+       </div>
+      </div><!-- Payment Gateways Tab -->
+      <div id="tab-payment-gateways" class="tab-content hidden">
+       <div class="space-y-6">
+        <div class="bg-white rounded-xl card-shadow p-6">
+         <div class="flex items-center justify-between mb-6">
+          <div>
+           <h3 class="font-display text-2xl font-semibold text-theme-primary mb-2">💳 Payment Gateways</h3>
+           <p class="text-theme-muted">Add Razorpay credentials (Key ID and Key Secret). Each gateway has a name and is linked to bank accounts so the correct gateway is used when paying for sevas by center.</p>
+          </div>
+          <button id="add-payment-gateway-btn" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center gap-2">
+           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+           Add Payment Gateway
+          </button>
+         </div>
+         <div class="overflow-x-auto">
+          <table class="w-full">
+           <thead class="bg-theme-muted">
+            <tr>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">#</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Name</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Razorpay Key ID</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Status</th>
+             <th class="text-left py-3 px-4 text-theme-primary font-semibold">Actions</th>
+            </tr>
+           </thead>
+           <tbody id="payment-gateways-table-body">
+           </tbody>
+          </table>
+         </div>
+         <p id="no-payment-gateways" class="text-theme-muted text-center py-8 hidden">No payment gateways yet. Add one and link it to a bank account so Razorpay uses the right credentials per center.</p>
         </div>
        </div>
       </div><!-- Validate QR Tab (Superadmin / Scanner) -->
@@ -1346,6 +1380,12 @@
       return accounts.filter(ba => (ba.centerId || '') === userCenterId || (ba.centerId || '') === 'all_centers');
     }
 
+    function getPaymentGateways() {
+      if (!currentUser) return [];
+      const data = (allData && allData.length) ? allData : (window.dataSdk && window.dataSdk.getCachedData ? (window.dataSdk.getCachedData() || []) : []);
+      return data.filter(d => d.type === 'paymentGateway');
+    }
+
     // Modal Functions
     function showModal(content) {
       document.getElementById('modal-content').innerHTML = content;
@@ -1409,6 +1449,7 @@
       });
       document.getElementById(`tab-${tabName}`).classList.remove('hidden');
       if (tabName === 'bank-accounts' && typeof renderBankAccountsTable === 'function') renderBankAccountsTable();
+      if (tabName === 'payment-gateways' && typeof renderPaymentGatewaysTable === 'function') renderPaymentGatewaysTable();
       if (tabName === 'temples' && typeof renderTemplesView === 'function') renderTemplesView();
       if (tabName === 'department-heads') renderDepartmentHeadsTable();
     }
@@ -1448,6 +1489,7 @@
         document.getElementById('centers-tab').classList.add('hidden');
         document.getElementById('temples-tab').classList.add('hidden');
         document.getElementById('bank-accounts-tab').classList.add('hidden');
+        document.getElementById('payment-gateways-tab').classList.add('hidden');
         document.getElementById('department-heads-tab').classList.add('hidden');
       } else {
         document.querySelectorAll('#nav-tabs .tab-btn').forEach(function(btn) { btn.style.display = ''; });
@@ -1463,6 +1505,7 @@
         document.getElementById('permissions-tab').classList.toggle('hidden', !isSuperadmin);
         document.getElementById('donor-logins-tab').classList.toggle('hidden', !isSuperadmin);
         document.getElementById('bank-accounts-tab').classList.toggle('hidden', !isSuperadmin);
+        document.getElementById('payment-gateways-tab').classList.toggle('hidden', !isSuperadmin);
         document.getElementById('department-heads-tab').classList.toggle('hidden', !isSuperadmin);
         document.getElementById('centers-tab').classList.toggle('hidden', !isSuperadmin);
         document.getElementById('temples-tab').classList.toggle('hidden', !isSuperadmin);
@@ -2179,6 +2222,8 @@
         return;
       }
       if (noData) noData.classList.add('hidden');
+      const gateways = getPaymentGateways();
+      const gatewayName = (gid) => (gateways.find(g => (g.id || g.__backendId) === gid) || {}).name || (gid || '-');
       tbody.innerHTML = accounts.map((ba, idx) => `
         <tr class="border-b border-theme hover:bg-theme-page">
           <td class="py-3 px-4 text-theme-muted">${idx + 1}</td>
@@ -2186,6 +2231,7 @@
           <td class="py-3 px-4 text-theme-secondary">${(ba.accountNumber || '-').replace(/</g, '&lt;')}</td>
           <td class="py-3 px-4 text-theme-secondary">${(ba.bankName || '-').replace(/</g, '&lt;')}</td>
           <td class="py-3 px-4 text-theme-secondary">${getCenterName(ba.centerId || '')}</td>
+          <td class="py-3 px-4 text-theme-secondary">${gatewayName(ba.paymentGatewayId || '').replace(/</g, '&lt;')}</td>
           <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full ${(ba.isActive !== false && ba.isActive !== 'false') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${(ba.isActive !== false && ba.isActive !== 'false') ? 'Active' : 'Inactive'}</span></td>
           <td class="py-3 px-4">
             <button class="text-blue-600 hover:text-blue-800 font-medium text-sm edit-bank-account-btn" data-id="${ba.id}">Edit</button>
@@ -5143,6 +5189,8 @@
       let centers = getCenters();
       if (currentUser.username !== 'admin') centers = centers.filter(c => c.id === currentUser.centerId);
       const centerOptions = (currentUser.username === 'admin' ? '<option value="all_centers">All Centers</option>' : '') + centers.map(c => `<option value="${c.id}">${c.name || c.id}</option>`).join('');
+      const gateways = getPaymentGateways();
+      const gatewayOptions = '<option value="">None</option>' + gateways.map(g => `<option value="${g.id || g.__backendId}">${(g.name || g.id || '').replace(/</g, '&lt;')}</option>`).join('');
       showModal(`
         <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Add Bank Account</h3>
         <form id="add-bank-account-form" class="space-y-4">
@@ -5165,6 +5213,13 @@
             </select>
             <p class="text-xs text-theme-muted mt-1">Which center this account belongs to. Admins will only see accounts for their center (or All Centers).</p>
           </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Payment Gateway</label>
+            <select id="bank-account-payment-gateway" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
+              ${gatewayOptions}
+            </select>
+            <p class="text-xs text-theme-muted mt-1">Razorpay credentials to use when someone pays for sevas from this center. Add gateways in the Payment Gateways tab.</p>
+          </div>
           <div class="flex gap-3 pt-2">
             <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
             <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Add Bank Account</button>
@@ -5183,6 +5238,7 @@
           accountNumber: document.getElementById('bank-account-number').value.trim(),
           bankName: document.getElementById('bank-account-bank-name').value.trim(),
           centerId: document.getElementById('bank-account-center').value,
+          paymentGatewayId: (document.getElementById('bank-account-payment-gateway').value || '').trim() || undefined,
           isActive: true,
           createdAt: new Date().toISOString()
         });
@@ -5202,6 +5258,8 @@
       let centers = getCenters();
       if (currentUser.username !== 'admin') centers = centers.filter(c => c.id === currentUser.centerId);
       const centerOptions = (currentUser.username === 'admin' ? '<option value="all_centers">All Centers</option>' : '') + centers.map(c => `<option value="${c.id}" ${(c.id === (ba.centerId || '')) ? 'selected' : ''}>${c.name || c.id}</option>`).join('');
+      const gateways = getPaymentGateways();
+      const gatewayOptions = '<option value="">None</option>' + gateways.map(g => `<option value="${g.id || g.__backendId}" ${((g.id || g.__backendId) === (ba.paymentGatewayId || '')) ? 'selected' : ''}>${(g.name || g.id || '').replace(/</g, '&lt;')}</option>`).join('');
       showModal(`
         <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Edit Bank Account</h3>
         <form id="edit-bank-account-form" class="space-y-4">
@@ -5224,6 +5282,12 @@
               ${centerOptions}
             </select>
           </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Payment Gateway</label>
+            <select id="edit-bank-account-payment-gateway" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none">
+              ${gatewayOptions}
+            </select>
+          </div>
           <div class="flex gap-3 pt-2">
             <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
             <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Save</button>
@@ -5240,6 +5304,7 @@
           accountNumber: document.getElementById('edit-bank-account-number').value.trim(),
           bankName: document.getElementById('edit-bank-account-bank-name').value.trim(),
           centerId: document.getElementById('edit-bank-account-center').value,
+          paymentGatewayId: (document.getElementById('edit-bank-account-payment-gateway').value || '').trim() || undefined,
           isActive: true
         };
         const result = await window.dataSdk.update(updated);
@@ -5273,6 +5338,159 @@
             const cached = window.dataSdk.getCachedData().filter(d => !(d.type === 'bankAccount' && (d.id === id || d.__backendId === id)));
             window.dataSdk.setCachedData && window.dataSdk.setCachedData(cached);
           }
+          renderBankAccountsTable();
+        } else {
+          showToast(result.error || 'Failed to delete', 'error');
+        }
+      });
+    }
+
+    function renderPaymentGatewaysTable() {
+      const tbody = document.getElementById('payment-gateways-table-body');
+      const noData = document.getElementById('no-payment-gateways');
+      if (!tbody) return;
+      const gateways = getPaymentGateways();
+      if (gateways.length === 0) {
+        tbody.innerHTML = '';
+        if (noData) noData.classList.remove('hidden');
+        return;
+      }
+      if (noData) noData.classList.add('hidden');
+      tbody.innerHTML = gateways.map((pg, idx) => `
+        <tr class="border-b border-theme hover:bg-theme-page">
+          <td class="py-3 px-4 text-theme-muted">${idx + 1}</td>
+          <td class="py-3 px-4 font-medium text-theme-primary">${(pg.name || '').replace(/</g, '&lt;')}</td>
+          <td class="py-3 px-4 text-theme-secondary font-mono text-sm">${(pg.razorpayKeyId || '-').replace(/</g, '&lt;')}</td>
+          <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full ${(pg.isActive !== false && pg.isActive !== 'false') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${(pg.isActive !== false && pg.isActive !== 'false') ? 'Active' : 'Inactive'}</span></td>
+          <td class="py-3 px-4">
+            <button class="text-blue-600 hover:text-blue-800 font-medium text-sm edit-payment-gateway-btn" data-id="${pg.id || pg.__backendId}">Edit</button>
+            <button class="text-red-600 hover:text-red-800 font-medium text-sm delete-payment-gateway-btn ml-2" data-id="${pg.id || pg.__backendId}">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+      tbody.querySelectorAll('.edit-payment-gateway-btn').forEach(btn => {
+        btn.addEventListener('click', () => showEditPaymentGatewayModal(btn.dataset.id));
+      });
+      tbody.querySelectorAll('.delete-payment-gateway-btn').forEach(btn => {
+        btn.addEventListener('click', () => confirmDeletePaymentGateway(btn.dataset.id));
+      });
+    }
+
+    function showAddPaymentGatewayModal() {
+      showModal(`
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Add Payment Gateway</h3>
+        <form id="add-payment-gateway-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Name *</label>
+            <input type="text" id="pg-name" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" placeholder="e.g. Razorpay Bangalore Center">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Razorpay Key ID *</label>
+            <input type="text" id="pg-razorpay-key-id" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none font-mono" placeholder="rzp_live_... or rzp_test_...">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Razorpay Key Secret *</label>
+            <input type="password" id="pg-razorpay-key-secret" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none font-mono" placeholder="Key secret (stored encrypted)">
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
+            <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Add Gateway</button>
+          </div>
+        </form>
+      `);
+      document.getElementById('add-payment-gateway-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const result = await window.dataSdk.create({
+          type: 'payment_gateway',
+          name: document.getElementById('pg-name').value.trim(),
+          razorpayKeyId: document.getElementById('pg-razorpay-key-id').value.trim(),
+          razorpayKeySecret: document.getElementById('pg-razorpay-key-secret').value,
+          isActive: true,
+          createdAt: new Date().toISOString()
+        });
+        if (result.isOk) {
+          hideModal();
+          showToast('Payment gateway added');
+          if (window.dataSdk && window.dataSdk.refreshData) await window.dataSdk.refreshData();
+          renderPaymentGatewaysTable();
+          renderBankAccountsTable();
+        } else {
+          showToast(result.error || 'Failed to add payment gateway', 'error');
+        }
+      });
+    }
+
+    function showEditPaymentGatewayModal(id) {
+      const pg = (allData || []).find(d => d.type === 'paymentGateway' && ((d.id || d.__backendId) === id));
+      if (!pg) return;
+      showModal(`
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Edit Payment Gateway</h3>
+        <form id="edit-payment-gateway-form" class="space-y-4">
+          <input type="hidden" id="edit-pg-id" value="${(pg.id || pg.__backendId || '').replace(/"/g, '&quot;')}">
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Name *</label>
+            <input type="text" id="edit-pg-name" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" value="${(pg.name || '').replace(/"/g, '&quot;')}">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Razorpay Key ID *</label>
+            <input type="text" id="edit-pg-razorpay-key-id" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none font-mono" value="${(pg.razorpayKeyId || '').replace(/"/g, '&quot;')}">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-theme-secondary mb-1">Razorpay Key Secret</label>
+            <input type="password" id="edit-pg-razorpay-key-secret" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none font-mono" placeholder="Leave blank to keep existing">
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="button" onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
+            <button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Save</button>
+          </div>
+        </form>
+      `);
+      document.getElementById('edit-payment-gateway-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+          type: 'paymentGateway',
+          __backendId: pg.id || pg.__backendId,
+          id: pg.id || pg.__backendId,
+          name: document.getElementById('edit-pg-name').value.trim(),
+          razorpayKeyId: document.getElementById('edit-pg-razorpay-key-id').value.trim(),
+          isActive: true
+        };
+        const secretVal = document.getElementById('edit-pg-razorpay-key-secret').value;
+        if (secretVal) payload.razorpayKeySecret = secretVal;
+        const result = await window.dataSdk.update(payload);
+        if (result.isOk) {
+          hideModal();
+          showToast('Payment gateway updated');
+          if (window.dataSdk && window.dataSdk.refreshData) await window.dataSdk.refreshData();
+          renderPaymentGatewaysTable();
+          renderBankAccountsTable();
+        } else {
+          showToast(result.error || 'Failed to update', 'error');
+        }
+      });
+    }
+
+    function confirmDeletePaymentGateway(id) {
+      showModal(`
+        <h3 class="font-display text-xl font-semibold text-theme-primary mb-4">Confirm Delete</h3>
+        <p class="text-theme-secondary mb-6">Are you sure you want to delete this payment gateway? Bank accounts linked to it will no longer use these Razorpay credentials.</p>
+        <div class="flex gap-3">
+          <button onclick="hideModal()" class="flex-1 px-4 py-2 border border-theme-strong text-theme-secondary rounded-lg hover:bg-theme-page">Cancel</button>
+          <button id="confirm-delete-payment-gateway-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg" data-id="${id.replace(/"/g, '&quot;')}">Delete</button>
+        </div>
+      `);
+      document.getElementById('confirm-delete-payment-gateway-btn').addEventListener('click', async () => {
+        const pg = (allData || []).find(d => d.type === 'paymentGateway' && ((d.id || d.__backendId) === id));
+        if (!pg) return;
+        const result = await window.dataSdk.delete(pg);
+        if (result.isOk) {
+          hideModal();
+          showToast('Payment gateway deleted');
+          if (window.dataSdk && window.dataSdk.getCachedData) {
+            const cached = window.dataSdk.getCachedData().filter(d => !(d.type === 'paymentGateway' && ((d.id || d.__backendId) === id)));
+            window.dataSdk.setCachedData && window.dataSdk.setCachedData(cached);
+          }
+          renderPaymentGatewaysTable();
           renderBankAccountsTable();
         } else {
           showToast(result.error || 'Failed to delete', 'error');
@@ -6734,7 +6952,8 @@
         const orderResult = await apiClient.call('createRazorpayOrder', {
           amount: amountPaise,
           receipt: bookingId,
-          currency: 'INR'
+          currency: 'INR',
+          centerId: bookingCenterId
         });
 
         if (!orderResult.isOk) {
@@ -6742,6 +6961,7 @@
           return;
         }
 
+        const paymentGatewayIdForVerify = orderResult.paymentGatewayId || null;
         const options = {
           key: orderResult.keyId,
           amount: orderResult.amount,
@@ -6753,7 +6973,8 @@
               orderId: response.razorpay_order_id,
               paymentId: response.razorpay_payment_id,
               signature: response.razorpay_signature,
-              bookingId: bookingId
+              bookingId: bookingId,
+              paymentGatewayId: paymentGatewayIdForVerify
             });
             if (verifyResult.isOk) {
               showToast('Payment successful! Booking saved.');
@@ -6819,10 +7040,12 @@
 
       try {
         const amountPaise = Math.round(total * 100);
+        const centerIdForGateway = (booking.centerId || '').toString().trim() || null;
         const orderResult = await apiClient.call('createRazorpayOrder', {
           amount: amountPaise,
           receipt: bookingId,
-          currency: 'INR'
+          currency: 'INR',
+          centerId: centerIdForGateway
         });
 
         if (!orderResult.isOk) {
@@ -6830,6 +7053,7 @@
           return;
         }
 
+        const paymentGatewayIdForVerify = orderResult.paymentGatewayId || null;
         const options = {
           key: orderResult.keyId,
           amount: orderResult.amount,
@@ -6846,7 +7070,8 @@
               orderId: response.razorpay_order_id,
               paymentId: response.razorpay_payment_id,
               signature: response.razorpay_signature,
-              bookingId: bookingId
+              bookingId: bookingId,
+              paymentGatewayId: paymentGatewayIdForVerify
             });
 
             if (!verifyResult.isOk) {
@@ -7064,6 +7289,7 @@
       renderSevasGrid();
       renderReportsTable();
       if (typeof renderBankAccountsTable === 'function') renderBankAccountsTable();
+      if (typeof renderPaymentGatewaysTable === 'function') renderPaymentGatewaysTable();
       renderPermissionsPage();
       renderDonorLoginsTable();
       renderDepartmentHeadsTable();
@@ -7368,6 +7594,8 @@
       }
       const addBankAccountBtn = document.getElementById('add-bank-account-btn');
       if (addBankAccountBtn) addBankAccountBtn.addEventListener('click', showAddBankAccountModal);
+      const addPaymentGatewayBtn = document.getElementById('add-payment-gateway-btn');
+      if (addPaymentGatewayBtn) addPaymentGatewayBtn.addEventListener('click', showAddPaymentGatewayModal);
 
       // Download dropdown toggles
       document.getElementById('download-reports-dropdown-btn').addEventListener('click', (e) => {
