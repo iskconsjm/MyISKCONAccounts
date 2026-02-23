@@ -6811,10 +6811,12 @@
         }
 
         const total = cart.reduce((sum, item) => sum + ((parseFloat(item.amount) || 0) * (item.quantity || 1)), 0);
-        // Determine center for booking
+        // Determine center for booking: use the center selected in the booking tab (seva selection) so payment gateway matches
         const isSuperadmin = currentUser.username === 'admin';
-        const bookingCenterId = isSuperadmin ? 'all_centers' : (currentUser.centerId || 'center_bangalore');
-        const collectorCenter = isSuperadmin ? 'all_centers' : currentUser.centerId;
+        const bookingCenterId = (selectedBookingCenterId != null && selectedBookingCenterId !== '')
+          ? selectedBookingCenterId
+          : (isSuperadmin ? 'all_centers' : (currentUser.centerId || 'center_bangalore'));
+        const collectorCenter = isSuperadmin ? 'all_centers' : (currentUser.centerId || '');
         const cashbookEl = document.getElementById('booking-cashbook');
         const chequeBankEl = document.getElementById('booking-cheque-bank');
         const collectedBy = (currentPaymentMode === 'cash' && cashbookEl && cashbookEl.value)
@@ -6924,9 +6926,12 @@
           }
         }
 
+        // Use the center selected in the booking tab so the correct payment gateway is used for Razorpay
         const isSuperadmin = currentUser.username === 'admin';
-        const bookingCenterId = isSuperadmin ? 'all_centers' : (currentUser.centerId || 'center_bangalore');
-        const collectorCenter = isSuperadmin ? 'all_centers' : currentUser.centerId;
+        const bookingCenterId = (selectedBookingCenterId != null && selectedBookingCenterId !== '')
+          ? selectedBookingCenterId
+          : (isSuperadmin ? 'all_centers' : (currentUser.centerId || 'center_bangalore'));
+        const collectorCenter = isSuperadmin ? 'all_centers' : (currentUser.centerId || '');
         const bookingResult = await window.dataSdk.create({
           type: 'booking',
           donorId: finalDonorId,
