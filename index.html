@@ -5267,15 +5267,15 @@
           <input type="hidden" id="edit-bank-account-id" value="${ba.id}">
           <div>
             <label class="block text-sm font-medium text-theme-secondary mb-1">Account name *</label>
-            <input type="text" id="edit-bank-account-name" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" value="${(ba.name || '').replace(/"/g, '&quot;')}" placeholder="e.g. HDFC Main">
+            <input type="text" id="edit-bank-account-name" required class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" value="${String(ba.name != null ? ba.name : '').replace(/"/g, '&quot;')}" placeholder="e.g. HDFC Main">
           </div>
           <div>
             <label class="block text-sm font-medium text-theme-secondary mb-1">Account number</label>
-            <input type="text" id="edit-bank-account-number" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" value="${(ba.accountNumber || '').replace(/"/g, '&quot;')}">
+            <input type="text" id="edit-bank-account-number" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" value="${String(ba.accountNumber != null ? ba.accountNumber : '').replace(/"/g, '&quot;')}">
           </div>
           <div>
             <label class="block text-sm font-medium text-theme-secondary mb-1">Bank name</label>
-            <input type="text" id="edit-bank-account-bank-name" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" value="${(ba.bankName || '').replace(/"/g, '&quot;')}">
+            <input type="text" id="edit-bank-account-bank-name" class="w-full px-4 py-2 border border-theme rounded-lg theme-focus outline-none" value="${String(ba.bankName != null ? ba.bankName : '').replace(/"/g, '&quot;')}">
           </div>
           <div>
             <label class="block text-sm font-medium text-theme-secondary mb-1">Center *</label>
