@@ -664,7 +664,8 @@
            <div class="inline-flex rounded-lg border border-theme overflow-hidden text-xs font-semibold">
             <button type="button" data-mode="cash" class="payment-mode-tab px-3 py-1.5 bg-theme-page text-theme-secondary hover:bg-theme-muted border-r border-theme focus:outline-none">Cash</button>
             <button type="button" data-mode="cheque" class="payment-mode-tab px-3 py-1.5 bg-theme-page text-theme-secondary hover:bg-theme-muted border-r border-theme focus:outline-none">Cheque</button>
-            <button type="button" data-mode="online" class="payment-mode-tab px-3 py-1.5 bg-theme-accent text-white focus:outline-none">Online</button>
+            <button type="button" data-mode="online" class="payment-mode-tab px-3 py-1.5 bg-theme-page text-theme-secondary hover:bg-theme-muted border-r border-theme focus:outline-none">Online</button>
+            <button type="button" data-mode="upi" class="payment-mode-tab px-3 py-1.5 bg-theme-page text-theme-secondary hover:bg-theme-muted border-r border-theme focus:outline-none">UPI</button>
            </div>
            <div id="payment-cash-options" class="mt-3 hidden">
             <label class="block text-sm font-medium text-theme-secondary mb-1">Cashbook</label>
@@ -684,6 +685,14 @@
             <button type="button" id="take-cheque-btn" class="w-full mt-3 bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition">
              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
              Take Cheque
+            </button>
+           </div>
+           <div id="payment-upi-options" class="mt-3 hidden">
+            <label class="block text-sm font-medium text-theme-secondary mb-1">UPI reference (optional)</label>
+            <input type="text" id="booking-upi-reference" class="w-full px-3 py-2 text-sm border border-theme rounded-lg theme-focus outline-none bg-theme-page text-theme-primary" placeholder="e.g. UPI transaction ID or last 4 digits">
+            <button type="button" id="take-upi-btn" class="w-full mt-3 bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition">
+             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+             Take UPI
             </button>
            </div>
           </div>
@@ -1228,7 +1237,7 @@
     let currentUser = null;
     let allData = [];
     let cart = [];
-    // Current booking payment mode: 'online' | 'cash' | 'cheque'
+    // Current booking payment mode: 'online' | 'cash' | 'cheque' | 'upi'
     let currentPaymentMode = 'online';
     // Sevas from API (synced from allData); for Manage Sevas we use this list from API
     let sevasList = [];
@@ -6720,8 +6729,9 @@
       if (options.mode) currentPaymentMode = options.mode;
       const isCash = currentPaymentMode === 'cash';
       const isCheque = currentPaymentMode === 'cheque';
-      const btn = isCash ? document.getElementById('take-cash-btn') : isCheque ? document.getElementById('take-cheque-btn') : document.getElementById('save-booking-btn');
-      const btnDefaultText = isCash ? 'Take Cash' : isCheque ? 'Take Cheque' : 'Save Booking';
+      const isUpi = currentPaymentMode === 'upi';
+      const btn = isCash ? document.getElementById('take-cash-btn') : isCheque ? document.getElementById('take-cheque-btn') : isUpi ? document.getElementById('take-upi-btn') : document.getElementById('save-booking-btn');
+      const btnDefaultText = isCash ? 'Take Cash' : isCheque ? 'Take Cheque' : isUpi ? 'Take UPI' : 'Save Booking';
 
       const donorId = document.getElementById('donor-id').value;
       const name = document.getElementById('donor-name').value.trim();
@@ -6756,6 +6766,10 @@
         }
       }
 
+      if (currentPaymentMode === 'upi') {
+        // No mandatory fields; optional UPI reference can be added to remarks
+      }
+
       if (allData.length >= 999) {
         showToast('Maximum data limit reached. Please contact administrator.', 'error');
         return;
@@ -6763,7 +6777,7 @@
 
       if (btn) {
         btn.disabled = true;
-        btn.textContent = isCash ? 'Taking cash...' : isCheque ? 'Taking cheque...' : 'Saving...';
+        btn.textContent = isCash ? 'Taking cash...' : isCheque ? 'Taking cheque...' : isUpi ? 'Taking UPI...' : 'Saving...';
       }
 
       try {
@@ -6825,7 +6839,11 @@
         const chequeBankAccountId = (currentPaymentMode === 'cheque' && chequeBankEl && chequeBankEl.value)
           ? chequeBankEl.value
           : '';
-        const isPaidNow = currentPaymentMode === 'cash' || currentPaymentMode === 'cheque';
+        const upiRefEl = document.getElementById('booking-upi-reference');
+        const upiRef = (currentPaymentMode === 'upi' && upiRefEl && upiRefEl.value) ? upiRefEl.value.trim() : '';
+        const remarksBase = document.getElementById('booking-remarks').value.trim();
+        const remarks = (currentPaymentMode === 'upi' && upiRef) ? (remarksBase ? remarksBase + ' | UPI ref: ' + upiRef : 'UPI ref: ' + upiRef) : remarksBase;
+        const isPaidNow = currentPaymentMode === 'cash' || currentPaymentMode === 'cheque' || currentPaymentMode === 'upi';
         const paidAt = isPaidNow ? new Date().toISOString() : '';
         
         const bookingResult = await window.dataSdk.create({
@@ -6841,16 +6859,18 @@
           collectedByCenter: collectorCenter,
           chequeBankAccountId: chequeBankAccountId,
           paidAt: paidAt,
-          remarks: document.getElementById('booking-remarks').value.trim(),
+          remarks: remarks,
           createdAt: new Date().toISOString()
         });
 
         if (bookingResult.isOk) {
-          showToast(isPaidNow ? (currentPaymentMode === 'cash' ? 'Cash received and booking saved!' : 'Cheque received and booking saved!') : 'Booking saved successfully!');
+          showToast(isPaidNow ? (currentPaymentMode === 'cash' ? 'Cash received and booking saved!' : currentPaymentMode === 'cheque' ? 'Cheque received and booking saved!' : 'UPI received and booking saved!') : 'Booking saved successfully!');
           cart = [];
           clearDonorForm();
           const remarksEl = document.getElementById('booking-remarks');
           if (remarksEl) remarksEl.value = '';
+          const upiRefEl = document.getElementById('booking-upi-reference');
+          if (upiRefEl) upiRefEl.value = '';
           renderCart();
           renderSlidingSevaList();
         } else {
@@ -7453,6 +7473,8 @@
       document.getElementById('save-booking-btn').addEventListener('click', () => saveBooking());
       document.getElementById('take-cash-btn').addEventListener('click', () => saveBooking({ mode: 'cash' }));
       document.getElementById('take-cheque-btn').addEventListener('click', () => saveBooking({ mode: 'cheque' }));
+      const takeUpiBtn = document.getElementById('take-upi-btn');
+      if (takeUpiBtn) takeUpiBtn.addEventListener('click', () => saveBooking({ mode: 'upi' }));
       document.getElementById('razorpay-btn').addEventListener('click', openRazorpay);
       // Payment mode micro-tabs and cash/cheque options
       (function() {
@@ -7463,6 +7485,7 @@
         const saveBtn = document.getElementById('save-booking-btn');
         const cashOptions = document.getElementById('payment-cash-options');
         const chequeOptions = document.getElementById('payment-cheque-options');
+        const upiOptions = document.getElementById('payment-upi-options');
         const cashbookSelect = document.getElementById('booking-cashbook');
         const chequeBankSelect = document.getElementById('booking-cheque-bank');
         
@@ -7530,6 +7553,7 @@
           }
           if (cashOptions) cashOptions.classList.toggle('hidden', mode !== 'cash');
           if (chequeOptions) chequeOptions.classList.toggle('hidden', mode !== 'cheque');
+          if (upiOptions) upiOptions.classList.toggle('hidden', mode !== 'upi');
           if (mode === 'cash') populateCashbookDropdown();
           if (mode === 'cheque') populateChequeBankDropdown();
         }
